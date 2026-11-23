@@ -109,7 +109,7 @@ const TONE: Record<
     dot: "bg-rose-500",
   },
   indigo: {
-    grad: "from-[#1E1B4B] via-[#3730A3] to-[#6366F1]",
+    grad: "from-[#7A2E00] via-[#D95F00] to-[#FF7A1A]",
     soft: "bg-indigo-50",
     text: "text-indigo-700",
     ring: "ring-indigo-200",
@@ -1055,7 +1055,7 @@ function EstablishmentCard({
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-card transition-all hover:-translate-y-0.5 hover:shadow-pop">
       <div className={cn("relative h-20 bg-gradient-to-br", tone.grad)}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.25),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,248,234,0.25),transparent_55%)]" />
         <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur">
           <Icon size={18} />
         </span>

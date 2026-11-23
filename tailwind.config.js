@@ -9,26 +9,14 @@ export default {
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       colors: {
-        /* — palette PAYZIK : crème, encre nuit, orange corporate. Jamais de noir/blanc pur. — */
+        /* — palette PAYZIK : orange dominant, crème, brun chaud. Jamais de noir/blanc pur. — */
         white: "#FFF8EA",
-        black: "#0A2230",
+        black: "#3A2A1F",
         cream: "#FFF8EA",
         sand: "#F4EDDF",
-        night: {
-          DEFAULT: "#0A2230",
-          deep: "#061A24",
-          soft: "#104050",
-        },
-        navy: {
-          DEFAULT: "#0B2E3E",
-          deep: "#071D28",
-          soft: "#15465A",
-        },
-        teal: {
-          DEFAULT: "#00C7A5",
-          glow: "#5CF2D0",
-          deep: "#009C82",
-        },
+        night: { DEFAULT: "#3A2A1F", deep: "#241A12", soft: "#5A4230" },
+        navy: { DEFAULT: "#3A2A1F", deep: "#241A12", soft: "#5A4230" },
+        teal: { DEFAULT: "#FF7A1A", glow: "#FFB27A", deep: "#D95F00" },
         orange: {
           DEFAULT: "#FF7A1A",
           deep: "#D95F00",
@@ -40,9 +28,35 @@ export default {
           dark: "#E85542",
           soft: "rgba(255,107,87,0.14)",
         },
-        gold: {
-          DEFAULT: "#F5B942",
-          soft: "rgba(245,185,66,0.16)",
+        gold: { DEFAULT: "#F5B942", soft: "rgba(245,185,66,0.16)" },
+        /* toutes les anciennes familles sont réinterprétées en orange/chaud :
+           aucun bleu ni vert ne subsiste dans l'interface. */
+        emerald: {
+          50: "#FFF3E8", 100: "#FFE4CC", 200: "#FFC999", 300: "#FFAE66",
+          400: "#FF9333", 500: "#FF7A1A", 600: "#E85F00", 700: "#B84800",
+          800: "#8A3500", 900: "#5C2400", DEFAULT: "#FF7A1A",
+        },
+        rose: {
+          50: "#FFF2F0", 100: "#FFE2DD", 200: "#FFC5BB", 300: "#FFA08E",
+          400: "#FF8069", 500: "#FF6B57", 600: "#E85542", 700: "#B93E2E",
+          800: "#8A2E22", 900: "#5C1F18", DEFAULT: "#FF6B57",
+        },
+        amber: {
+          50: "#FFF8E6", 100: "#FFF0CC", 200: "#FFE099", 300: "#FFCB66",
+          400: "#FFB942", 500: "#F5A623", 600: "#D98700", 700: "#A86800",
+          800: "#7A4C00", 900: "#4F3100", DEFAULT: "#F5A623",
+        },
+        slate: {
+          50: "#FBF7F0", 100: "#F4EDDF", 200: "#E7DCC9", 300: "#D3C3A9",
+          400: "#A99476", 500: "#8B7458", 600: "#6E5A43", 700: "#544433",
+          800: "#3A2F24", 900: "#241D16", DEFAULT: "#8B7458",
+        },
+        sky: { 400: "#FFB27A", 500: "#FF9333", 600: "#FF7A1A", DEFAULT: "#FF7A1A" },
+        cyan: { 400: "#F5B942", 500: "#FF7A1A", 600: "#D95F00", DEFAULT: "#FF7A1A" },
+        fuchsia: { 400: "#FF8A70", 500: "#FF6B57", 600: "#E85542", DEFAULT: "#FF6B57" },
+        indigo: {
+          50: "#FFF3E8", 100: "#FFE4CC", 200: "#FFC999",
+          500: "#FF7A1A", 600: "#D95F00", 700: "#B84800", DEFAULT: "#FF7A1A",
         },
         brand: {
           DEFAULT: "#FF7A1A",
@@ -63,11 +77,11 @@ export default {
         line: "var(--c-line)",
       },
       boxShadow: {
-        card: "0 2px 12px rgba(10,34,48,0.07)",
-        pop: "0 12px 40px rgba(10,34,48,0.16)",
-        "pop-dark": "0 12px 40px rgba(10,34,48,0.45)",
-        glow: "0 0 24px rgba(255,122,26,0.35), 0 6px 20px rgba(255,122,26,0.25)",
-        "inner-fine": "inset 0 0 0 1px rgba(10,34,48,0.07)",
+        card: "0 2px 12px rgba(58,42,31,0.08)",
+        pop: "0 12px 40px rgba(58,42,31,0.18)",
+        "pop-dark": "0 12px 40px rgba(58,42,31,0.42)",
+        glow: "0 0 24px rgba(255,122,26,0.38), 0 6px 20px rgba(255,122,26,0.28)",
+        "inner-fine": "inset 0 0 0 1px rgba(58,42,31,0.08)",
       },
       keyframes: {
         wave: {

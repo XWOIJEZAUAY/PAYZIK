@@ -12,18 +12,18 @@
   --c-bg: #f4eddf; /* sable chaud */
   --c-surface: #fffbf2; /* crème */
   --c-surface-2: #ede4d3;
-  --c-ink: #0a2230; /* encre nuit */
-  --c-muted: #5c7180;
-  --c-line: rgba(10, 34, 48, 0.12);
+  --c-ink: #3a2a1f; /* encre chaude */
+  --c-muted: #8b7458;
+  --c-line: rgba(58, 42, 31, 0.14);
 }
 
 .dark {
-  --c-bg: #0a2230;
-  --c-surface: #102d3c;
-  --c-surface-2: #173b4c;
+  --c-bg: #241a12;
+  --c-surface: #3a2a1f;
+  --c-surface-2: #5a4230;
   --c-ink: #fff8ea;
-  --c-muted: #a8bcc4;
-  --c-line: rgba(255, 248, 234, 0.1);
+  --c-muted: #d3c3a9;
+  --c-line: rgba(255, 248, 234, 0.12);
 }
 
 @layer base {

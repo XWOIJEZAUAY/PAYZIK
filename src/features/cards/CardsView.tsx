@@ -283,9 +283,9 @@ function CardDetailModal({
     const w = window.open("", "_blank", "width=420,height=620");
     if (!w) return;
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Carte ${card.code}</title>
-      <style>body{font-family:ui-sans-serif,Arial;text-align:center;padding:24px;color:#0F172A}
+      <style>body{font-family:ui-sans-serif,Arial;text-align:center;padding:24px;color:#3A2A1F}
       .code{font-size:22px;font-weight:800;letter-spacing:2px;margin:8px 0}
-      .name{font-size:20px;font-weight:800}.sub{color:#64748b;font-size:12px}
+      .name{font-size:20px;font-weight:800}.sub{color:#8B7458;font-size:12px}
       img{width:260px;height:260px}@media print{.noprint{display:none}}</style></head>
       <body><div class="name">${card.name}</div><div class="sub">Carte PAYZIK recyclable</div>
       <img src="${qr}"/><div class="code">${card.code}</div>

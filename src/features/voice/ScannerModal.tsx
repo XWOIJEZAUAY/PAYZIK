@@ -129,7 +129,7 @@ export function ScannerModal({
             <span key={pos} className={`absolute h-7 w-7 rounded-sm border-brand ${pos}`} />
           ))}
           {phase === "thinking" && (
-            <span className="absolute left-2 right-2 h-0.5 animate-scan-line rounded bg-brand shadow-[0_0_12px_#4F46E5]" />
+            <span className="absolute left-2 right-2 h-0.5 animate-scan-line rounded bg-brand shadow-[0_0_12px_#FF7A1A]" />
           )}
         </div>
         {/* état */}

@@ -484,10 +484,10 @@ export function AgentChat({
             onClick={() => setReceiptOpen(false)}
           />
           <div
-            className="relative w-full max-w-sm origin-top animate-[paperUnfold_.55s_cubic-bezier(.2,.8,.2,1)_both] rounded-sm bg-cream p-5 text-ink shadow-[0_20px_60px_rgba(10,34,48,0.35)]"
+            className="relative w-full max-w-sm origin-top animate-[paperUnfold_.55s_cubic-bezier(.2,.8,.2,1)_both] rounded-sm bg-cream p-5 text-ink shadow-[0_20px_60px_rgba(58,42,31,0.35)]"
             style={{
               backgroundImage:
-                "repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(10,34,48,0.06) 23px, rgba(10,34,48,0.06) 24px)",
+                "repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(58,42,31,0.06) 23px, rgba(58,42,31,0.06) 24px)",
             }}
           >
             <button

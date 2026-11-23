@@ -738,7 +738,7 @@ export function QrCode({
       margin: 1,
       width: size * 2,
       errorCorrectionLevel: "M",
-      color: { dark: "#0A2230", light: "#FFF8EA" },
+      color: { dark: "#3A2A1F", light: "#FFF8EA" },
     })
       .then((url) => {
         if (alive) setSrc(url);

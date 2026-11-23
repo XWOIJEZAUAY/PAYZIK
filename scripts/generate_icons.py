@@ -8,7 +8,7 @@ OUT = ROOT / "public" / "icons"
 ANDROID = ROOT / "android" / "app" / "src" / "main" / "res"
 OUT.mkdir(parents=True, exist_ok=True)
 
-INK = (10, 34, 48)
+INK = (58, 42, 31)
 ORANGE = (255, 122, 26)
 ORANGE_DEEP = (217, 95, 0)
 CREAM = (255, 248, 234)
@@ -101,7 +101,7 @@ if bg.exists():
     bg.write_text(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         "<resources>\n"
-        '    <color name="ic_launcher_background">#0A2230</color>\n'
+        '    <color name="ic_launcher_background">#3A2A1F</color>\n'
         "</resources>\n",
         encoding="utf-8",
     )
