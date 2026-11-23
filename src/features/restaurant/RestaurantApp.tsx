@@ -195,24 +195,24 @@ export function RestaurantApp({
   return (
     <div className="min-h-screen bg-canvas">
       {/* ---------------- barre haute ---------------- */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-night">
+      <header className="sticky top-0 z-30 border-b border-ink/10 bg-cream/95 backdrop-blur">
         <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <BoltIcon size={26} />
-            <span className="text-[19px] font-black tracking-tight text-white">PAYZIK</span>
+            <span className="text-[19px] font-black tracking-tight text-ink">PAYZIK</span>
           </div>
-          <span className="hidden items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300 sm:inline-flex">
+          <span className="hidden items-center gap-2 rounded-full border border-gold/30 bg-gold/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gold sm:inline-flex">
             <ChefHat size={12} /> Dar Zitoun
           </span>
 
           <div className="ml-auto flex items-center gap-2.5">
-            <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 md:inline-flex">
+            <span className="hidden items-center gap-1.5 rounded-full border border-ink/10 bg-sand/70 px-3 py-1.5 text-[11px] font-semibold text-muted md:inline-flex">
               <StatusDot tone="emerald">Service connecté</StatusDot>
             </span>
             <Button
               variant="ghost"
               onClick={onSwitchProfile}
-              className="!px-3 !py-2 text-xs !text-white/70 hover:!bg-white/10 hover:!text-white"
+              className="!px-3 !py-2 text-xs !text-muted hover:!bg-violet/10 hover:!text-violet-deep"
             >
               Changer de profil
             </Button>
@@ -224,31 +224,31 @@ export function RestaurantApp({
             onClick={() => setTab("order")}
             className={cn(
               "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-              tab === "order" ? "text-white" : "text-white/45 hover:text-white/75",
+              tab === "order" ? "text-violet-deep" : "text-muted hover:text-ink",
             )}
           >
-            <UtensilsCrossed size={15} className={tab === "order" ? "text-teal" : ""} />
+            <UtensilsCrossed size={15} className={tab === "order" ? "text-violet" : ""} />
             Commander à table
             {tab === "order" && (
-              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-teal" />
+              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
             )}
           </button>
           <button
             onClick={() => setTab("service")}
             className={cn(
               "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-              tab === "service" ? "text-white" : "text-white/45 hover:text-white/75",
+              tab === "service" ? "text-violet-deep" : "text-muted hover:text-ink",
             )}
           >
-            <ChefHat size={15} className={tab === "service" ? "text-teal" : ""} />
+            <ChefHat size={15} className={tab === "service" ? "text-violet" : ""} />
             Cuisine & service
             {activeOrders.length > 0 && (
-              <span className="rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+              <span className="rounded-full bg-gold/20 px-1.5 py-0.5 text-[10px] font-bold text-gold">
                 {activeOrders.length}
               </span>
             )}
             {tab === "service" && (
-              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-teal" />
+              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
             )}
           </button>
         </div>

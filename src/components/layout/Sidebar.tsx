@@ -30,7 +30,7 @@ export function Sidebar({
   kridiBadge?: number;
 }) {
   return (
-    <nav className="hidden w-[220px] shrink-0 flex-col gap-1 bg-night p-3 lg:flex">
+    <nav className="hidden w-[220px] shrink-0 flex-col gap-1 border-r border-ink/10 bg-sand p-3 lg:flex">
       {ITEMS.map(({ view: v, label, icon: Icon }) => (
         <button
           key={v}
@@ -38,25 +38,25 @@ export function Sidebar({
           className={cn(
             "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition-all duration-150",
             view === v
-              ? "bg-white/10 text-white"
-              : "text-slate-400 hover:bg-white/5 hover:text-white",
+              ? "bg-cream text-violet-deep shadow-card"
+              : "text-muted hover:bg-cream hover:text-ink",
           )}
         >
           <Icon
             size={17}
             className={cn(
               "transition-colors",
-              view === v ? "text-teal" : "text-slate-500 group-hover:text-slate-300",
+              view === v ? "text-violet" : "text-muted group-hover:text-ink",
             )}
           />
           {label}
           {v === "kridi" && (kridiBadge ?? 0) > 0 && (
-            <span className="ml-auto rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+            <span className="ml-auto rounded-full bg-violet/12 px-1.5 py-0.5 text-[10px] font-bold text-violet-deep">
               {kridiBadge}
             </span>
           )}
           {view === v && (
-            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-teal" />
+            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-violet" />
           )}
         </button>
       ))}

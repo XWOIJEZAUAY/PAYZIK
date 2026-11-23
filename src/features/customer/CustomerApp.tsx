@@ -191,25 +191,25 @@ export function CustomerApp({
   return (
     <div className="min-h-screen bg-canvas">
       {/* ---------------- barre haute ---------------- */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-night">
+      <header className="sticky top-0 z-30 border-b border-ink/10 bg-cream/95 backdrop-blur">
         <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <BoltIcon size={26} />
-            <span className="text-[19px] font-black tracking-tight text-white">PAYZIK</span>
+            <span className="text-[19px] font-black tracking-tight text-ink">PAYZIK</span>
           </div>
-          <span className="hidden rounded-full border border-teal/30 bg-teal/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-teal sm:inline">
+          <span className="hidden rounded-full border border-violet/25 bg-violet/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-violet-deep sm:inline">
             Espace client
           </span>
 
           <div className="ml-auto flex items-center gap-2.5">
-            <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 md:inline-flex">
-              <Wifi size={12} className="text-teal" /> Réseau connecté ·{" "}
+            <span className="hidden items-center gap-1.5 rounded-full border border-ink/10 bg-sand/70 px-3 py-1.5 text-[11px] font-semibold text-muted md:inline-flex">
+              <Wifi size={12} className="text-violet" /> Réseau connecté ·{" "}
               {network.establishments.length} partenaires
             </span>
             <Button
               variant="ghost"
               onClick={onSwitchProfile}
-              className="!px-3 !py-2 text-xs !text-white/70 hover:!bg-white/10 hover:!text-white"
+              className="!px-3 !py-2 text-xs !text-muted hover:!bg-violet/10 hover:!text-violet-deep"
             >
               Changer de profil
             </Button>
@@ -224,13 +224,13 @@ export function CustomerApp({
               onClick={() => setTab(id)}
               className={cn(
                 "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-                tab === id ? "text-white" : "text-white/45 hover:text-white/75",
+                tab === id ? "text-violet-deep" : "text-muted hover:text-ink",
               )}
             >
-              <Icon size={15} className={tab === id ? "text-teal" : ""} />
+              <Icon size={15} className={tab === id ? "text-violet" : ""} />
               {label}
               {tab === id && (
-                <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-teal" />
+                <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
               )}
             </button>
           ))}
@@ -1064,7 +1064,7 @@ function EstablishmentCard({
             {e.promo}
           </span>
         )}
-        <span className="absolute right-3 top-3 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
+        <span className="absolute right-3 top-3 rounded-full bg-night/30 px-2 py-0.5 text-[10px] font-bold text-cream backdrop-blur">
           {e.cashbackPct}% cashback
         </span>
       </div>

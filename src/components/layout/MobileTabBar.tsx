@@ -25,7 +25,6 @@ const MORE: { view: View; label: string; icon: typeof Mic }[] = [
   { view: "settings", label: "Paramètres", icon: Settings },
 ];
 
-/** Barre d'onglets basse, affichée seulement sur téléphone (< lg). */
 export function MobileTabBar({
   view,
   onChange,
@@ -47,21 +46,23 @@ export function MobileTabBar({
     <>
       {moreOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-night/30 lg:hidden"
           onClick={() => setMoreOpen(false)}
           aria-hidden
         />
       )}
 
       {moreOpen && (
-        <div className="fixed inset-x-2 bottom-[calc(env(safe-area-inset-bottom)_+_4rem)] z-50 rounded-2xl border border-white/10 bg-night-soft p-2 shadow-2xl lg:hidden">
+        <div className="fixed inset-x-2 bottom-[calc(env(safe-area-inset-bottom)_+_4rem)] z-50 rounded-2xl border border-ink/10 bg-cream p-2 shadow-pop lg:hidden">
           {MORE.map(({ view: v, label, icon: Icon }) => (
             <button
               key={v}
               onClick={() => go(v)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold",
-                view === v ? "bg-white/10 text-teal" : "text-slate-300",
+                view === v
+                  ? "bg-violet/10 text-violet-deep"
+                  : "text-muted hover:bg-sand/70 hover:text-ink",
               )}
             >
               <Icon size={18} /> {label}
@@ -70,7 +71,7 @@ export function MobileTabBar({
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-white/10 bg-night/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-ink/10 bg-cream/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {MAIN.map(({ view: v, label, icon: Icon }) => (
           <button
             key={v}
@@ -78,19 +79,19 @@ export function MobileTabBar({
             aria-current={view === v ? "page" : undefined}
             className={cn(
               "relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors",
-              view === v ? "text-teal" : "text-slate-400",
+              view === v ? "text-violet-deep" : "text-muted",
             )}
           >
             <span className="relative">
               <Icon size={21} strokeWidth={view === v ? 2.4 : 1.9} />
               {v === "kridi" && kridiBadge > 0 && (
-                <span className="absolute -right-2.5 -top-1.5 rounded-full bg-amber-500 px-1.5 text-[9px] font-black text-[#251500]">
+                <span className="absolute -right-2.5 -top-1.5 rounded-full bg-gold px-1.5 text-[9px] font-black text-night">
                   {kridiBadge}
                 </span>
               )}
             </span>
             {label}
-            {view === v && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-teal" />}
+            {view === v && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-violet" />}
           </button>
         ))}
 
@@ -99,12 +100,12 @@ export function MobileTabBar({
           aria-expanded={moreOpen}
           className={cn(
             "relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors",
-            extraActive ? "text-teal" : "text-slate-400",
+            extraActive ? "text-violet-deep" : "text-muted",
           )}
         >
           <MoreHorizontal size={21} strokeWidth={extraActive ? 2.4 : 1.9} />
           Plus
-          {extraActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-teal" />}
+          {extraActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-violet" />}
         </button>
       </nav>
     </>
