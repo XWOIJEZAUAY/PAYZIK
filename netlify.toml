@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Repli SPA (identique à public/_redirects, gardé pour Netlify)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

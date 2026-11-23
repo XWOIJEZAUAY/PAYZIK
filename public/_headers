@@ -1,0 +1,18 @@
+# En-têtes PWA / cache — appliqués par Netlify et Cloudflare Pages
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sw.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=0, must-revalidate
+
+/offline.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,39 @@
+{
+  "name": "PAYZIK — Le réseau des commerces connectés",
+  "short_name": "PAYZIK",
+  "description": "Caisse intelligente, portefeuille, cartes PAYZIK, kridi et offres du réseau.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B2846",
+  "theme_color": "#0B2846",
+  "lang": "fr",
+  "categories": ["finance", "business", "shopping"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

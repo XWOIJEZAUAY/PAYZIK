@@ -1,0 +1,81 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   PAYZIK — design tokens (source unique de couleur).
+   Thème clair par défaut ; .dark sur <html> pour le sombre.
+   ============================================================ */
+:root {
+  --c-bg: #f8fafc; /* Slate 50 */
+  --c-surface: #ffffff;
+  --c-surface-2: #f1f5f9;
+  --c-ink: #0b2846; /* Primary Navy */
+  --c-muted: #5b7086;
+  --c-line: rgba(11, 40, 70, 0.12);
+}
+
+.dark {
+  --c-bg: #070f18;
+  --c-surface: #0c1a2b;
+  --c-surface-2: #11233a;
+  --c-ink: #e8f0f8;
+  --c-muted: #8fa6bd;
+  --c-line: rgba(255, 255, 255, 0.09);
+}
+
+@layer base {
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--c-bg);
+    color: var(--c-ink);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  * {
+    border-color: var(--c-line);
+  }
+  :focus-visible {
+    outline: 2px solid #01ccb6;
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgba(1, 204, 182, 0.3);
+  }
+}
+
+@layer utilities {
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  /* montants financiers : mono crisp (charte typographique PAYZIK) */
+  .money {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--c-line);
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  /* iOS : respecte la zone sûre (encoche / barre d'outils Safari). */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}

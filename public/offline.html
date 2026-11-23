@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B2846" />
+    <title>PAYZIK — Hors ligne</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: #0B2846;
+        color: #fff;
+        font-family: Inter, system-ui, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      .box { max-width: 340px; }
+      .mark {
+        width: 72px; height: 72px; margin: 0 auto 20px;
+        display: grid; place-items: center;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #01ccb6, #4f46e5);
+        font-size: 34px; font-weight: 900;
+      }
+      h1 { font-size: 20px; margin: 0 0 8px; }
+      p { font-size: 14px; line-height: 1.6; color: #a9bed2; margin: 0; }
+      button {
+        margin-top: 24px; padding: 12px 20px;
+        border: 0; border-radius: 12px;
+        background: #01ccb6; color: #06202f;
+        font-weight: 800; cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="mark">P</div>
+      <h1>PAYZIK est hors ligne</h1>
+      <p>Les données de cette caisse restent sur ton appareil. Reconnecte-toi au réseau pour recharger l'application.</p>
+      <button onclick="location.reload()">Réessayer</button>
+    </div>
+  </body>
+</html>
