@@ -81,11 +81,11 @@ const TONE: Record<
   { grad: string; soft: string; text: string; ring: string; dot: string }
 > = {
   navy: {
-    grad: "from-violet-deep via-violet to-violet-glow",
-    soft: "bg-violet/10",
-    text: "text-violet-deep",
-    ring: "ring-violet/25",
-    dot: "bg-violet",
+    grad: "from-orange-deep via-orange to-orange-glow",
+    soft: "bg-orange/10",
+    text: "text-orange-deep",
+    ring: "ring-orange/25",
+    dot: "bg-orange",
   },
   teal: {
     grad: "from-teal-deep via-teal to-teal-glow",
@@ -197,19 +197,19 @@ export function CustomerApp({
             <BoltIcon size={26} />
             <span className="text-[19px] font-black tracking-tight text-ink">PAYZIK</span>
           </div>
-          <span className="hidden rounded-full border border-violet/25 bg-violet/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-violet-deep sm:inline">
+          <span className="hidden rounded-full border border-orange/25 bg-orange/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-orange-deep sm:inline">
             Espace client
           </span>
 
           <div className="ml-auto flex items-center gap-2.5">
             <span className="hidden items-center gap-1.5 rounded-full border border-ink/10 bg-sand/70 px-3 py-1.5 text-[11px] font-semibold text-muted md:inline-flex">
-              <Wifi size={12} className="text-violet" /> Réseau connecté ·{" "}
+              <Wifi size={12} className="text-orange" /> Réseau connecté ·{" "}
               {network.establishments.length} partenaires
             </span>
             <Button
               variant="ghost"
               onClick={onSwitchProfile}
-              className="!px-3 !py-2 text-xs !text-muted hover:!bg-violet/10 hover:!text-violet-deep"
+              className="!px-3 !py-2 text-xs !text-muted hover:!bg-orange/10 hover:!text-orange-deep"
             >
               Changer de profil
             </Button>
@@ -224,13 +224,13 @@ export function CustomerApp({
               onClick={() => setTab(id)}
               className={cn(
                 "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-                tab === id ? "text-violet-deep" : "text-muted hover:text-ink",
+                tab === id ? "text-orange-deep" : "text-muted hover:text-ink",
               )}
             >
-              <Icon size={15} className={tab === id ? "text-violet" : ""} />
+              <Icon size={15} className={tab === id ? "text-orange" : ""} />
               {label}
               {tab === id && (
-                <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
+                <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-orange" />
               )}
             </button>
           ))}
@@ -382,7 +382,7 @@ function HomeView({
       <div className="grid gap-5 lg:grid-cols-[1.45fr_1fr]">
         <div className="space-y-5">
           {/* carte + actions */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-violet-deep p-5 text-white shadow-pop sm:p-6">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-orange-deep p-5 text-white shadow-pop sm:p-6">
             <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-teal/20 blur-3xl" />
             <div className="relative flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -490,7 +490,7 @@ function HomeView({
                     key={o.id}
                     className="flex items-center gap-3 rounded-xl border bg-surface2/50 px-3 py-2.5"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy text-[13px] font-black text-teal-glow">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy text-[13px] font-black text-orange-glow">
                       {o.tableNo}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -752,7 +752,7 @@ function WalletView({
     <div className="animate-fade-up grid gap-5 lg:grid-cols-[1.1fr_1fr]">
       <div className="space-y-4">
         {/* carte */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-violet-deep p-6 text-white shadow-pop">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-orange-deep p-6 text-white shadow-pop">
           <div className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-teal/20 blur-3xl" />
           <div className="relative flex items-start justify-between">
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">
@@ -1000,7 +1000,7 @@ function NetworkView({
             className={cn(
               "rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all",
               filter === f.id
-                ? "border-transparent bg-navy text-white"
+                ? "border-transparent bg-orange text-night"
                 : "bg-surface text-muted hover:border-teal/40 hover:text-ink",
             )}
           >
@@ -1355,7 +1355,7 @@ function DashboardView({
                 key={o.id}
                 className="flex items-center gap-3 rounded-xl border bg-surface2/40 px-3 py-2.5"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy text-[13px] font-black text-teal-glow">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy text-[13px] font-black text-orange-glow">
                   {o.tableNo}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -1587,7 +1587,7 @@ function MenuModal({
                         ) : null}
                         <button
                           onClick={() => setCart((c) => ({ ...c, [m.id]: (c[m.id] ?? 0) + 1 }))}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-navy text-white hover:bg-navy-soft"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange text-night hover:bg-orange-deep"
                         >
                           <Plus size={12} />
                         </button>

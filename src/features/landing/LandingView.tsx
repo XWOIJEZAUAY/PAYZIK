@@ -31,9 +31,9 @@ const ROLES: {
     text: "Encaisse, suis ton stock et ton kridi. La carte PAYZIK passe partout.",
     bullets: ["Encaissement rapide", "Stock et dettes en direct", "Cartes acceptées"],
     cta: "Ouvrir ma caisse",
-    glow: "from-violet/30 to-transparent",
-    ring: "hover:border-violet/60",
-    tile: "bg-violet text-cream",
+    glow: "from-orange/30 to-transparent",
+    ring: "hover:border-orange/60",
+    tile: "bg-orange text-cream",
   },
   {
     role: "customer",
@@ -65,7 +65,7 @@ export function LandingView({ onSelect }: { onSelect: (role: Role) => void }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-night text-cream">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 -top-40 h-[560px] w-[560px] rounded-full bg-violet/25 blur-[130px]" />
+        <div className="absolute -left-40 -top-40 h-[560px] w-[560px] rounded-full bg-orange/25 blur-[130px]" />
         <div className="absolute -bottom-56 right-0 h-[520px] w-[520px] rounded-full bg-coral/15 blur-[130px]" />
         <div
           className="absolute inset-0 opacity-[0.05]"
@@ -84,20 +84,20 @@ export function LandingView({ onSelect }: { onSelect: (role: Role) => void }) {
             <BoltIcon size={30} />
             <span className="text-[22px] font-black tracking-tight">PAYZIK</span>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-violet/30 bg-violet/10 px-3.5 py-1.5 text-xs font-bold text-violet-glow">
+          <span className="inline-flex items-center gap-2 rounded-full border border-orange/30 bg-orange/10 px-3.5 py-1.5 text-xs font-bold text-orange-glow">
             <Wifi size={14} /> Réseau actif
           </span>
         </header>
 
         <main className="grid flex-1 items-center gap-12 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
           <section className="max-w-xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-violet/30 bg-violet/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-violet-glow">
+            <p className="inline-flex items-center gap-2 rounded-full border border-orange/30 bg-orange/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-orange-glow">
               <ShieldCheck size={14} /> Le réseau des commerces du Maroc
             </p>
             <h1 className="mt-6 text-[42px] font-black leading-[1.03] tracking-tight sm:text-[58px]">
               Un seul solde.
               <br />
-              <span className="bg-gradient-to-r from-violet-glow via-violet to-coral bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-glow via-orange to-coral bg-clip-text text-transparent">
                 Tous tes commerces.
               </span>
             </h1>
@@ -141,7 +141,7 @@ export function LandingView({ onSelect }: { onSelect: (role: Role) => void }) {
                       <Icon size={22} strokeWidth={2} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-glow">
+                      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-orange-glow">
                         {r.kicker}
                       </p>
                       <h2 className="mt-1 text-xl font-black tracking-tight">{r.title}</h2>
@@ -149,11 +149,11 @@ export function LandingView({ onSelect }: { onSelect: (role: Role) => void }) {
                       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
                         {r.bullets.map((b) => (
                           <li key={b} className="flex items-center gap-1.5 text-xs font-semibold text-cream/75">
-                            <Check size={13} className="text-violet-glow" /> {b}
+                            <Check size={13} className="text-orange-glow" /> {b}
                           </li>
                         ))}
                       </ul>
-                      <p className="mt-3 flex items-center gap-1.5 text-xs font-black text-violet-glow">
+                      <p className="mt-3 flex items-center gap-1.5 text-xs font-black text-orange-glow">
                         {r.cta} <ArrowRight size={14} />
                       </p>
                     </div>

@@ -6,7 +6,7 @@ kridi, restaurant et carte PAYZIK dans une seule application.
 ## Identité visuelle
 
 Palette officielle : crème `#FFF8EA`, sable `#F4EDDF`, encre nuit `#0A2230`,
-violet `#7C5CFF` (couleur principale), menthe pour les états positifs, corail
+orange `#FF7A1A` (couleur principale), menthe pour les états positifs, corail
 et or pour les offres. Aucun noir ni blanc pur n'est utilisé.
 
 ## Démarrage

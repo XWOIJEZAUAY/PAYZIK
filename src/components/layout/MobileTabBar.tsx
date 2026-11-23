@@ -61,7 +61,7 @@ export function MobileTabBar({
               className={cn(
                 "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold",
                 view === v
-                  ? "bg-violet/10 text-violet-deep"
+                  ? "bg-orange/10 text-orange-deep"
                   : "text-muted hover:bg-sand/70 hover:text-ink",
               )}
             >
@@ -79,7 +79,7 @@ export function MobileTabBar({
             aria-current={view === v ? "page" : undefined}
             className={cn(
               "relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors",
-              view === v ? "text-violet-deep" : "text-muted",
+              view === v ? "text-orange-deep" : "text-muted",
             )}
           >
             <span className="relative">
@@ -91,7 +91,7 @@ export function MobileTabBar({
               )}
             </span>
             {label}
-            {view === v && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-violet" />}
+            {view === v && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-orange" />}
           </button>
         ))}
 
@@ -100,12 +100,12 @@ export function MobileTabBar({
           aria-expanded={moreOpen}
           className={cn(
             "relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors",
-            extraActive ? "text-violet-deep" : "text-muted",
+            extraActive ? "text-orange-deep" : "text-muted",
           )}
         >
           <MoreHorizontal size={21} strokeWidth={extraActive ? 2.4 : 1.9} />
           Plus
-          {extraActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-violet" />}
+          {extraActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-orange" />}
         </button>
       </nav>
     </>

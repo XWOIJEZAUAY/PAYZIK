@@ -53,7 +53,7 @@ const CATEGORY_ICON: Record<MenuCategory, typeof Soup> = {
 
 const CATEGORY_TONE: Record<MenuCategory, string> = {
   Entrées: "from-emerald-600 to-teal",
-  Plats: "from-violet-deep to-violet",
+  Plats: "from-orange-deep to-orange",
   Grillades: "from-rose-600 to-amber-500",
   Boissons: "from-sky-600 to-cyan-400",
   Desserts: "from-fuchsia-600 to-rose-400",
@@ -212,7 +212,7 @@ export function RestaurantApp({
             <Button
               variant="ghost"
               onClick={onSwitchProfile}
-              className="!px-3 !py-2 text-xs !text-muted hover:!bg-violet/10 hover:!text-violet-deep"
+              className="!px-3 !py-2 text-xs !text-muted hover:!bg-orange/10 hover:!text-orange-deep"
             >
               Changer de profil
             </Button>
@@ -224,23 +224,23 @@ export function RestaurantApp({
             onClick={() => setTab("order")}
             className={cn(
               "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-              tab === "order" ? "text-violet-deep" : "text-muted hover:text-ink",
+              tab === "order" ? "text-orange-deep" : "text-muted hover:text-ink",
             )}
           >
-            <UtensilsCrossed size={15} className={tab === "order" ? "text-violet" : ""} />
+            <UtensilsCrossed size={15} className={tab === "order" ? "text-orange" : ""} />
             Commander à table
             {tab === "order" && (
-              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
+              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-orange" />
             )}
           </button>
           <button
             onClick={() => setTab("service")}
             className={cn(
               "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-[13px] font-semibold transition-colors",
-              tab === "service" ? "text-violet-deep" : "text-muted hover:text-ink",
+              tab === "service" ? "text-orange-deep" : "text-muted hover:text-ink",
             )}
           >
-            <ChefHat size={15} className={tab === "service" ? "text-violet" : ""} />
+            <ChefHat size={15} className={tab === "service" ? "text-orange" : ""} />
             Cuisine & service
             {activeOrders.length > 0 && (
               <span className="rounded-full bg-gold/20 px-1.5 py-0.5 text-[10px] font-bold text-gold">
@@ -248,7 +248,7 @@ export function RestaurantApp({
               </span>
             )}
             {tab === "service" && (
-              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-violet" />
+              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-orange" />
             )}
           </button>
         </div>
@@ -481,7 +481,7 @@ function OrderView({
                     <span
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-xl",
-                        order ? "bg-amber-500 text-white" : "bg-navy text-teal-glow",
+                        order ? "bg-amber-500 text-white" : "bg-navy text-orange-glow",
                       )}
                     >
                       <Table2 size={18} />
@@ -523,7 +523,7 @@ function OrderView({
                   className={cn(
                     "rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all",
                     category === c
-                      ? "border-transparent bg-navy text-white"
+                      ? "border-transparent bg-orange text-night"
                       : "bg-surface text-muted hover:border-teal/40 hover:text-ink",
                   )}
                 >
@@ -585,7 +585,7 @@ function OrderView({
                             </span>
                             <button
                               onClick={() => add(m.id)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-white transition-colors hover:bg-navy-soft"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange text-night transition-colors hover:bg-orange-deep"
                             >
                               <Plus size={13} />
                             </button>
@@ -593,7 +593,7 @@ function OrderView({
                         ) : (
                           <button
                             onClick={() => add(m.id)}
-                            className="flex items-center gap-1 rounded-lg bg-teal px-2.5 py-1.5 text-[11px] font-bold text-navy transition-transform hover:scale-[1.03]"
+                            className="flex items-center gap-1 rounded-lg bg-orange px-2.5 py-1.5 text-[11px] font-bold text-night transition-transform hover:scale-[1.03]"
                           >
                             <Plus size={12} /> Ajouter
                           </button>
@@ -649,7 +649,7 @@ function OrderView({
                         <span className="tnum w-4 text-center text-[12px] font-black">{l.qty}</span>
                         <button
                           onClick={() => add(item.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-navy text-white"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange text-night"
                         >
                           <Plus size={12} />
                         </button>
@@ -822,7 +822,7 @@ function ServiceView({
           <p className="mt-1 text-2xl font-black text-ink">{busyTables.size}</p>
         </Card>
         <Card className="!rounded-xl bg-navy p-4 text-white">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-teal-glow">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-orange-glow">
             Encaissé aujourd'hui
           </p>
           <p className="money mt-1 text-2xl font-black">{fmtDh(paidToday)}</p>
@@ -869,7 +869,7 @@ function ServiceView({
           onClick={() => setShowDone(false)}
           className={cn(
             "rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all",
-            !showDone ? "border-transparent bg-navy text-white" : "bg-surface text-muted",
+            !showDone ? "border-transparent bg-orange text-night" : "bg-surface text-muted",
           )}
         >
           En cours ({active.length})
@@ -878,7 +878,7 @@ function ServiceView({
           onClick={() => setShowDone(true)}
           className={cn(
             "rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all",
-            showDone ? "border-transparent bg-navy text-white" : "bg-surface text-muted",
+            showDone ? "border-transparent bg-orange text-night" : "bg-surface text-muted",
           )}
         >
           Terminées ({done.length})
@@ -912,7 +912,7 @@ function ServiceView({
               <Card key={o.id} className="flex flex-col p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-base font-black text-teal-glow">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-base font-black text-orange-glow">
                       {o.tableNo}
                     </span>
                     <div>

@@ -51,7 +51,7 @@ export function Header({
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Rechercher produit ou client…"
-            className="h-11 w-full rounded-xl border border-ink/12 bg-sand/70 pl-9 pr-10 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-violet/60 focus:bg-cream focus:ring-2 focus:ring-violet/20"
+            className="h-11 w-full rounded-xl border border-ink/12 bg-sand/70 pl-9 pr-10 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-orange/60 focus:bg-cream focus:ring-2 focus:ring-orange/20"
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden rounded border border-ink/15 px-1.5 py-0.5 text-[10px] font-semibold text-muted sm:block">
             /
@@ -62,7 +62,7 @@ export function Header({
       {onSwitchProfile && (
         <button
           onClick={onSwitchProfile}
-          className={`flex shrink-0 items-center gap-2 rounded-xl border border-ink/12 bg-sand/70 px-3.5 py-2.5 text-[12px] font-bold text-ink/70 transition-colors hover:border-violet/40 hover:bg-violet/10 hover:text-violet-deep ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl border border-ink/12 bg-sand/70 px-3.5 py-2.5 text-[12px] font-bold text-ink/70 transition-colors hover:border-orange/40 hover:bg-orange/10 hover:text-orange-deep ${
             hideSearch ? "ml-auto" : ""
           }`}
         >

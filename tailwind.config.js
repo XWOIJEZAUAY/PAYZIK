@@ -9,7 +9,7 @@ export default {
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       colors: {
-        /* — palette PAYZIK : crème, encre nuit, menthe, corail. Jamais de noir/blanc pur. — */
+        /* — palette PAYZIK : crème, encre nuit, orange corporate. Jamais de noir/blanc pur. — */
         white: "#FFF8EA",
         black: "#0A2230",
         cream: "#FFF8EA",
@@ -29,11 +29,11 @@ export default {
           glow: "#5CF2D0",
           deep: "#009C82",
         },
-        violet: {
-          DEFAULT: "#7C5CFF",
-          deep: "#5B3FD1",
-          glow: "#B9A6FF",
-          soft: "rgba(124,92,255,0.14)",
+        orange: {
+          DEFAULT: "#FF7A1A",
+          deep: "#D95F00",
+          glow: "#FFB27A",
+          soft: "rgba(255,122,26,0.14)",
         },
         coral: {
           DEFAULT: "#FF6B57",
@@ -45,14 +45,14 @@ export default {
           soft: "rgba(245,185,66,0.16)",
         },
         brand: {
-          DEFAULT: "#7C5CFF",
-          hover: "#5B3FD1",
-          soft: "rgba(124,92,255,0.15)",
+          DEFAULT: "#FF7A1A",
+          hover: "#D95F00",
+          soft: "rgba(255,122,26,0.15)",
         },
         accent: {
-          DEFAULT: "#7C5CFF",
-          hover: "#B9A6FF",
-          soft: "rgba(124,92,255,0.15)",
+          DEFAULT: "#FF7A1A",
+          hover: "#FFB27A",
+          soft: "rgba(255,122,26,0.15)",
         },
         /* — surfaces sémantiques (variables CSS → thème clair/sombre en une source) — */
         canvas: "var(--c-bg)",
@@ -66,7 +66,7 @@ export default {
         card: "0 2px 12px rgba(10,34,48,0.07)",
         pop: "0 12px 40px rgba(10,34,48,0.16)",
         "pop-dark": "0 12px 40px rgba(10,34,48,0.45)",
-        glow: "0 0 24px rgba(124,92,255,0.35), 0 6px 20px rgba(124,92,255,0.25)",
+        glow: "0 0 24px rgba(255,122,26,0.35), 0 6px 20px rgba(255,122,26,0.25)",
         "inner-fine": "inset 0 0 0 1px rgba(10,34,48,0.07)",
       },
       keyframes: {

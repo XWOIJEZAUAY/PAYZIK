@@ -413,8 +413,8 @@ export function AgentChat({
             className={cn(
               "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-all duration-200",
               phase === "recording"
-                ? "bg-teal text-navy shadow-glow"
-                : "bg-navy text-white shadow-[0_6px_20px_rgba(1,204,182,0.3)] hover:bg-navy-soft",
+                ? "bg-orange text-night shadow-glow"
+                : "bg-navy text-white shadow-[0_6px_20px_rgba(255,122,26,0.3)] hover:bg-navy-soft",
               phase === "thinking" && "opacity-70",
             )}
             title="Dicte la commande"
@@ -446,7 +446,7 @@ export function AgentChat({
               variant="primary"
               type="submit"
               disabled={!draft.trim()}
-              className="!h-11 !w-11 !rounded-2xl !p-0 !bg-teal !text-navy hover:!bg-teal-glow"
+              className="!h-11 !w-11 !rounded-2xl !p-0 !bg-orange !text-night hover:!bg-orange-glow"
               title="Envoyer"
             >
               <Send size={17} />
@@ -459,19 +459,19 @@ export function AgentChat({
               setAiLang(next);
               setAiLangState(next);
             }}
-            className="flex h-11 shrink-0 items-center justify-center rounded-2xl border border-navy/15 bg-white px-3 text-xs font-bold text-navy transition-colors hover:bg-accent-soft hover:text-teal-deep"
+            className="flex h-11 shrink-0 items-center justify-center rounded-2xl border border-navy/15 bg-white px-3 text-xs font-bold text-navy transition-colors hover:bg-orange/10 hover:text-orange-deep"
             title="Changer la langue de l'IA avant l'appel"
           >
             {aiLang === "darija" ? "Darija" : "Tachelhit"}
           </button>
           <button
             onClick={onOpenScanner}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-navy/15 bg-white text-navy transition-colors hover:bg-accent-soft hover:text-teal-deep"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-navy/15 bg-white text-navy transition-colors hover:bg-orange/10 hover:text-orange-deep"
             title="Scanner les produits à la caméra"
           >
             <Camera size={18} />
           </button>
-          <button onClick={toggleLive} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-teal/40 bg-white text-teal-deep hover:bg-accent-soft">{liveOn ? <PhoneOff size={18} /> : <Phone size={18} />}</button>
+          <button onClick={toggleLive} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange/40 bg-white text-orange-deep hover:bg-orange/10">{liveOn ? <PhoneOff size={18} /> : <Phone size={18} />}</button>
         </div>
         {/* mode live supprimé */}
       </div>
@@ -648,7 +648,7 @@ function ProductRow({ productId, store }: { productId: string; store: Store }) {
         className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(60% 60% at 50% 0%, rgba(1,204,182,0.25), transparent 70%)",
+            "radial-gradient(60% 60% at 50% 0%, rgba(255,122,26,0.25), transparent 70%)",
         }}
       />
       <div className="relative flex flex-col items-center gap-2">

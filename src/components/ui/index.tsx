@@ -169,15 +169,15 @@ export function Button({
 }) {
   const variants = {
     primary:
-      "bg-navy text-white hover:bg-navy-soft dark:bg-white dark:text-navy dark:hover:bg-slate-200 active:scale-[.98]",
+      "bg-orange text-night font-bold hover:bg-orange-deep shadow-glow active:scale-[.98]",
     accent:
-      "bg-teal text-navy font-bold hover:bg-teal-glow shadow-glow active:scale-[.97]",
+      "bg-orange text-night font-bold hover:bg-orange-glow shadow-glow active:scale-[.97]",
     dark: "bg-navy-deep text-white hover:bg-navy active:scale-[.98]",
     amber:
-      "bg-teal text-navy font-bold hover:bg-teal-glow shadow-glow active:scale-[.98]",
+      "bg-gold text-night font-bold hover:bg-gold/80 shadow-glow active:scale-[.98]",
     secondary:
-      "bg-white text-navy border border-navy/15 hover:bg-accent-soft hover:text-teal-deep hover:border-teal/40 active:scale-[.98]",
-    ghost: "text-navy/70 hover:bg-accent-soft hover:text-teal-deep",
+      "bg-white text-navy border border-navy/15 hover:bg-orange/10 hover:text-orange-deep hover:border-orange/40 active:scale-[.98]",
+    ghost: "text-navy/70 hover:bg-orange/10 hover:text-orange-deep",
     danger: "text-rose-600 hover:bg-rose-50",
   };
   return (
@@ -318,7 +318,7 @@ export function Pills({
             className={cn(
               "rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-all duration-150",
               active
-                ? "border-transparent bg-navy text-white dark:bg-teal dark:text-navy"
+                ? "border-transparent bg-orange text-night dark:bg-orange dark:text-night"
                 : "bg-surface text-muted hover:border-muted/40 hover:text-ink",
             )}
           >
@@ -327,7 +327,7 @@ export function Pills({
               <span
                 className={cn(
                   "ml-1.5 tnum text-[11px]",
-                  active ? "text-teal-glow" : "text-muted",
+                  active ? "text-orange-glow" : "text-muted",
                 )}
               >
                 {it.count}
@@ -347,7 +347,7 @@ export function Pills({
 export function Sparkline({
   data,
   className,
-  stroke = "#7C5CFF",
+  stroke = "#FF7A1A",
   width = 96,
   height = 32,
 }: {
@@ -443,7 +443,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full bg-navy font-bold text-teal-glow ring-1 ring-inset ring-teal/30",
+        "flex shrink-0 items-center justify-center rounded-full bg-navy font-bold text-orange-glow ring-1 ring-inset ring-orange/30",
         className,
       )}
       style={{ width: size, height: size, fontSize: size * 0.36 }}
@@ -480,7 +480,7 @@ export function StatCard({
     <div
       className={cn(
         "relative overflow-hidden rounded-2xl border bg-surface p-4 shadow-card",
-        accent && "border-transparent bg-navy text-white",
+        accent && "border-transparent bg-orange text-night",
         className,
       )}
     >
@@ -489,7 +489,7 @@ export function StatCard({
           <p
             className={cn(
               "text-[11px] font-bold uppercase tracking-wider",
-              accent ? "text-teal-glow" : "text-muted",
+              accent ? "text-orange-glow" : "text-muted",
             )}
           >
             {label}
@@ -502,7 +502,7 @@ export function StatCard({
                   "money text-xs font-semibold",
                   accent
                     ? up
-                      ? "text-teal-glow"
+                      ? "text-orange-glow"
                       : "text-rose-300"
                     : up
                       ? "text-emerald-600"
@@ -524,7 +524,7 @@ export function StatCard({
             <span
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-xl",
-                accent ? "bg-white/10 text-teal-glow" : "bg-accent-soft text-teal-deep",
+                accent ? "bg-white/10 text-orange-glow" : "bg-orange/10 text-orange-deep",
               )}
             >
               {icon}
@@ -533,7 +533,7 @@ export function StatCard({
           {sparkline && (
             <Sparkline
               data={sparkline}
-              stroke={accent ? "#B9A6FF" : "#7C5CFF"}
+              stroke={accent ? "#FFB27A" : "#FF7A1A"}
               width={84}
               height={26}
             />

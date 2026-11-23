@@ -201,8 +201,8 @@ export function VoiceInput({
           className={cn(
             "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-all duration-200",
             phase === "recording"
-              ? "bg-teal text-navy shadow-glow"
-              : "bg-navy text-white shadow-[0_6px_20px_rgba(1,204,182,0.3)] hover:bg-navy-soft",
+              ? "bg-orange text-night shadow-glow"
+              : "bg-navy text-white shadow-[0_6px_20px_rgba(255,122,26,0.3)] hover:bg-navy-soft",
             phase === "thinking" && "opacity-70",
           )}
         >

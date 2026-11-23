@@ -1,5 +1,5 @@
 /** Identité visuelle PAYZIK — wordmark + éclair (icône seule).
- *  Encre nuit #0A2230 · Éclair violet #7C5CFF. Vectoriel, sans emoji. */
+ *  Encre nuit #0A2230 · Éclair orange #FF7A1A. Vectoriel, sans emoji. */
 
 /** Éclair seul, NU (aucun cadre, aucun fond) — pour bandes sombres. */
 export function BoltIcon({ size = 22, className }: { size?: number; className?: string }) {
@@ -12,7 +12,7 @@ export function BoltIcon({ size = 22, className }: { size?: number; className?: 
       className={`shrink-0 ${className ?? ""}`}
       aria-hidden
     >
-      <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#7C5CFF" />
+      <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
     </svg>
   );
 }
@@ -34,13 +34,13 @@ export function BoltMark({
       aria-hidden
     >
       <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} fill="none">
-        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#7C5CFF" />
+        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
       </svg>
     </span>
   );
 }
 
-/** Logo complet : PAY + éclair violet + IK (le Z du logo = éclair). */
+/** Logo complet : PAY + éclair orange + IK (le Z du logo = éclair). */
 export function PayzikWordmark({
   size = 17,
   className,
@@ -67,7 +67,7 @@ export function PayzikWordmark({
         className="mx-[0.02em]"
         aria-hidden
       >
-        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#7C5CFF" />
+        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
       </svg>
       IK
     </span>
