@@ -3,8 +3,8 @@ import {
   BarChart3,
   BookOpen,
   CreditCard,
+  Home,
   Images,
-  Mic,
   MoreHorizontal,
   Package,
   Settings,
@@ -12,14 +12,14 @@ import {
 import type { View } from "../../types";
 import { cn } from "../ui";
 
-const MAIN: { view: View; label: string; icon: typeof Mic }[] = [
-  { view: "pos", label: "Caisse", icon: Mic },
+const MAIN: { view: View; label: string; icon: typeof Home }[] = [
+  { view: "pos", label: "Accueil", icon: Home },
   { view: "catalogue", label: "Catalogue", icon: Images },
-  { view: "cards", label: "Cartes", icon: CreditCard },
   { view: "kridi", label: "Kridi", icon: BookOpen },
 ];
 
-const MORE: { view: View; label: string; icon: typeof Mic }[] = [
+const MORE: { view: View; label: string; icon: typeof Home }[] = [
+  { view: "cards", label: "Cartes", icon: CreditCard },
   { view: "stock", label: "Stock", icon: Package },
   { view: "dashboard", label: "Tableau de bord", icon: BarChart3 },
   { view: "settings", label: "Paramètres", icon: Settings },
@@ -104,7 +104,7 @@ export function MobileTabBar({
           )}
         >
           <MoreHorizontal size={21} strokeWidth={extraActive ? 2.4 : 1.9} />
-          Plus
+          Menu
           {extraActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-orange" />}
         </button>
       </nav>

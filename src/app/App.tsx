@@ -53,7 +53,7 @@ export default function App() {
         search={search}
         onSearch={setSearch}
         onOpenAlerts={() => setAlertsOpen(true)}
-        hideSearch={view === "pos"}
+        hideSearch={view === "pos" || view === "catalogue"}
         onSwitchProfile={() => setRole(null)}
       />
 
