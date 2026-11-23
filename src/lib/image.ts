@@ -28,7 +28,7 @@ export function fileToThumbnail(file: File): Promise<string> {
           return;
         }
         // fond blanc pour les PNG transparents
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#FFF8EA";
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
         resolve(canvas.toDataURL("image/jpeg", 0.82));

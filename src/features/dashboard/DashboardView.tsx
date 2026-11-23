@@ -194,7 +194,7 @@ export function DashboardView({ store }: { store: Store }) {
               { label: "Espèces", value: methodTotals.cash, color: "#10b981" },
               { label: "Kridi", value: methodTotals.kridi, color: "#f59e0b" },
               { label: "Carte", value: methodTotals.card, color: "#64748b" },
-              { label: "Carte PAYZIK", value: methodTotals.wallet, color: "#01CCB6" },
+              { label: "Carte PAYZIK", value: methodTotals.wallet, color: "#7C5CFF" },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5">
@@ -404,7 +404,7 @@ function DonutChart({
     { value: totals.cash, color: "#10b981" },
     { value: totals.kridi, color: "#f59e0b" },
     { value: totals.card, color: "#64748b" },
-    { value: totals.wallet, color: "#01CCB6" },
+    { value: totals.wallet, color: "#7C5CFF" },
   ];
   const r = 40;
   const cx = 50;
@@ -435,7 +435,7 @@ function DonutChart({
         offset += len;
         return el;
       })}
-      <text x={cx} y={cy - 2} textAnchor="middle" className="tnum text-[11px] font-black" fill="#0B2846">
+      <text x={cx} y={cy - 2} textAnchor="middle" className="tnum text-[11px] font-black" fill="#0A2230">
         {total > 0 ? fmtDh(total) : "0"}
       </text>
       <text x={cx} y={cy + 8} textAnchor="middle" className="text-[7px]" fill="#94a3b8">

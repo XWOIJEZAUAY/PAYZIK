@@ -1,7 +1,13 @@
 # PAYZIK POS
 
-Caisse (hanout) + IA vocale en Tachelhit : caisse, stock, carnet de crédit (kridi),
-scan caméra et conversation vocale temps réel (Gemini Live).
+La caisse et le portefeuille des commerces du Maroc : encaissement, stock,
+kridi, restaurant et carte PAYZIK dans une seule application.
+
+## Identité visuelle
+
+Palette officielle : crème `#FFF8EA`, sable `#F4EDDF`, encre nuit `#0A2230`,
+violet `#7C5CFF` (couleur principale), menthe pour les états positifs, corail
+et or pour les offres. Aucun noir ni blanc pur n'est utilisé.
 
 ## Démarrage
 

@@ -8,17 +8,18 @@ OUT = ROOT / "public" / "icons"
 ANDROID = ROOT / "android" / "app" / "src" / "main" / "res"
 OUT.mkdir(parents=True, exist_ok=True)
 
-NAVY = (11, 40, 70)
-TEAL = (1, 204, 182)
-INDIGO = (79, 70, 229)
+INK = (10, 34, 48)
+VIOLET = (124, 92, 255)
+VIOLET_DEEP = (91, 63, 209)
+CREAM = (255, 248, 234)
 
 
 def gradient(size: int) -> Image.Image:
-    img = Image.new("RGB", (size, size), NAVY)
+    img = Image.new("RGB", (size, size), INK)
     draw = ImageDraw.Draw(img)
     for y in range(size):
         t = y / max(size - 1, 1)
-        color = tuple(int(NAVY[i] + (INDIGO[i] - NAVY[i]) * t * 0.55) for i in range(3))
+        color = tuple(int(INK[i] + (VIOLET_DEEP[i] - INK[i]) * t * 0.6) for i in range(3))
         draw.line((0, y, size, y), fill=color)
     return img
 
@@ -30,15 +31,15 @@ def draw_mark(draw: ImageDraw.ImageDraw, size: int, cx: float, cy: float, scale:
     right = int(cx + size * 0.10 * scale)
     bottom = int(cy + size * 0.20 * scale)
     stroke = max(2, int(size * 0.055 * scale))
-    draw.rounded_rectangle((left, top, right, bottom), radius=int(size * 0.05 * scale), fill=NAVY)
-    draw.rectangle((left + stroke * 2, top + stroke, right - stroke, bottom - stroke), fill=TEAL)
+    draw.rounded_rectangle((left, top, right, bottom), radius=int(size * 0.05 * scale), fill=CREAM)
+    draw.rectangle((left + stroke * 2, top + stroke, right - stroke, bottom - stroke), fill=VIOLET)
     draw.rectangle(
         (left + stroke * 2, int(cy - size * 0.02 * scale), right + stroke * 2, int(cy + size * 0.02 * scale)),
-        fill=NAVY,
+        fill=CREAM,
     )
     draw.rectangle(
         (int(cx + size * 0.02 * scale), int(cy - size * 0.02 * scale), right + stroke * 2, bottom),
-        fill=NAVY,
+        fill=CREAM,
     )
 
 
@@ -47,7 +48,7 @@ def pwa_icon(size: int, maskable: bool) -> Image.Image:
     draw = ImageDraw.Draw(img)
     pad = int(size * (0.17 if maskable else 0.10))
     draw.rounded_rectangle(
-        (pad, pad, size - pad, size - pad), radius=int(size * 0.22), fill=TEAL
+        (pad, pad, size - pad, size - pad), radius=int(size * 0.22), fill=VIOLET
     )
     draw_mark(draw, size, size / 2, size / 2, 1.0)
     return img
@@ -68,7 +69,7 @@ def android_foreground(size: int) -> Image.Image:
     tile = int(size * 0.58)
     left = (size - tile) // 2
     draw.rounded_rectangle(
-        (left, left, left + tile, left + tile), radius=int(tile * 0.22), fill=TEAL
+        (left, left, left + tile, left + tile), radius=int(tile * 0.22), fill=VIOLET
     )
     draw_mark(draw, size, size / 2, size / 2, 0.58)
     return img
@@ -100,7 +101,7 @@ if bg.exists():
     bg.write_text(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         "<resources>\n"
-        '    <color name="ic_launcher_background">#0B2846</color>\n'
+        '    <color name="ic_launcher_background">#0A2230</color>\n'
         "</resources>\n",
         encoding="utf-8",
     )

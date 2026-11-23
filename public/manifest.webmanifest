@@ -6,8 +6,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B2846",
-  "theme_color": "#0B2846",
+  "background_color": "#0A2230",
+  "theme_color": "#0A2230",
   "lang": "fr",
   "categories": ["finance", "business", "shopping"],
   "icons": [

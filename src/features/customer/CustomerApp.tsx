@@ -81,14 +81,14 @@ const TONE: Record<
   { grad: string; soft: string; text: string; ring: string; dot: string }
 > = {
   navy: {
-    grad: "from-[#0B2846] via-[#123A63] to-[#0B2846]",
-    soft: "bg-[#0B2846]/5",
-    text: "text-[#0B2846]",
-    ring: "ring-[#0B2846]/15",
-    dot: "bg-[#0B2846]",
+    grad: "from-violet-deep via-violet to-violet-glow",
+    soft: "bg-violet/10",
+    text: "text-violet-deep",
+    ring: "ring-violet/25",
+    dot: "bg-violet",
   },
   teal: {
-    grad: "from-[#013B3A] via-[#017A6E] to-[#01A896]",
+    grad: "from-teal-deep via-teal to-teal-glow",
     soft: "bg-teal/10",
     text: "text-teal-deep",
     ring: "ring-teal/25",
@@ -191,7 +191,7 @@ export function CustomerApp({
   return (
     <div className="min-h-screen bg-canvas">
       {/* ---------------- barre haute ---------------- */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#060D18]">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-night">
         <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <BoltIcon size={26} />
@@ -382,7 +382,7 @@ function HomeView({
       <div className="grid gap-5 lg:grid-cols-[1.45fr_1fr]">
         <div className="space-y-5">
           {/* carte + actions */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#071B30] via-[#0B2846] to-[#123A63] p-5 text-white shadow-pop sm:p-6">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-violet-deep p-5 text-white shadow-pop sm:p-6">
             <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-teal/20 blur-3xl" />
             <div className="relative flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -752,7 +752,7 @@ function WalletView({
     <div className="animate-fade-up grid gap-5 lg:grid-cols-[1.1fr_1fr]">
       <div className="space-y-4">
         {/* carte */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#071B30] via-[#0B2846] to-[#123A63] p-6 text-white shadow-pop">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-night-deep via-night to-violet-deep p-6 text-white shadow-pop">
           <div className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-teal/20 blur-3xl" />
           <div className="relative flex items-start justify-between">
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">

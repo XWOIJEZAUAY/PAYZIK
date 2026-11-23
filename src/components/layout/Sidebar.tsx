@@ -30,7 +30,7 @@ export function Sidebar({
   kridiBadge?: number;
 }) {
   return (
-    <nav className="hidden w-[220px] shrink-0 flex-col gap-1 bg-[#060D18] p-3 lg:flex">
+    <nav className="hidden w-[220px] shrink-0 flex-col gap-1 bg-night p-3 lg:flex">
       {ITEMS.map(({ view: v, label, icon: Icon }) => (
         <button
           key={v}

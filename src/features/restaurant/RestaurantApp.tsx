@@ -53,7 +53,7 @@ const CATEGORY_ICON: Record<MenuCategory, typeof Soup> = {
 
 const CATEGORY_TONE: Record<MenuCategory, string> = {
   Entrées: "from-emerald-600 to-teal",
-  Plats: "from-[#0B2846] to-[#123A63]",
+  Plats: "from-violet-deep to-violet",
   Grillades: "from-rose-600 to-amber-500",
   Boissons: "from-sky-600 to-cyan-400",
   Desserts: "from-fuchsia-600 to-rose-400",
@@ -195,7 +195,7 @@ export function RestaurantApp({
   return (
     <div className="min-h-screen bg-canvas">
       {/* ---------------- barre haute ---------------- */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#060D18]">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-night">
         <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <BoltIcon size={26} />

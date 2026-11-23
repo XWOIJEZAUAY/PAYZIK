@@ -9,26 +9,50 @@ export default {
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       colors: {
-        /* — identité statique (charte PAYZIK) — */
+        /* — palette PAYZIK : crème, encre nuit, menthe, corail. Jamais de noir/blanc pur. — */
+        white: "#FFF8EA",
+        black: "#0A2230",
+        cream: "#FFF8EA",
+        sand: "#F4EDDF",
+        night: {
+          DEFAULT: "#0A2230",
+          deep: "#061A24",
+          soft: "#104050",
+        },
         navy: {
-          DEFAULT: "#0B2846",
-          deep: "#08182B",
-          soft: "#123A63",
+          DEFAULT: "#0B2E3E",
+          deep: "#071D28",
+          soft: "#15465A",
         },
         teal: {
-          DEFAULT: "#01CCB6",
-          glow: "#00F5D4",
-          deep: "#01A896",
+          DEFAULT: "#00C7A5",
+          glow: "#5CF2D0",
+          deep: "#009C82",
+        },
+        violet: {
+          DEFAULT: "#7C5CFF",
+          deep: "#5B3FD1",
+          glow: "#B9A6FF",
+          soft: "rgba(124,92,255,0.14)",
+        },
+        coral: {
+          DEFAULT: "#FF6B57",
+          dark: "#E85542",
+          soft: "rgba(255,107,87,0.14)",
+        },
+        gold: {
+          DEFAULT: "#F5B942",
+          soft: "rgba(245,185,66,0.16)",
         },
         brand: {
-          DEFAULT: "#0B2846",
-          hover: "#123A63",
-          soft: "rgba(1,204,182,0.15)",
+          DEFAULT: "#7C5CFF",
+          hover: "#5B3FD1",
+          soft: "rgba(124,92,255,0.15)",
         },
         accent: {
-          DEFAULT: "#01CCB6",
-          hover: "#00F5D4",
-          soft: "rgba(1,204,182,0.15)",
+          DEFAULT: "#7C5CFF",
+          hover: "#B9A6FF",
+          soft: "rgba(124,92,255,0.15)",
         },
         /* — surfaces sémantiques (variables CSS → thème clair/sombre en une source) — */
         canvas: "var(--c-bg)",
@@ -39,11 +63,11 @@ export default {
         line: "var(--c-line)",
       },
       boxShadow: {
-        card: "0 2px 12px rgba(11,40,70,0.06)",
-        pop: "0 12px 40px rgba(11,40,70,0.16)",
-        "pop-dark": "0 12px 40px rgba(0,0,0,0.5)",
-        glow: "0 0 24px rgba(1,204,182,0.35), 0 6px 20px rgba(1,204,182,0.25)",
-        "inner-fine": "inset 0 0 0 1px rgba(11,40,70,0.06)",
+        card: "0 2px 12px rgba(10,34,48,0.07)",
+        pop: "0 12px 40px rgba(10,34,48,0.16)",
+        "pop-dark": "0 12px 40px rgba(10,34,48,0.45)",
+        glow: "0 0 24px rgba(124,92,255,0.35), 0 6px 20px rgba(124,92,255,0.25)",
+        "inner-fine": "inset 0 0 0 1px rgba(10,34,48,0.07)",
       },
       keyframes: {
         wave: {

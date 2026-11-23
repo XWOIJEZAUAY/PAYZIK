@@ -33,7 +33,7 @@ export function Header({
   }, []);
 
   return (
-    <header className="flex shrink-0 flex-wrap items-center gap-2 bg-[#060D18] px-3 py-2.5 sm:gap-6 sm:px-5 lg:h-20 lg:flex-nowrap lg:py-0">
+    <header className="flex shrink-0 flex-wrap items-center gap-2 bg-night px-3 py-2.5 sm:gap-6 sm:px-5 lg:h-20 lg:flex-nowrap lg:py-0">
       {/* Logo : éclair NU (aucun cadre) + PAYZIK en blanc */}
       <div className="flex items-center gap-2 sm:gap-3">
         <BoltIcon size={28} />

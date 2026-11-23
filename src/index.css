@@ -9,21 +9,21 @@
    Thème clair par défaut ; .dark sur <html> pour le sombre.
    ============================================================ */
 :root {
-  --c-bg: #f8fafc; /* Slate 50 */
-  --c-surface: #ffffff;
-  --c-surface-2: #f1f5f9;
-  --c-ink: #0b2846; /* Primary Navy */
-  --c-muted: #5b7086;
-  --c-line: rgba(11, 40, 70, 0.12);
+  --c-bg: #f4eddf; /* sable chaud */
+  --c-surface: #fffbf2; /* crème */
+  --c-surface-2: #ede4d3;
+  --c-ink: #0a2230; /* encre nuit */
+  --c-muted: #5c7180;
+  --c-line: rgba(10, 34, 48, 0.12);
 }
 
 .dark {
-  --c-bg: #070f18;
-  --c-surface: #0c1a2b;
-  --c-surface-2: #11233a;
-  --c-ink: #e8f0f8;
-  --c-muted: #8fa6bd;
-  --c-line: rgba(255, 255, 255, 0.09);
+  --c-bg: #0a2230;
+  --c-surface: #102d3c;
+  --c-surface-2: #173b4c;
+  --c-ink: #fff8ea;
+  --c-muted: #a8bcc4;
+  --c-line: rgba(255, 248, 234, 0.1);
 }
 
 @layer base {
@@ -41,11 +41,11 @@
     border-color: var(--c-line);
   }
   :focus-visible {
-    outline: 2px solid #01ccb6;
+    outline: 2px solid #7c5cff;
     outline-offset: 2px;
   }
   ::selection {
-    background: rgba(1, 204, 182, 0.3);
+    background: rgba(124, 92, 255, 0.28);
   }
 }
 

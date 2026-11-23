@@ -54,7 +54,7 @@ export function MobileTabBar({
       )}
 
       {moreOpen && (
-        <div className="fixed inset-x-2 bottom-[calc(env(safe-area-inset-bottom)_+_4rem)] z-50 rounded-2xl border border-white/10 bg-[#0B1B2E] p-2 shadow-2xl lg:hidden">
+        <div className="fixed inset-x-2 bottom-[calc(env(safe-area-inset-bottom)_+_4rem)] z-50 rounded-2xl border border-white/10 bg-night-soft p-2 shadow-2xl lg:hidden">
           {MORE.map(({ view: v, label, icon: Icon }) => (
             <button
               key={v}
@@ -70,7 +70,7 @@ export function MobileTabBar({
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-white/10 bg-[#060D18]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-white/10 bg-night/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {MAIN.map(({ view: v, label, icon: Icon }) => (
           <button
             key={v}
