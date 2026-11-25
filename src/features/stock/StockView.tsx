@@ -288,9 +288,9 @@ export function StockView({ store }: { store: Store }) {
             >
               <ProductThumb product={p} />
             </button>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-ink">{p.name}</p>
-              <p className="tnum text-xs text-slate-400">
+            <div className="min-w-0 flex-1 rounded-lg bg-orange px-3 py-2">
+              <p className="text-sm font-bold text-white">{p.name}</p>
+              <p className="tnum text-xs text-white/80">
                 {fmtDh(p.priceDh)} · {p.category}
                 {p.image ? " · 📷" : ""}
               </p>
