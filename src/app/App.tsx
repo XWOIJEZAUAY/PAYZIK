@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AgentChat } from "../features/pos/AgentChat";
 import { CardsView } from "../features/cards/CardsView";
 import { CatalogueView } from "../features/catalogue/CatalogueView";
@@ -15,7 +15,7 @@ import { Sidebar } from "../components/layout/Sidebar";
 import { MobileTabBar } from "../components/layout/MobileTabBar";
 import { StockAlertsDrawer } from "../features/stock/StockAlertsDrawer";
 import { StockView } from "../features/stock/StockView";
-import { startBackendSync } from "../services/backend/supabase";
+// (ancienne sync démo désactivée — remplacée par Supabase Auth + RLS)
 import { useStore } from "../state/store";
 import type { View } from "../types";
 
@@ -28,7 +28,7 @@ export default function App() {
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
 
-  useEffect(() => startBackendSync(), []);
+  // (sync démo désactivée)
 
   const debtors = store.clients.filter((c) => c.debtDh > 0).length;
 

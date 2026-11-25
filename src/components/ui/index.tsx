@@ -151,9 +151,29 @@ export function stockTone(stock: number): "rose" | "amber" | "emerald" {
 }
 
 export function StockBadge({ stock }: { stock: number }) {
-  if (stock === 0) return <Badge tone="rose">Rupture</Badge>;
-  if (stock <= 20) return <Badge tone="amber">{stock} restants</Badge>;
-  return <Badge tone="emerald">{stock} en stock</Badge>;
+  if (stock === 0)
+    return (
+      <span className="inline-flex items-center rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+        Rupture
+      </span>
+    );
+  if (stock <= 5)
+    return (
+      <span className="inline-flex items-center rounded-md bg-amber-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+        {stock} restants
+      </span>
+    );
+  if (stock <= 20)
+    return (
+      <span className="inline-flex items-center rounded-md bg-yellow-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+        {stock} en stock
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+      {stock} en stock
+    </span>
+  );
 }
 
 /* ============================================================
