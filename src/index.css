@@ -4,13 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   PAYZIK — design tokens (source unique de couleur).
+   Thème clair par défaut ; .dark sur <html> pour le sombre.
+   ============================================================ */
 :root {
-  --c-bg: #F9FAFB;
-  --c-surface: #FFFFFF;
-  --c-surface-2: #F3F4F6;
-  --c-ink: #1F2937;
-  --c-muted: #4B5563;
-  --c-line: #D1D5DB;
+  --c-bg: #f4eddf; /* sable chaud */
+  --c-surface: #fffbf2; /* crème */
+  --c-surface-2: #ede4d3;
+  --c-ink: #3a2a1f; /* encre chaude */
+  --c-muted: #8b7458;
+  --c-line: rgba(58, 42, 31, 0.14);
+}
+
+.dark {
+  --c-bg: #241a12;
+  --c-surface: #3a2a1f;
+  --c-surface-2: #5a4230;
+  --c-ink: #fff8ea;
+  --c-muted: #d3c3a9;
+  --c-line: rgba(255, 248, 234, 0.12);
 }
 
 @layer base {
@@ -28,11 +41,11 @@
     border-color: var(--c-line);
   }
   :focus-visible {
-    outline: 2px solid #F47721;
+    outline: 2px solid #FF7A1A;
     outline-offset: 2px;
   }
   ::selection {
-    background: rgba(244, 119, 33, 0.20);
+    background: rgba(255,122,26, 0.28);
   }
 }
 
@@ -41,6 +54,7 @@
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
   }
+  /* montants financiers : mono crisp (charte typographique PAYZIK) */
   .money {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-variant-numeric: tabular-nums;
@@ -57,10 +71,11 @@
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
+  /* iOS : respecte la zone sûre (encoche / barre d'outils Safari). */
   .pb-safe {
-    padding-bottom: 0px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .pt-safe {
-    padding-top: 0px;
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }

@@ -30,14 +30,7 @@ export function Sidebar({
   kridiBadge?: number;
 }) {
   return (
-    <nav className="flex w-[220px] shrink-0 flex-col gap-1 bg-sand p-3 border-r border-line">
-      <div className="mb-3 flex items-center gap-2.5 px-1 py-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange text-white font-black text-sm">
-          P
-        </span>
-        <span className="text-lg font-black tracking-tight text-ink">PAYZIK</span>
-      </div>
-
+    <nav className="hidden w-[220px] shrink-0 flex-col gap-1 border-r border-ink/10 bg-sand p-3 lg:flex">
       {ITEMS.map(({ view: v, label, icon: Icon }) => (
         <button
           key={v}
@@ -45,20 +38,20 @@ export function Sidebar({
           className={cn(
             "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition-all duration-150",
             view === v
-              ? "bg-orange-soft text-orange-deep"
-              : "text-muted hover:bg-sand hover:text-ink",
+              ? "bg-cream text-orange-deep shadow-card"
+              : "text-muted hover:bg-cream hover:text-ink",
           )}
         >
           <Icon
             size={17}
             className={cn(
               "transition-colors",
-              view === v ? "text-orange" : "text-subtle group-hover:text-muted",
+              view === v ? "text-orange" : "text-muted group-hover:text-ink",
             )}
           />
           {label}
           {v === "kridi" && (kridiBadge ?? 0) > 0 && (
-            <span className="ml-auto rounded-full bg-warning-soft px-1.5 py-0.5 text-[10px] font-bold text-warning">
+            <span className="ml-auto rounded-full bg-orange/12 px-1.5 py-0.5 text-[10px] font-bold text-orange-deep">
               {kridiBadge}
             </span>
           )}
@@ -68,11 +61,7 @@ export function Sidebar({
         </button>
       ))}
 
-      <div className="mt-auto pt-3">
-        <div className="px-1 text-[11px] leading-relaxed text-subtle">
-          v1.0 · Données locales
-        </div>
-      </div>
+      <div className="mt-auto" />
     </nav>
   );
 }
