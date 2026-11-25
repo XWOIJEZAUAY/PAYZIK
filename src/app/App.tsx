@@ -6,8 +6,9 @@ import { CustomerApp } from "../features/customer/CustomerApp";
 import { DashboardView } from "../features/dashboard/DashboardView";
 import { Header } from "../components/layout/Header";
 import { KridiView } from "../features/kridi/KridiView";
-import { LandingView } from "../features/landing/LandingView";
-import { RestaurantApp } from "../features/restaurant/RestaurantApp";
+import { AuthView } from "../features/auth/AuthView";
+import { getCurrentUser, signOut, type Profile } from "../services/auth";
+
 import { ScannerModal } from "../features/voice/ScannerModal";
 import { SettingsView } from "../features/settings/SettingsView";
 import { Sidebar } from "../components/layout/Sidebar";
@@ -16,11 +17,12 @@ import { StockAlertsDrawer } from "../features/stock/StockAlertsDrawer";
 import { StockView } from "../features/stock/StockView";
 import { startBackendSync } from "../services/backend/supabase";
 import { useStore } from "../state/store";
-import type { Role, View } from "../types";
+import type { View } from "../types";
 
 export default function App() {
   const store = useStore();
-  const [role, setRole] = useState<Role | null>(null);
+  const [user, setUser] = useState<Profile | null>(() => getCurrentUser());
+  const role = user?.role ?? null;
   const [view, setView] = useState<View>("pos");
   const [search, setSearch] = useState("");
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -30,19 +32,14 @@ export default function App() {
 
   const debtors = store.clients.filter((c) => c.debtDh > 0).length;
 
-  /* ---------------- écran d'entrée : choix du profil ---------------- */
+  /* ---------------- écran d'entrée : authentification ---------------- */
   if (role === null) {
-    return <LandingView onSelect={setRole} />;
+    return <AuthView onAuth={(u) => setUser(u)} />;
   }
 
   /* ---------------- espace utilisateur PAYZIK ---------------- */
   if (role === "customer") {
-    return <CustomerApp store={store} onSwitchProfile={() => setRole(null)} />;
-  }
-
-  /* ---------------- espace restaurant ---------------- */
-  if (role === "restaurant") {
-    return <RestaurantApp store={store} onSwitchProfile={() => setRole(null)} />;
+    return <CustomerApp store={store} onSwitchProfile={() => { void signOut(); setUser(null); }} />;
   }
 
   /* ---------------- espace commerçant (caisse existante) ---------------- */
@@ -54,7 +51,7 @@ export default function App() {
         onSearch={setSearch}
         onOpenAlerts={() => setAlertsOpen(true)}
         hideSearch={view === "pos" || view === "catalogue"}
-        onSwitchProfile={() => setRole(null)}
+        onSwitchProfile={() => { void signOut(); setUser(null); }}
       />
 
       <div className="flex min-h-0 flex-1">

@@ -78,7 +78,7 @@ export type View =
    RÉSEAU PAYZIK — 3 espaces connectés
    ============================================================ */
 
-export type Role = "merchant" | "customer" | "restaurant";
+export type Role = "merchant" | "customer";
 
 export type EstablishmentKind =
   | "restaurant"

@@ -1,10 +1,8 @@
 import {
   ArrowRight,
   Check,
-  ChefHat,
   ShieldCheck,
   Store,
-  UtensilsCrossed,
   Wallet,
   Wifi,
 } from "lucide-react";
@@ -37,15 +35,6 @@ const ROLES: {
     text: "Ta carte, ton argent et les bons plans des commerces autour de toi.",
     bullets: ["Solde en direct", "Cashback partenaire", "Paiement en un geste"],
     cta: "Ouvrir mon portefeuille",
-  },
-  {
-    role: "restaurant",
-    icon: UtensilsCrossed,
-    kicker: "Restaurant",
-    title: "Le service à table",
-    text: "Le client commande à sa table. La cuisine reçoit, la caisse encaisse.",
-    bullets: ["Commande en 1 clic", "Envoyée en cuisine", "Paiement immédiat"],
-    cta: "Ouvrir le service",
   },
 ];
 
@@ -130,7 +119,7 @@ export function LandingView({ onSelect }: { onSelect: (role: Role) => void }) {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-orange/20 pt-5 text-xs font-bold text-orange-deep">
           <span className="inline-flex items-center gap-2">
-            <ChefHat size={14} /> Caisse · Restaurant · Portefeuille
+            <Store size={14} /> Caisse · Portefeuille · Réseau
           </span>
           <span>PAYZIK — Le réseau des commerces connectés</span>
         </footer>

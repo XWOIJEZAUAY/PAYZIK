@@ -14,7 +14,9 @@ export interface ImageSearchResult {
 
 // En dev, Vite proxifie /off-search -> search.openfoodfacts.org (contourne le CORS).
 // En prod, on tente l'URL directe (peut être bloquée par CORS sans proxy).
-const OFF_SEARCH = import.meta.env.DEV ? "/off-search/search" : "https://search.openfoodfacts.org/search";
+const OFF_SEARCH = import.meta.env.DEV
+  ? "/off-search/search"
+  : "/api/search-image";
 
 /** Recherche par nom de produit sur Open Food Facts. */
 export async function searchProductImage(query: string): Promise<ImageSearchResult | null> {

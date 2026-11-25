@@ -50,7 +50,7 @@ export function KridiView({ store }: { store: Store }) {
           const days = daysSince(c.since);
           const r = risk(days);
           return (
-            <div key={c.id} className="flex items-center gap-4 p-4">
+            <div key={c.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-soft text-sm font-black text-brand">
                 {c.name[0]}
               </div>

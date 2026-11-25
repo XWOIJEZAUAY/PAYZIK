@@ -280,7 +280,7 @@ export function StockView({ store }: { store: Store }) {
 
       <Card className="divide-y overflow-hidden">
         {store.products.map((p) => (
-          <div key={p.id} className="flex items-center gap-4 p-4">
+          <div key={p.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
             <button
               onClick={() => setEditing(p)}
               className="transition hover:opacity-80"
