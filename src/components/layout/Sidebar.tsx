@@ -30,7 +30,7 @@ export function Sidebar({
   kridiBadge?: number;
 }) {
   return (
-    <nav className="flex w-[220px] shrink-0 flex-col gap-1 bg-surface p-3 border-r border-line">
+    <nav className="flex w-[220px] shrink-0 flex-col gap-1 bg-sand p-3 border-r border-line">
       <div className="mb-3 flex items-center gap-2.5 px-1 py-2">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange text-white font-black text-sm">
           P
