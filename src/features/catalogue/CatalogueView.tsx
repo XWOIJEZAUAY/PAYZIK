@@ -346,6 +346,39 @@ export function CatalogueView({ store }: { store: Store }) {
               {active.aliases.length > 0 && (
                 <p className="text-xs text-muted">Aussi : {active.aliases.join(", ")}</p>
               )}
+              {/* note (étoiles) */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500">Note</span>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => {
+                    return (
+                      <button
+                        key={n}
+                        onClick={() => {
+                          const cur = active.rating ?? 0;
+                          const cnt = active.ratingCount ?? 0;
+                          const newAvg = cnt === 0 ? n : (cur * cnt + n) / (cnt + 1);
+                          store.updateProduct(active.id, {
+                            rating: Math.round(newAvg * 10) / 10,
+                            ratingCount: cnt + 1,
+                          });
+                          setActive({ ...active, rating: Math.round(newAvg * 10) / 10, ratingCount: cnt + 1 });
+                        }}
+                        className="text-lg transition-transform hover:scale-125"
+                        aria-label={`Noter ${n} étoiles`}
+                      >
+                        {n <= Math.round(active.rating ?? 0) ? "⭐" : "☆"}
+                      </button>
+                    );
+                  })}
+                  {(active.ratingCount ?? 0) > 0 && (
+                    <span className="ml-1 text-[10px] text-slate-400">
+                      {active.rating?.toFixed(1)} ({active.ratingCount})
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <Button
                 variant="secondary"
                 className="w-full"

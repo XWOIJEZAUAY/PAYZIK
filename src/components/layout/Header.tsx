@@ -2,6 +2,7 @@ import { ArrowLeftRight, Search } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { Store as StoreType } from "../../state/store";
 import { BoltIcon } from "../brand/Logo";
+import { getCurrentUser } from "../../services/auth";
 
 export function Header({
   store: _store,
@@ -19,6 +20,8 @@ export function Header({
   onSwitchProfile?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const user = getCurrentUser();
+  const isPremium = user?.premium ?? false;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -38,6 +41,11 @@ export function Header({
         <span className="text-lg font-black tracking-tight text-ink sm:text-[22px]">
           PAYZIK
         </span>
+        {isPremium && (
+          <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white shadow-sm">
+            Premium
+          </span>
+        )}
       </div>
 
       {!hideSearch && (

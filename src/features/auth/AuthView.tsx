@@ -1,6 +1,6 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
-import { signIn, signUp, signInWithGoogle, type Profile } from "../../services/auth";
+import { signIn, signUp, signInWithGoogle, resetPassword, type Profile } from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
@@ -12,6 +12,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmSent, setConfirmSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const submit = async () => {
     setError("");
@@ -157,6 +158,30 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mot de passe"
         />
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={async () => {
+              if (!email.trim()) {
+                setError("Entre ton email d'abord");
+                return;
+              }
+              setBusy(true);
+              const res = await resetPassword(email.trim());
+              setBusy(false);
+              if (res.ok) setResetSent(true);
+              else setError(res.error ?? "Erreur");
+            }}
+            className="text-right text-xs font-semibold text-brand hover:underline"
+          >
+            Mot de passe oublié ?
+          </button>
+        )}
+        {resetSent && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
+            ✉️ Un lien de réinitialisation a été envoyé à <strong>{email}</strong>.
+          </div>
+        )}
 
         {error && <p className="text-xs text-rose-500">{error}</p>}
 

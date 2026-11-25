@@ -164,7 +164,7 @@ export function AgentChat({
           kind: "error",
           text: aiAvailable()
             ? aiFailureMessage()
-            : "Aucune clé IA — ajoute VITE_GEMINI_API_KEY ou VITE_ANTHROPIC_API_KEY dans .env, ou écris la commande.",
+            : "L'IA n'est pas disponible — réessaie dans un moment.",
         });
         setPhase("idle");
         return;
@@ -278,7 +278,7 @@ export function AgentChat({
           kind: "error",
           text: aiAvailable()
             ? "Ce navigateur ne supporte pas la dictée — utilise Chrome, ou écris la commande."
-            : "Aucune clé IA — ajoute VITE_GEMINI_API_KEY ou VITE_ANTHROPIC_API_KEY dans .env.",
+            : "L'IA n'est pas disponible — réessaie dans un moment.",
         });
     } catch {
       say({
@@ -406,7 +406,7 @@ export function AgentChat({
 
       {/* ---------------- composer : micro + texte + live ---------------- */}
       <div className="border-t bg-white p-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
           <button
             onClick={toggleMic}
             disabled={phase === "thinking"}

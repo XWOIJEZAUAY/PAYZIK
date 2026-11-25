@@ -9,6 +9,8 @@ export interface Product {
   emoji: string;
   aliases: string[]; // darija / variantes pour la dictée vocale
   image?: string; // photo du produit (data URL base64)
+  rating?: number; // note moyenne (0-5)
+  ratingCount?: number; // nombre d'avis
 }
 
 export interface CartLine {

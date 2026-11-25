@@ -95,6 +95,16 @@ export async function signInWithGoogle(): Promise<{ ok: boolean; error?: string 
   return { ok: true };
 }
 
+export async function resetPassword(email: string): Promise<{ ok: boolean; error?: string }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 export async function signOut(): Promise<void> {
   const sb = getClient();
   if (sb) await sb.auth.signOut();
