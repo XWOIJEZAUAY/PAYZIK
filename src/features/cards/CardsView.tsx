@@ -141,24 +141,36 @@ export function CardsView({ store }: { store: Store }) {
 /* ---------- carte (pastille) ---------- */
 function CardPill({ card }: { card: WalletCard }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-indigo-800 p-5 text-white shadow-pop">
-      <div className="flex items-start justify-between">
-        <CreditCard size={22} className="opacity-80" />
-        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-          PAYZIK
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange via-orange-light to-orange-strong p-5 text-white shadow-pop transition-transform duration-200 hover:-translate-y-1">
+      {/* motifs décoratifs */}
+      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div className="relative flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
+            <CreditCard size={18} />
+          </span>
+          <span className="text-xs font-black uppercase tracking-[0.2em] text-white/90">
+            PAYZIK
+          </span>
+        </div>
+        <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur">
+          {card.balanceDh >= 100 ? "Gold" : "Standard"}
         </span>
       </div>
-      <p className="mt-4 text-lg font-black">{card.name}</p>
-      <p className="tnum text-xs text-white/70">{card.code}</p>
-      <div className="mt-5 flex items-end justify-between">
+      <p className="relative mt-6 text-xl font-black tracking-tight">{card.name}</p>
+      <p className="relative tnum text-xs text-white/70">{card.code}</p>
+      <div className="relative mt-6 flex items-end justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
-            Solde
+            Solde disponible
           </p>
-          <p className="tnum text-2xl font-black">{fmtDh(card.balanceDh)}</p>
+          <p className="tnum text-3xl font-black leading-none">{fmtDh(card.balanceDh)}</p>
         </div>
         <p className="text-[10px] text-white/60">{card.phone ?? "—"}</p>
       </div>
+      {/* puce NFC simulée */}
+      <div className="pointer-events-none absolute bottom-5 right-5 h-8 w-10 rounded-md bg-gradient-to-br from-white/40 to-white/10 ring-1 ring-white/30" />
     </div>
   );
 }
@@ -283,7 +295,7 @@ function CardDetailModal({
     const w = window.open("", "_blank", "width=420,height=620");
     if (!w) return;
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Carte ${card.code}</title>
-      <style>body{font-family:ui-sans-serif,Arial;text-align:center;padding:24px;color:#3A2A1F}
+      <style>body{font-family:ui-sans-serif,Arial;text-align:center;padding:24px;color:#F47721}
       .code{font-size:22px;font-weight:800;letter-spacing:2px;margin:8px 0}
       .name{font-size:20px;font-weight:800}.sub{color:#8B7458;font-size:12px}
       img{width:260px;height:260px}@media print{.noprint{display:none}}</style></head>
