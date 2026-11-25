@@ -82,12 +82,7 @@ export type View =
 
 export type Role = "merchant" | "customer";
 
-export type EstablishmentKind =
-  | "restaurant"
-  | "hanout"
-  | "cafe"
-  | "epicerie"
-  | "pharmacie";
+export type EstablishmentKind = "hanout" | "epicerie" | "pharmacie" | "cafe" | "patisserie";
 
 export type Tone = "navy" | "teal" | "amber" | "rose" | "indigo";
 

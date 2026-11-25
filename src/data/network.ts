@@ -18,7 +18,7 @@ export const DEMO_ESTABLISHMENTS: Establishment[] = [
   {
     id: "e-darzitoun",
     name: "Dar Zitoun",
-    kind: "restaurant",
+    kind: "hanout",
     city: "Casablanca",
     district: "Maârif",
     rating: 4.8,
@@ -60,7 +60,7 @@ export const DEMO_ESTABLISHMENTS: Establishment[] = [
   {
     id: "e-sqala",
     name: "La Sqala",
-    kind: "restaurant",
+    kind: "hanout",
     city: "Casablanca",
     district: "Ancienne Médina",
     rating: 4.9,
@@ -101,7 +101,7 @@ export const DEMO_ESTABLISHMENTS: Establishment[] = [
   {
     id: "e-brahim",
     name: "Grillades Chez Brahim",
-    kind: "restaurant",
+    kind: "hanout",
     city: "Agadir",
     district: "Talborjt",
     rating: 4.8,
@@ -142,7 +142,7 @@ export const DEMO_ESTABLISHMENTS: Establishment[] = [
   {
     id: "e-bennis",
     name: "Pâtisserie Bennis",
-    kind: "cafe",
+    kind: "patisserie",
     city: "Casablanca",
     district: "Bourgogne",
     rating: 4.9,
@@ -155,7 +155,7 @@ export const DEMO_ESTABLISHMENTS: Establishment[] = [
   {
     id: "e-ocean",
     name: "Restaurant Océan",
-    kind: "restaurant",
+    kind: "hanout",
     city: "Casablanca",
     district: "Ain Diab",
     rating: 4.7,

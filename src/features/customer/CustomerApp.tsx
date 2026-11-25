@@ -69,11 +69,11 @@ const KIND_META: Record<
   EstablishmentKind,
   { label: string; icon: typeof Store }
 > = {
-  restaurant: { label: "Restaurant", icon: UtensilsCrossed },
   hanout: { label: "Hanout", icon: Store },
-  cafe: { label: "Café", icon: Coffee },
   epicerie: { label: "Épicerie", icon: ShoppingBasket },
   pharmacie: { label: "Pharmacie", icon: Pill },
+  cafe: { label: "Café", icon: Coffee },
+  patisserie: { label: "Pâtisserie", icon: ShoppingBasket },
 };
 
 const TONE: Record<
@@ -286,7 +286,6 @@ export function CustomerApp({
             ads={network.ads}
             orders={network.orders}
             onPay={setPayTarget}
-            onMenu={setMenuTarget}
           />
         )}
         {tab === "dashboard" && (
@@ -935,13 +934,11 @@ function NetworkView({
   ads,
   orders,
   onPay,
-  onMenu,
 }: {
   establishments: Establishment[];
   ads: Ad[];
   orders: RestaurantOrder[];
   onPay: (e: Establishment) => void;
-  onMenu: (e: Establishment) => void;
 }) {
   const [filter, setFilter] = useState<KindFilter>("all");
   const [q, setQ] = useState("");
@@ -958,11 +955,11 @@ function NetworkView({
 
   const filters: { id: KindFilter; label: string }[] = [
     { id: "all", label: "Tout" },
-    { id: "restaurant", label: "Restaurants" },
     { id: "hanout", label: "Hanouts" },
-    { id: "cafe", label: "Cafés" },
     { id: "epicerie", label: "Épiceries" },
     { id: "pharmacie", label: "Pharmacies" },
+    { id: "cafe", label: "Cafés" },
+    { id: "patisserie", label: "Pâtisseries" },
   ];
 
   return (
@@ -1016,7 +1013,6 @@ function NetworkView({
               e={e}
               orders={e.id === "e-darzitoun" ? orders : []}
               onPay={() => onPay(e)}
-              onMenu={() => onMenu(e)}
             />
             {(i + 1) % 4 === 0 && ads[Math.floor(i / 4) % ads.length] && (
               <SponsoredCard ad={ads[Math.floor(i / 4) % ads.length]} />
@@ -1040,12 +1036,10 @@ function EstablishmentCard({
   e,
   orders,
   onPay,
-  onMenu,
 }: {
   e: Establishment;
   orders: RestaurantOrder[];
   onPay: () => void;
-  onMenu: () => void;
 }) {
   const meta = KIND_META[e.kind];
   const Icon = meta.icon;
@@ -1085,8 +1079,7 @@ function EstablishmentCard({
 
         <p className="mt-1 text-[10.5px] text-muted">
           {meta.label} · {e.reviews} avis
-          {active > 0 && e.kind === "restaurant" ? ` · ${active} table(s) active(s)` : ""}
-        </p>
+          {active > 0 ? ` · ${active} actif(s)` : ""}        </p>
 
         <div className="mt-2 flex flex-wrap gap-1">
           {e.tags.map((t) => (
@@ -1103,11 +1096,7 @@ function EstablishmentCard({
           <Button variant="primary" className="flex-1 !py-2 text-[12px]" onClick={onPay}>
             <CreditCard size={13} /> Payer
           </Button>
-          {e.kind === "restaurant" && (
-            <Button variant="secondary" className="!px-3 !py-2 text-[12px]" onClick={onMenu}>
-              <UtensilsCrossed size={13} /> Menu
-            </Button>
-          )}
+          {/* pas de menu restaurant — commerces uniquement */}
         </div>
       </div>
     </div>
