@@ -1,5 +1,4 @@
-/** Espace Utilisateur PAYZIK : carte, solde, offres du réseau, paiement et tableau de bord.
- *  Connecté au même réseau que la caisse commerçant et le restaurant. */
+/** Espace Utilisateur PAYZIK : carte, solde, offres du réseau et tableau de bord. */
 import {
   ArrowDownLeft,
   ArrowRight,
