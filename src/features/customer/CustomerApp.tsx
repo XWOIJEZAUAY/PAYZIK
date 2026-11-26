@@ -43,6 +43,7 @@ import {
   StatusDot,
 } from "../../components/ui";
 import { fmtDh } from "../../lib/format";
+import { CloudRechargePanel } from "./CloudRechargePanel";
 import type { Store as StoreType } from "../../state/store";
 import { useNetwork } from "../../state/network";
 import type {
@@ -709,10 +710,10 @@ function AdRow({ ad, onClick }: { ad: Ad; onClick: () => void }) {
    ================================================================ */
 
 function WalletView({
-  store,
+  store: _store,
   card,
   txs,
-  cashback,
+  cashback: _cashback,
   customerName,
   phone,
   city,
@@ -729,17 +730,9 @@ function WalletView({
   onSaveProfile: (patch: { name?: string; phone?: string; city?: string }) => void;
   onNotice: (msg: string) => void;
 }) {
-  const [amount, setAmount] = useState<number | "">("");
   const [name, setName] = useState(customerName);
   const [tel, setTel] = useState(phone);
   const [town, setTown] = useState(city);
-
-  const recharge = (value: number) => {
-    if (!value || value <= 0) return;
-    store.topUpCard(card.id, value, "Recharge PAYZIK");
-    onNotice(`${fmtDh(value)} rechargés sur ta carte.`);
-    setAmount("");
-  };
 
   const save = () => {
     onSaveProfile({ name: name.trim() || customerName, phone: tel.trim(), city: town.trim() });
@@ -786,48 +779,8 @@ function WalletView({
           </div>
         </div>
 
-        {/* recharge */}
-        <Card className="p-4">
-          <h3 className="text-[13px] font-extrabold tracking-tight text-ink">Recharger ma carte</h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Choisis un montant — le solde est mis à jour instantanément.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[50, 100, 200, 500].map((v) => (
-              <button
-                key={v}
-                onClick={() => setAmount(v)}
-                className={cn(
-                  "money rounded-xl border px-4 py-2 text-sm font-bold transition-all",
-                  amount === v
-                    ? "border-teal bg-accent-soft text-teal-deep"
-                    : "bg-surface text-ink hover:border-teal/40",
-                )}
-              >
-                {v} DH
-              </button>
-            ))}
-            <input
-              inputMode="numeric"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-              placeholder="Autre…"
-              className="money h-10 w-28 rounded-xl border bg-surface2 px-3 text-sm font-bold outline-none focus:border-teal focus:ring-2 focus:ring-accent-soft"
-            />
-          </div>
-          <Button
-            variant="accent"
-            className="mt-3 w-full !py-3"
-            disabled={typeof amount !== "number" || amount <= 0}
-            onClick={() => recharge(typeof amount === "number" ? amount : 0)}
-          >
-            <Plus size={16} /> Recharger {typeof amount === "number" ? fmtDh(amount) : ""}
-          </Button>
-          <p className="mt-2 flex items-center justify-between text-[11px] text-muted">
-            <span>Cashback cumulé</span>
-            <span className="money font-bold text-teal-deep">{fmtDh(cashback)}</span>
-          </p>
-        </Card>
+        {/* recharge cloud */}
+        <CloudRechargePanel customerName={customerName} onNotice={onNotice} />
 
         {/* profil */}
         <Card className="p-4">

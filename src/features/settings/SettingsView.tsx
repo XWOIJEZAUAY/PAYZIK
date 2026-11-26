@@ -80,12 +80,12 @@ export function SettingsView({ store }: { store: Store }) {
 
       <Card className="flex items-center justify-between p-5">
         <div>
-          <p className="text-sm font-bold text-ink">Réinitialiser la démo</p>
+          <p className="text-sm font-bold text-ink">Réinitialiser mes données</p>
           <p className="text-xs text-slate-400">
-            Restaure les produits et clients de démonstration.
+            Supprime produits, clients, ventes et cartes de ce compte.
           </p>
         </div>
-        <Button variant="danger" onClick={store.resetDemo}>
+        <Button variant="danger" onClick={store.resetAll}>
           <RotateCcw size={15} /> Réinitialiser
         </Button>
       </Card>

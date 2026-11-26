@@ -241,21 +241,21 @@ await test("Requête dupliquée non rejouée", async () => {
 });
 
 await test("Double dépense empêchée et solde inchangé après échec", async () => {
-  const before = await balanceOf(sellerA.client, generalA.card_id);
+  const before = await balanceOf(clientA.client, generalA.card_id);
   await rpc(sellerA.client, "pay_general_card", {
     p_card: generalA.card_id,
     p_shop: shopA.shop_id,
     p_amount: before - 20,
     p_idempotency_key: `gen-pay-${suffix}`,
   });
-  const after = await balanceOf(sellerA.client, generalA.card_id);
+  const after = await balanceOf(clientA.client, generalA.card_id);
   await expectRpcFailure(sellerA.client, "pay_general_card", {
     p_card: generalA.card_id,
     p_shop: shopA.shop_id,
     p_amount: after,
     p_idempotency_key: `gen-pay-2-${suffix}`,
   });
-  assert.equal(await balanceOf(sellerA.client, generalA.card_id), after);
+  assert.equal(await balanceOf(clientA.client, generalA.card_id), after);
 });
 
 await test("Paiement réussi crée une écriture complète", async () => {

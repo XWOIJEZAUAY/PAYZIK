@@ -16,6 +16,7 @@ import {
   Minus,
   Package,
   Pencil,
+  Phone,
   Plus,
   Printer,
   Receipt,
@@ -34,6 +35,7 @@ import {
 import QRCode from "qrcode";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { daysSince, fmtDh } from "../../lib/format";
+import { getAiLang, setAiLang } from "../../lib/aiLang";
 import { PIN_THRESHOLD } from "../../lib/wallet";
 import { resizeImageFile, searchProductImage } from "../../services/imageSearch";
 import type { Profile } from "../../services/auth";
@@ -53,6 +55,7 @@ import { parseUtterance } from "../voice/VoiceInput";
 import type { Store as StoreType } from "../../state/store";
 import type { CardTx, Category, Client, Product, WalletCard } from "../../types";
 import { CardScanSheet } from "./CardScanSheet";
+import { MerchantRecharges } from "./MerchantRecharges";
 import {
   Avatar,
   Btn,
@@ -66,7 +69,7 @@ import {
   TabBar,
 } from "./ui";
 
-export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "bilan";
+export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "recharges" | "bilan";
 
 /* Une seule tentative d'image par référence et par session : évite de
  * relancer l'API Open Food Facts à chaque changement d'onglet. */
@@ -77,6 +80,7 @@ const MERCHANT_TABS: { id: MerchantTab; label: string; icon: typeof Wallet }[] =
   { id: "kridi", label: "Carnet", icon: BookOpen },
   { id: "stock", label: "Stock", icon: Package },
   { id: "cartes", label: "Cartes", icon: CreditCard },
+  { id: "recharges", label: "Demandes", icon: Wallet },
   { id: "bilan", label: "Bilan", icon: TrendingUp },
 ];
 
@@ -191,13 +195,14 @@ export function MerchantSpace({
           tab === "caisse" ? "flex overflow-hidden pb-0" : "pb-24",
         )}
       >
-        {tab === "caisse" && <Caisse store={store} notify={notify} />}
+        {tab === "caisse" && <Caisse store={store} notify={notify} merchantName={storeName} />}
         {tab === "kridi" && <MerchantKridi store={store} notify={notify} />}
         {tab === "stock" && <MerchantStock store={store} notify={notify} />}
         {tab === "cartes" && <MerchantCards store={store} notify={notify} />}
+        {tab === "recharges" && <MerchantRecharges notify={notify} />}
         {tab === "bilan" && <Bilan store={store} />}
       </main>
-      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={5} />
+      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={6} />
     </>
   );
 }
@@ -243,14 +248,16 @@ function MerchantHeader({
 function Caisse({
   store,
   notify,
+  merchantName,
 }: {
   store: StoreType;
   notify: (m: string) => void;
+  merchantName?: string;
 }) {
   const [msgs, setMsgs] = useState<VoiceMsg[]>([]);
   const [draft, setDraft] = useState("");
   const [phase, setPhase] = useState<"idle" | "thinking">("idle");
-  const [lang, setLang] = useState<"darija" | "tachelhit">("darija");
+  const [lang, setLang] = useState<"darija" | "tachelhit">(() => getAiLang());
   const [live, setLive] = useState<"idle" | "connecting" | "listening" | "speaking" | "error">("idle");
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [receiptItems, setReceiptItems] = useState<{ productId: string; qty: number }[]>([]);
@@ -391,7 +398,7 @@ function Caisse({
       },
       onClose: () => setLive((s) => (s === "error" ? s : "idle")),
     };
-    const session = new LiveSession(storeRef.current.products, callbacks);
+    const session = new LiveSession(storeRef.current.products, callbacks, merchantName);
     liveRef.current = session;
     void session.start();
   };
@@ -442,6 +449,7 @@ function Caisse({
   const send = async (raw?: string) => {
     const text = (raw ?? draft).trim();
     if (!text || phase === "thinking") return;
+    setAiLang(lang);
     setDraft("");
     setMsgs((prev) => [
       ...prev,
@@ -504,7 +512,7 @@ function Caisse({
           result?.reply ||
           (items.length
             ? `C'est ajouté : ${items.map((i) => `${i.qty} × ${i.product.name}`).join(", ")}.`
-            : "Je n'ai reconnu aucun produit du catalogue.");
+            : "Achno 3ndk tma ? (ex. jouj Sidi Ali, wa7ed atay)");
         const itemsTotal = items.reduce((s, i) => s + i.product.priceDh * i.qty, 0);
         say({
           role: "ai",
@@ -517,7 +525,7 @@ function Caisse({
       say({
         role: "ai",
         kind: "error",
-        text: "L'assistant PAYZIK est momentanément indisponible — réessaie.",
+        text: "L'assistant PAYZIK est momentanément indisponible — écris ta commande (ex. « jouj Sidi Ali ») ou réessaie.",
       });
     } finally {
       setPhase("idle");
@@ -530,87 +538,15 @@ function Caisse({
     setCancelOpen(false);
   };
 
-  // Produits fréquents = les plus vendus dans l'historique, puis le catalogue.
-  // Plus de liste codée en dur : le choix suit les vraies ventes du commerçant.
-  const frequent = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const sale of store.sales)
-      for (const line of sale.lines) {
-        const p = store.products.find((x) => x.name === line.name);
-        if (p) counts.set(p.id, (counts.get(p.id) ?? 0) + line.qty);
-      }
-    const ranked = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([id]) => store.productById(id))
-      .filter(Boolean) as Product[];
-    const rest = store.products.filter((p) => !ranked.some((r) => r.id === p.id));
-    return [...ranked, ...rest].slice(0, 8);
-  }, [store.sales, store.products, store.productById]);
-
-  /** Choix d'un produit fréquent : image animée + réponse IA dans la discussion. */
-  const chooseProduct = (p: Product) => {
-    store.addToCart(p.id);
-    const stamp = Date.now() + Math.random();
-    const total = storeRef.current.cart.reduce((s, l) => {
-      const prod = storeRef.current.productById(l.productId);
-      return s + (prod?.priceDh ?? 0) * l.qty;
-    }, p.priceDh);
-    setMsgs((prev) => [
-      ...prev,
-      { id: `u-${stamp}`, role: "user", text: `Ajoute ${p.name}` },
-      {
-        id: `a-${stamp}`,
-        role: "ai",
-        text: `C'est ajouté : 1 × ${p.name}. Ça fait ${fmtDh(total)}.`,
-        products: [
-          {
-            name: p.name,
-            emoji: p.emoji,
-            image: p.image,
-            qty: 1,
-            priceDh: p.priceDh,
-          },
-        ],
-      },
-    ]);
-  };
+  // (Produits fréquents supprimés de l'affichage pour alléger la caisse.)
 
   return (
     <div className="relative flex h-full min-h-0 flex-col">
       {/* ---------------- fil de discussion (style AgentChat) ---------------- */}
       <div ref={threadRef} className="scrollbar-thin min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {frequent.length > 0 && (
-          <div className="animate-fade-up rounded-xl border border-[#E2E8F0] bg-white p-2.5">
-            <p className="mb-1.5 text-[9.5px] font-bold uppercase tracking-wide text-[#64748B]">
-              Choisis un produit
-            </p>
-            <div className="scrollbar-thin flex gap-2 overflow-x-auto pb-0.5">
-              {frequent.map((p, i) => (
-                <button
-                  key={p.id}
-                  onClick={() => chooseProduct(p)}
-                  className="animate-popIn flex w-[74px] shrink-0 flex-col items-center gap-1 rounded-lg bg-[#F8FAFC] p-1.5 active:scale-95"
-                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}
-                >
-                  <img
-                    src={productArt(p)}
-                    alt={p.name}
-                    className="h-12 w-12 rounded-lg object-cover"
-                  />
-                  <span className="w-full truncate text-center text-[9px] font-semibold text-[#0F172A]">
-                    {p.name}
-                  </span>
-                  <span className="font-mono text-[9px] font-bold text-[#FF5200]">
-                    {fmtDh(p.priceDh)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {msgs.length === 0 && phase === "idle" && (
-          <div className="animate-fade-up flex min-h-[52%] flex-col items-center justify-center py-8 text-center">
+          <div className="animate-fade-up flex min-h-[32%] flex-col items-center justify-center py-6 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF1EA] text-[#FF5200]">
               <Zap size={34} fill="currentColor" />
             </div>
@@ -726,7 +662,7 @@ function Caisse({
               disabled={store.cart.length === 0}
               className="flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-[10.5px] font-semibold text-[#0F172A] disabled:opacity-30"
             >
-              <Receipt size={13} /> Ticket
+              <Receipt size={13} /> Ticket · Payer
             </button>
           </div>
         </div>
@@ -770,7 +706,7 @@ function Caisse({
               {live === "connecting" ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
-                <Zap size={22} fill="currentColor" />
+                <Phone size={22} />
               )}
             </button>
           </div>
@@ -791,14 +727,21 @@ function Caisse({
             <button
               type="submit"
               disabled={!draft.trim() || phase === "thinking"}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F172A] text-white disabled:opacity-40"
-              aria-label="Envoyer"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF5200] text-white shadow-sm disabled:opacity-40"
+              aria-label="Envoyer la commande"
+              title="Envoyer"
             >
-              <SendHorizontal size={17} />
+              <SendHorizontal size={18} />
             </button>
           </form>
           <button
-            onClick={() => setLang((l) => (l === "darija" ? "tachelhit" : "darija"))}
+            onClick={() =>
+              setLang((l) => {
+                const next = l === "darija" ? "tachelhit" : "darija";
+                setAiLang(next);
+                return next;
+              })
+            }
             className="h-9 shrink-0 rounded-lg border border-[#E2E8F0] bg-white px-2 text-[9.5px] font-bold text-[#64748B]"
             title="Langue de l'assistant"
           >
@@ -1927,11 +1870,11 @@ function MerchantCards({
             <button
               key={c.id}
               onClick={() => setDetailId(c.id)}
-              className="animate-popIn block w-full overflow-hidden rounded-2xl bg-[#0F172A] p-4 text-left text-white shadow-sm active:scale-[.99]"
+              className="animate-popIn block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF5200] to-[#FF8A3D] p-4 text-left text-white shadow-md active:scale-[.99]"
               style={{ animationDelay: `${Math.min(i, 12) * 45}ms`, animationFillMode: "both" }}
             >
               <div className="flex items-start justify-between">
-                <CreditCard size={20} className="text-[#FF5200]" />
+                <CreditCard size={20} className="text-white/90" />
                 <span className="rounded-full border border-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/80">
                   PAYZIK
                 </span>

@@ -15,6 +15,11 @@ function getClient(): SupabaseClient | null {
 
 export const authEnabled = () => !!getClient();
 
+/** Accès au client Supabase pour les services backend (cartes, boutiques, recharges). */
+export function getSupabaseClient() {
+  return getClient();
+}
+
 export type Profile = {
   id: string;
   email: string;
@@ -93,6 +98,133 @@ export async function signInWithGoogle(): Promise<{ ok: boolean; error?: string 
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+function nameFromUser(u: { email?: string | null; user_metadata?: Record<string, unknown> }): string {
+  const meta = u.user_metadata ?? {};
+  const full = (meta.full_name ?? meta.name ?? meta.preferred_username) as string | undefined;
+  if (full && String(full).trim()) return String(full).trim();
+  if (u.email) return u.email.split("@")[0];
+  return "Utilisateur";
+}
+
+export async function restoreSession(): Promise<Profile | null> {
+  const sb = getClient();
+  if (!sb) return getCurrentUser();
+  const { data, error } = await sb.auth.getSession();
+  if (error) return getCurrentUser();
+  const u = data.session?.user;
+  if (!u) {
+    localStorage.removeItem(LS_USER);
+    localStorage.removeItem(LS_ROLE);
+    return null;
+  }
+  const { data: prof } = await sb.from("profiles").select("*").eq("id", u.id).maybeSingle();
+  let profile: Profile;
+  if (prof) {
+    profile = {
+      id: u.id,
+      email: u.email ?? prof.email ?? "",
+      name: prof.name ?? nameFromUser(u),
+      role: (prof.role as "merchant" | "customer") ?? "customer",
+      premium: !!prof.premium,
+    };
+  } else {
+    const name = nameFromUser(u);
+    profile = { id: u.id, email: u.email ?? "", name, role: "customer", premium: false };
+    const { error: iErr } = await sb.from("profiles").insert({
+      id: u.id,
+      email: u.email ?? "",
+      name,
+      role: "customer",
+      premium: false,
+    });
+    if (iErr && iErr.code !== "23505") {
+      console.warn("profile insert:", iErr.message);
+    }
+  }
+  localStorage.setItem(LS_USER, JSON.stringify(profile));
+  localStorage.setItem(LS_ROLE, profile.role);
+  return profile;
+}
+
+export async function verifySignupOtp(
+  email: string,
+  token: string,
+  name: string,
+  role: "merchant" | "customer",
+): Promise<{ ok: boolean; error?: string; user?: Profile }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: "email" });
+  if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
+
+  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
+  if (!prof) {
+    const { error: pErr } = await sb.from("profiles").insert({
+      id: data.user.id,
+      email: email.trim(),
+      name: name.trim() || email.split("@")[0],
+      role,
+      premium: false,
+    });
+    if (pErr && pErr.code !== "23505") return { ok: false, error: pErr.message };
+  }
+
+  const u: Profile = {
+    id: data.user.id,
+    email: data.user.email ?? email.trim(),
+    name: prof?.name ?? name.trim() || email.split("@")[0],
+    role: (prof?.role as "merchant" | "customer") ?? role,
+    premium: !!prof?.premium,
+  };
+  localStorage.setItem(LS_USER, JSON.stringify(u));
+  localStorage.setItem(LS_ROLE, u.role);
+  return { ok: true, user: u };
+}
+
+export async function resetPasswordWithOtp(
+  email: string,
+  token: string,
+  newPassword: string,
+): Promise<{ ok: boolean; error?: string; user?: Profile }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: "recovery" });
+  if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
+
+  const { error: uErr } = await sb.auth.updateUser({ password: newPassword });
+  if (uErr) return { ok: false, error: uErr.message };
+
+  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
+  const u: Profile = {
+    id: data.user.id,
+    email: data.user.email ?? email.trim(),
+    name: prof?.name ?? email.split("@")[0],
+    role: (prof?.role as "merchant" | "customer") ?? "customer",
+    premium: !!prof?.premium,
+  };
+  localStorage.setItem(LS_USER, JSON.stringify(u));
+  localStorage.setItem(LS_ROLE, u.role);
+  return { ok: true, user: u };
+}
+
+export function subscribeAuth(callback: (user: Profile | null) => void): () => void {
+  const sb = getClient();
+  if (!sb) return () => {};
+  const { data } = sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_OUT" || !session?.user) {
+      localStorage.removeItem(LS_USER);
+      localStorage.removeItem(LS_ROLE);
+      callback(null);
+      return;
+    }
+    if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+      const p = await restoreSession();
+      callback(p);
+    }
+  });
+  return () => data.subscription.unsubscribe();
 }
 
 export async function resetPassword(email: string): Promise<{ ok: boolean; error?: string }> {

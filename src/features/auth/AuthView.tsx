@@ -1,6 +1,6 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
-import { signIn, signUp, signInWithGoogle, resetPassword, type Profile } from "../../services/auth";
+import { signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp, type Profile } from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
@@ -13,6 +13,9 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [error, setError] = useState("");
   const [confirmSent, setConfirmSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [otpMode, setOtpMode] = useState<"signup" | "reset" | null>(null);
 
   const submit = async () => {
     setError("");
@@ -36,6 +39,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
     }
     if (res.needsConfirm) {
       setConfirmSent(true);
+      setOtpMode("signup");
       return;
     }
     if (res.user) onAuth(res.user);
@@ -51,11 +55,33 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
           </p>
         </div>
 
-        {confirmSent && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
-            ✉️ Un email de vérification a été envoyé à <strong>{email}</strong>.
-            <br />
-            Clique sur le lien dans l'email pour activer ton compte, puis connecte-toi.
+        {confirmSent && otpMode === "signup" && (
+          <div className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <p className="text-center">
+              ✉️ Un code de vérification a été envoyé à <strong>{email}</strong>.
+            </p>
+            <input
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="Code à 6 chiffres"
+              inputMode="numeric"
+              className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
+            />
+            <Button
+              variant="primary"
+              className="w-full"
+              disabled={busy || otpCode.length < 6}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role);
+                setBusy(false);
+                if (res.ok && res.user) onAuth(res.user);
+                else setError(res.error ?? "Code invalide");
+              }}
+            >
+              {busy ? "…" : "Vérifier le code"}
+            </Button>
           </div>
         )}
 
@@ -169,17 +195,50 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
               setBusy(true);
               const res = await resetPassword(email.trim());
               setBusy(false);
-              if (res.ok) setResetSent(true);
-              else setError(res.error ?? "Erreur");
+              if (res.ok) {
+                setResetSent(true);
+                setOtpMode("reset");
+              } else setError(res.error ?? "Erreur");
             }}
             className="text-right text-xs font-semibold text-brand hover:underline"
           >
             Mot de passe oublié ?
           </button>
         )}
-        {resetSent && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
-            ✉️ Un lien de réinitialisation a été envoyé à <strong>{email}</strong>.
+        {resetSent && otpMode === "reset" && (
+          <div className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <p className="text-center">
+              ✉️ Un code de réinitialisation a été envoyé à <strong>{email}</strong>.
+            </p>
+            <input
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="Code à 6 chiffres"
+              inputMode="numeric"
+              className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
+            />
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Nouveau mot de passe"
+              className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-[13px] outline-none focus:border-brand"
+            />
+            <Button
+              variant="primary"
+              className="w-full"
+              disabled={busy || otpCode.length < 6 || newPassword.length < 6}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                const res = await resetPasswordWithOtp(email.trim(), otpCode.trim(), newPassword);
+                setBusy(false);
+                if (res.ok && res.user) onAuth(res.user);
+                else setError(res.error ?? "Code invalide");
+              }}
+            >
+              {busy ? "…" : "Réinitialiser le mot de passe"}
+            </Button>
           </div>
         )}
 

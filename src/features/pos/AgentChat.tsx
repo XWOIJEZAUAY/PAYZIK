@@ -164,7 +164,7 @@ export function AgentChat({
           kind: "error",
           text: aiAvailable()
             ? aiFailureMessage()
-            : "L'IA n'est pas disponible — réessaie dans un moment.",
+            : "L'IA est momentanément indisponible — écris ta commande (ex. « jouj Sidi Ali ») ou réessaie.",
         });
         setPhase("idle");
         return;
@@ -278,7 +278,7 @@ export function AgentChat({
           kind: "error",
           text: aiAvailable()
             ? "Ce navigateur ne supporte pas la dictée — utilise Chrome, ou écris la commande."
-            : "L'IA n'est pas disponible — réessaie dans un moment.",
+            : "L'IA est momentanément indisponible — écris ta commande (ex. « jouj Sidi Ali ») ou réessaie.",
         });
     } catch {
       say({

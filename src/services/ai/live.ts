@@ -75,10 +75,12 @@ export class LiveSession {
   private stopped = false;
   private catalog: Product[];
   private callbacks: LiveSessionCallbacks;
+  private merchantName: string;
 
-  constructor(catalog: Product[], callbacks: LiveSessionCallbacks) {
+  constructor(catalog: Product[], callbacks: LiveSessionCallbacks, merchantName = "") {
     this.catalog = catalog;
     this.callbacks = callbacks;
+    this.merchantName = merchantName.trim();
   }
 
   get isStopped() {
@@ -95,8 +97,11 @@ ${aiLangInstruction(getAiLang())}
 une phrase courte et chaleureuse.
 
 OUVERTURE (très important) :
-- Dès que la conversation commence, sans bruit parasite ni souffle, tu dis EXACTEMENT :
-  ${getAiLang() === "tachelhit" ? "« Azoul madark ghid ilan ? » (ach 3NDK TMA ?)" : "« Salam a khoya ! Ach nqad lik ? »"}
+- Dès que la conversation commence, sans bruit parasite ni souffle, tu salues chaleureusement.
+- Salutation : « Salam${this.merchantName ? " " + this.merchantName : ""} ! Achno 3ndk tma ? »
+  (si le nom commence par « Si », l'utiliser ; sinon pas de « akhouya », car le commerçant peut être une femme).
+- Cette salutation n'est faite QU'AU DÉBUT de la conversation. Aux tours suivants, tu réponds directement à la demande (confirmation + total), sans re-saluer.
+- Ne dis JAMAIS seulement « pas disponible » : si un produit manque, propose une alternative ou demande la quantité.
 - Interdit : bruits, souffle, grognements, onomatopées ("euh", "hmm", "aaa"). Tu parles clairement.
 
 NOMBRES EN DARIJA (quantités et total) :

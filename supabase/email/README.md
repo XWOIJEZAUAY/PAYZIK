@@ -5,7 +5,7 @@
 Les modèles et la configuration locale sont préparés dans ce dépôt :
 
 - Expéditeur : **Payzik**
-- Adresse d'expédition prévue : `no-reply@payzik.ma` (à remplacer si le domaine vérifié est différent)
+- Adresse d'expédition retenue pour le test gratuit : `onboarding@resend.dev` (production : `no-reply@payzik.ma` après vérification d'un domaine)
 - SMTP : **custom SMTP**, identifiants lus depuis l'environnement (`PAYZIK_SMTP_*`), jamais stockés dans le frontend
 - Modèles : `supabase/templates/*.html`
 - Configuration locale/CLI : `supabase/config.toml`
@@ -13,6 +13,40 @@ Les modèles et la configuration locale sont préparés dans ce dépôt :
 **Aucun email marqué PAYZIK n'a été envoyé ni reçu lors de cette intervention.**
 La configuration n'est donc PAS déclarée opérationnelle. Elle ne sera considérée comme opérationnelle
 qu'après réception réelle d'un email de test envoyé depuis l'identité d'expéditeur Payzik.
+
+## Audit du 26/11/2026
+
+Relevé via l'endpoint public `/auth/v1/settings` du projet hébergé :
+
+- fournisseur **email activé**, inscription ouverte ;
+- **confirmation d'email obligatoire** (`mailer_autoconfirm: false`) ;
+- aucun fournisseur OAuth actif, téléphone désactivé ;
+- cet endpoint n'expose **ni l'expéditeur, ni la configuration SMTP, ni les modèles** : l'identité réellement en place côté hébergement reste donc **non vérifiable** sans `SUPABASE_ACCESS_TOKEN`.
+
+Côté dépôt : `supabase/config.toml` porte le nom `Payzik`, l'adresse de test `onboarding@resend.dev` (production : `no-reply@payzik.ma` après vérification d'un domaine) et les 13 modèles. Les identifiants SMTP sont lus depuis l'environnement (`PAYZIK_SMTP_*`) et sont absents de `.env`.
+
+Commande de contrôle sans divulgation de secret :
+
+```bash
+npm run email:check
+```
+
+## Mode test gratuit (option 2 — retenue)
+
+Sans domaine acheté, l'expéditeur utilisé est `Payzik <onboarding@resend.dev>`.
+
+Configuration Resend :
+
+- compte créé sur `resend.com` (gratuit, sans carte) ;
+- **aucune vérification de domaine nécessaire** pour ce mode ;
+- clé API créée dans **API Keys → Create API key** ;
+- SMTP : host `smtp.resend.com`, port `465`, username `resend`, password = clé `re_...`.
+
+Configuration Supabase : **Authentication → Email → SMTP Settings**, activer *Enable custom SMTP*, puis Sender name `Payzik`, Sender email `onboarding@resend.dev`, et les mêmes paramètres SMTP.
+
+**Limite officielle Resend** : `onboarding@resend.dev` ne peut envoyer qu'à **l'adresse email associée au compte Resend**. Ce mode sert donc uniquement à valider les modèles et les liens. Pour envoyer aux utilisateurs, il faudra vérifier un domaine et remplacer `PAYZIK_FROM_EMAIL` par une adresse sur ce domaine.
+
+`npm run email:check` affiche un avertissement tant que l'expéditeur est `@resend.dev`.
 
 ## Variables Supabase utilisées
 

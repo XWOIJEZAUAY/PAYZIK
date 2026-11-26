@@ -28,7 +28,9 @@ host = "env(PAYZIK_SMTP_HOST)"
 port = 587
 user = "env(PAYZIK_SMTP_USER)"
 pass = "env(PAYZIK_SMTP_PASS)"
-admin_email = "no-reply@payzik.ma"
+# Mode test gratuit : destination limitée à l'email du compte Resend.
+# Production : passer à une adresse sur le domaine vérifié (ex. no-reply@payzik.ma).
+admin_email = "onboarding@resend.dev"
 sender_name = "Payzik"
 
 [auth.email.template.confirmation]

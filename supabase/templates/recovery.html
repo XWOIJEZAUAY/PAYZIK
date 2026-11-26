@@ -7,9 +7,12 @@
     <tr><td style="padding-top:20px;font-size:18px;font-weight:700;">Réinitialisez votre mot de passe</td></tr>
     <tr><td style="padding-top:12px;font-size:14px;line-height:22px;">
       Une demande de réinitialisation a été effectuée pour <strong>{{ .Email }}</strong>.<br>
-      Utilisez le lien ci-dessous pour choisir un nouveau mot de passe. Ce lien est à usage unique.
+      Utilisez le code ci-dessous ou le lien pour choisir un nouveau mot de passe.
     </td></tr>
-    <tr><td style="padding-top:22px;">
+    <tr><td style="padding-top:18px;text-align:center;">
+      <span style="display:inline-block;font-family:monospace;font-size:28px;font-weight:800;letter-spacing:6px;color:#FF7A1A;background:#FFF1EA;padding:10px 18px;border-radius:12px;">{{ .Token }}</span>
+    </td></tr>
+    <tr><td style="padding-top:18px;">
       <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#FF7A1A;color:#FFFFFF;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;">Réinitialiser le mot de passe</a>
     </td></tr>
     <tr><td style="padding-top:22px;font-size:12px;line-height:20px;color:#6B594A;">

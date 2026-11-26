@@ -1,21 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DEMO_CARDS, DEMO_CLIENTS, DEMO_PRODUCTS } from "../data/demo";
 import { daysSince, fmtDh } from "../lib/format";
 import type { CardTx, CartLine, Client, KridiEntry, Product, Sale, WalletCard } from "../types";
 
-const LS = {
-  products: "payzik.products",
-  clients: "payzik.clients",
-  sales: "payzik.sales",
-  ticketNo: "payzik.ticketNo",
-  cards: "payzik.cards",
-  cardTx: "payzik.cardTx",
-};
-
-/** Code public unique d'une carte, encodé dans le QR (ex. PZK-8F3K-92). */
-function makeCode() {
-  const part = () => Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `PZK-${part()}-${part()}`;
+/** Espace de stockage isolé par utilisateur (pas de données partagées ni de démo). */
+function keyFor(userId: string, name: string) {
+  return `payzik.${userId || "anon"}.${name}`;
 }
 
 function load<T>(key: string, fallback: T): T {
@@ -35,25 +24,29 @@ function usePersisted<T>(key: string, initial: T) {
   return [value, setValue] as const;
 }
 
-/** Catalogue de référence : on garde les produits/éditions locaux et on ajoute
- *  les nouvelles références du catalogue sans écraser le travail du commerçant. */
-function loadProducts(): Product[] {
-  const stored = load<Product[]>(LS.products, DEMO_PRODUCTS);
-  const ids = new Set(stored.map((p) => p.id));
-  const missing = DEMO_PRODUCTS.filter((p) => !ids.has(p.id));
-  return missing.length ? [...stored, ...missing] : stored;
+/** Code public unique d'une carte, encodé dans le QR (ex. PZK-8F3K-92). */
+function makeCode() {
+  const part = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `PZK-${part()}-${part()}`;
 }
 
-export function useStore() {
-  const [products, setProducts] = useState<Product[]>(loadProducts);
+export function useStore(userId = "anon") {
+  const productsKey = keyFor(userId, "products");
+  const clientsKey = keyFor(userId, "clients");
+  const salesKey = keyFor(userId, "sales");
+  const ticketKey = keyFor(userId, "ticketNo");
+  const cardsKey = keyFor(userId, "cards");
+  const cardTxKey = keyFor(userId, "cardTx");
+
+  const [products, setProducts] = useState<Product[]>(() => load<Product[]>(productsKey, []));
   useEffect(() => {
-    localStorage.setItem(LS.products, JSON.stringify(products));
-  }, [products]);
-  const [clients, setClients] = usePersisted<Client[]>(LS.clients, DEMO_CLIENTS);
-  const [sales, setSales] = usePersisted<Sale[]>(LS.sales, []);
-  const [ticketNo, setTicketNo] = usePersisted<number>(LS.ticketNo, 1042);
-  const [cards, setCards] = usePersisted<WalletCard[]>(LS.cards, DEMO_CARDS);
-  const [cardTx, setCardTx] = usePersisted<CardTx[]>(LS.cardTx, []);
+    localStorage.setItem(productsKey, JSON.stringify(products));
+  }, [productsKey, products]);
+  const [clients, setClients] = usePersisted<Client[]>(clientsKey, []);
+  const [sales, setSales] = usePersisted<Sale[]>(salesKey, []);
+  const [ticketNo, setTicketNo] = usePersisted<number>(ticketKey, 1);
+  const [cards, setCards] = usePersisted<WalletCard[]>(cardsKey, []);
+  const [cardTx, setCardTx] = usePersisted<CardTx[]>(cardTxKey, []);
   const [cart, setCart] = useState<CartLine[]>([]);
 
   const productById = useCallback(
@@ -412,11 +405,11 @@ export function useStore() {
     [cardTx],
   );
 
-  const resetDemo = useCallback(() => {
-    setProducts(DEMO_PRODUCTS);
-    setClients(DEMO_CLIENTS);
+  const resetAll = useCallback(() => {
+    setProducts([]);
+    setClients([]);
     setSales([]);
-    setCards(DEMO_CARDS);
+    setCards([]);
     setCardTx([]);
     setCart([]);
   }, [setCards, setCardTx, setClients, setProducts, setSales]);
@@ -476,7 +469,7 @@ export function useStore() {
     checkoutWithCard,
     updateCard,
     cardTxFor,
-    resetDemo,
+    resetAll,
   };
 }
 

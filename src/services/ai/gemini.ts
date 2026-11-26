@@ -156,7 +156,7 @@ Réponds UNIQUEMENT en JSON valide :
   "items": [{"name": "<nom EXACT du catalogue>", "qty": <nombre>}],
   "reply": "<réponse orale courte en ${tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
 }
-Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply l'explique dans la langue choisie.
+Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply demande « Achno 3ndk tma ? » (darija) ou « Azoul madark ghid ilan ? » (tachelhit), sans dire seulement « pas disponible ».
 Réponds en ${getAiLang() === "tachelhit" ? "tachelhit (amazigh du Souss)" : "darija marocaine"}.
 RÈGLE ABSOLUE : réponds UNIQUEMENT dans cette langue. Ne mélange JAMAIS avec l'autre (darija ↔ tachelhit). Si tu utilises un mot de l'autre langue, tu as ÉCHOUÉ. Même si le commerçant parle l'autre langue, ta réponse doit être 100 % dans la langue choisie.
 ${getAiLang() === "tachelhit" ? "Phrases types tachelhit (Souss/Agadir) : « Azoul madark ghid ilan ? » (ach 3NDK TMA ?), « Matsghit ? ACH CHRITI ? », « DARK : 3NDK », « Tla dark ghid asidi 10 DH », « 3NDK HNA ASIDI 10 DH », « Trit atkhlest khach, nighd lcarta n PAYZIK, nighd carte bancaire, nighd matrit ? », « Njm3 LIK LHSAB : adak smounagh lhsab nk ? », « Makaynch f catalogue HAD SA3a mais ranjiboh. », « OurDARNGH ILA SA3TAD MACH RATID NAWI ? », « Ila bghiti tkhls b lcarta payzik 9reb lscan ou ratkhls flblasa. », « Ighdwi rbi trit atkhlst slcarta n payzik s9rbd s scan ratkhlst rllas toutswit. », crédit = « credi », merci = « tanmirt », bonjour = « azul ». Nombres : yan(1) sin(2) krad(3) kkuẓ(4) smmus(5) sḍis(6) sa(7) tam(8) tẓa(9) mraw(10) ɛiwin(20) kramraw(30) tman(40) xemsin(50) settin(60) sebɛin(70) tmanin(80) tsɛin(90) tma(100)." : ""}
@@ -223,7 +223,7 @@ Réponds UNIQUEMENT en JSON valide :
   "items": [{"name": "<nom EXACT du catalogue>", "qty": <nombre>}],
   "reply": "<réponse orale courte en ${tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
 }
-Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply l'explique dans la langue choisie.
+Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply demande « Achno 3ndk tma ? » (darija) ou « Azoul madark ghid ilan ? » (tachelhit), sans dire seulement « pas disponible ».
 Réponds en ${getAiLang() === "tachelhit" ? "tachelhit (amazigh du Souss)" : "darija marocaine"} (pas dans l'autre langue, pas en français).
 RÈGLE ABSOLUE : réponds UNIQUEMENT dans cette langue. Ne mélange JAMAIS avec l'autre (darija ↔ tachelhit). Si tu utilises un mot de l'autre langue, tu as ÉCHOUÉ. Même si le commerçant parle l'autre langue, ta réponse doit être 100 % dans la langue choisie.
 ${getAiLang() === "tachelhit" ? "Phrases types tachelhit (Souss/Agadir) : « Azoul madark ghid ilan ? » (ach 3NDK TMA ?), « Matsghit ? ACH CHRITI ? », « DARK : 3NDK », « Tla dark ghid asidi 10 DH », « 3NDK HNA ASIDI 10 DH », « Trit atkhlest khach, nighd lcarta n PAYZIK, nighd carte bancaire, nighd matrit ? », « Njm3 LIK LHSAB : adak smounagh lhsab nk ? », « Makaynch f catalogue HAD SA3a mais ranjiboh. », « OurDARNGH ILA SA3TAD MACH RATID NAWI ? », « Ila bghiti tkhls b lcarta payzik 9reb lscan ou ratkhls flblasa. », « Ighdwi rbi trit atkhlst slcarta n payzik s9rbd s scan ratkhlst rllas toutswit. », crédit = « credi », merci = « tanmirt », bonjour = « azul ». Nombres : yan(1) sin(2) krad(3) kkuẓ(4) smmus(5) sḍis(6) sa(7) tam(8) tẓa(9) mraw(10) ɛiwin(20) kramraw(30) tman(40) xemsin(50) settin(60) sebɛin(70) tmanin(80) tsɛin(90) tma(100)." : ""}
