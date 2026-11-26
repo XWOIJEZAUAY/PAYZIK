@@ -157,6 +157,10 @@ export const DEMO_PRODUCTS: Product[] = [
   { id: "p-beurre", name: "Beurre 250g", priceDh: 18, stock: 8, category: "Frais", emoji: "🧈", aliases: ["beurre", "zبدة", "zebda"] },
   { id: "p-yaourt-nature", name: "Yaourt nature 4x125g", priceDh: 9, stock: 12, category: "Frais", emoji: "🥛", aliases: ["yaourt", "yagourt", "danone"] },
   { id: "p-jus-frais", name: "Jus d'orange frais 1L", priceDh: 16, stock: 6, category: "Frais", emoji: "🍊", aliases: ["jus frais", "orange"] },
+  // --- Boulangerie ---
+  { id: "p-pain", name: "Pain complet 500g", priceDh: 1.5, stock: 40, category: "Frais", emoji: "🍞", aliases: ["pain", "khobz", "khebz"] },
+  { id: "p-msemen", name: "Msemen 4 pièces", priceDh: 8, stock: 12, category: "Frais", emoji: "🫓", aliases: ["msemen", "msmn", "crêpe"] },
+  { id: "p-harcha", name: "Harcha 4 pièces", priceDh: 8, stock: 10, category: "Frais", emoji: "🫓", aliases: ["harcha", "harsha"] },
 ];
 
 export const DEMO_CLIENTS: Client[] = [
