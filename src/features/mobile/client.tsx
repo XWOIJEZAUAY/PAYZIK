@@ -64,7 +64,7 @@ export function ClientSpace({
   tab,
   setTab,
   onSwitch,
-  onLogout,
+  onProfile,
   notify,
 }: {
   store: StoreType;
@@ -72,7 +72,7 @@ export function ClientSpace({
   tab: ClientTab;
   setTab: (t: ClientTab) => void;
   onSwitch: () => void;
-  onLogout: () => void;
+  onProfile: () => void;
   notify: (m: string) => void;
 }) {
   const card = store.cards[0];
@@ -103,6 +103,7 @@ export function ClientSpace({
       <ClientHeader
         name={name}
         onSwitch={onSwitch}
+        onProfile={onProfile}
         onBell={() => notify("3 nouvelles offres près de chez toi")}
       />
       <main className="scrollbar-thin flex-1 overflow-y-auto px-4 pb-24 pt-2">
@@ -123,7 +124,7 @@ export function ClientSpace({
           <ClientKridi
             user={user}
             onSwitch={onSwitch}
-            onLogout={onLogout}
+            onProfile={onProfile}
             notify={notify}
           />
         )}
@@ -166,10 +167,12 @@ export function ClientSpace({
 function ClientHeader({
   name,
   onSwitch,
+  onProfile,
   onBell,
 }: {
   name: string;
   onSwitch: () => void;
+  onProfile: () => void;
   onBell: () => void;
 }) {
   return (
@@ -183,9 +186,19 @@ function ClientHeader({
         <IconBtn onClick={onBell} label="Notifications">
           <Bell size={17} />
         </IconBtn>
-        <IconBtn onClick={onSwitch} label="Changer de profil">
-          <ArrowLeftRight size={17} />
-        </IconBtn>
+        <button
+          onClick={onSwitch}
+          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-bold text-slate-700"
+        >
+          <ArrowLeftRight size={14} /> Espace commerçant
+        </button>
+        <button
+          onClick={onProfile}
+          aria-label="Mon profil"
+          className="rounded-full bg-[#FF7A1A] px-2 py-1.5 text-[11px] font-bold text-white"
+        >
+          Profil
+        </button>
       </div>
       <button className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#0F172A] shadow-sm">
         <MapPin size={13} className="text-[#FF5200]" />

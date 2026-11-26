@@ -20,22 +20,41 @@ export function getSupabaseClient() {
   return getClient();
 }
 
+export type ProfileDetails = {
+  phone?: string | null;
+  city?: string | null;
+  address?: string | null;
+  responsible?: string | null;
+  image?: string | null;
+};
+
 export type Profile = {
   id: string;
   email: string;
   name: string;
   role: "merchant" | "customer";
   premium: boolean;
+  phone?: string | null;
+  city?: string | null;
+  address?: string | null;
+  responsible?: string | null;
+  image?: string | null;
 };
 
 const LS_USER = "payzik.auth.user";
 const LS_ROLE = "payzik.auth.role";
 
-export async function signUp(email: string, password: string, name: string, role: "merchant" | "customer"): Promise<{ ok: boolean; error?: string; user?: Profile; needsConfirm?: boolean }> {
+export async function signUp(
+  email: string,
+  password: string,
+  name: string,
+  role: "merchant" | "customer",
+  details?: ProfileDetails,
+): Promise<{ ok: boolean; error?: string; user?: Profile; needsConfirm?: boolean }> {
   const sb = getClient();
   if (!sb) {
     // mode démo local
-    const u: Profile = { id: "local-" + Date.now(), email, name, role, premium: false };
+    const u: Profile = { id: "local-" + Date.now(), email, name, role, premium: false, ...details };
     localStorage.setItem(LS_USER, JSON.stringify(u));
     localStorage.setItem(LS_ROLE, role);
     return { ok: true, user: u };
@@ -57,9 +76,13 @@ export async function signUp(email: string, password: string, name: string, role
     name,
     role,
     premium: false,
+    phone: details?.phone ?? null,
+    city: details?.city ?? null,
+    address: details?.address ?? null,
+    responsible_name: details?.responsible ?? null,
   });
   if (pErr) return { ok: false, error: pErr.message };
-  const u: Profile = { id: data.user.id, email, name, role, premium: false };
+  const u: Profile = { id: data.user.id, email, name, role, premium: false, ...details };
   localStorage.setItem(LS_USER, JSON.stringify(u));
   localStorage.setItem(LS_ROLE, role);
   return { ok: true, user: u };
@@ -132,6 +155,11 @@ export async function restoreSession(): Promise<Profile | null> {
       name: prof.name ?? nameFromUser(u),
       role: (prof.role as "merchant" | "customer") ?? "customer",
       premium: !!prof.premium,
+      phone: prof.phone ?? null,
+      city: prof.city ?? null,
+      address: prof.address ?? null,
+      responsible: prof.responsible_name ?? null,
+      image: prof.image ?? null,
     };
   } else {
     const name = nameFromUser(u);
@@ -157,6 +185,7 @@ export async function verifySignupOtp(
   token: string,
   name: string,
   role: "merchant" | "customer",
+  details?: ProfileDetails,
 ): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
@@ -179,6 +208,10 @@ export async function verifySignupOtp(
       name: name.trim() || email.split("@")[0],
       role,
       premium: false,
+      phone: details?.phone ?? null,
+      city: details?.city ?? null,
+      address: details?.address ?? null,
+      responsible_name: details?.responsible ?? null,
     });
     if (pErr && pErr.code !== "23505") return { ok: false, error: pErr.message };
   }
@@ -189,6 +222,11 @@ export async function verifySignupOtp(
     name: prof?.name || name.trim() || email.split("@")[0],
     role: (prof?.role as "merchant" | "customer") ?? role,
     premium: !!prof?.premium,
+    phone: (prof as Profile | null)?.phone ?? details?.phone ?? null,
+    city: (prof as Profile | null)?.city ?? details?.city ?? null,
+    address: (prof as Profile | null)?.address ?? details?.address ?? null,
+    responsible: ((prof as { responsible_name?: string } | null)?.responsible_name ?? details?.responsible ?? null),
+    image: ((prof as { image?: string } | null)?.image ?? details?.image ?? null),
   };
   localStorage.setItem(LS_USER, JSON.stringify(u));
   localStorage.setItem(LS_ROLE, u.role);
@@ -263,6 +301,24 @@ export async function resetPassword(email: string): Promise<{ ok: boolean; error
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function updateProfile(
+  patch: ProfileDetails & { name?: string | null },
+): Promise<{ ok: boolean; error?: string; profile?: Profile }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { error } = await sb.rpc("update_profile", {
+    p_name: patch.name ?? null,
+    p_phone: patch.phone ?? null,
+    p_city: patch.city ?? null,
+    p_address: patch.address ?? null,
+    p_responsible: patch.responsible ?? null,
+    p_image: patch.image ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  const profile = await restoreSession();
+  return profile ? { ok: true, profile } : { ok: false, error: "Profil introuvable" };
 }
 
 export async function signOut(): Promise<void> {

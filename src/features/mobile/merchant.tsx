@@ -11,7 +11,6 @@ import {
   ImagePlus,
   Images,
   Loader2,
-  LogOut,
   MessageCircle,
   Minus,
   Package,
@@ -61,7 +60,6 @@ import {
   Btn,
   cx,
   Empty,
-  IconBtn,
   Kpi,
   Pane,
   Sheet,
@@ -168,7 +166,7 @@ export function MerchantSpace({
   tab,
   setTab,
   onSwitch,
-  onLogout,
+  onProfile,
   notify,
 }: {
   store: StoreType;
@@ -176,7 +174,7 @@ export function MerchantSpace({
   tab: MerchantTab;
   setTab: (t: MerchantTab) => void;
   onSwitch: () => void;
-  onLogout: () => void;
+  onProfile: () => void;
   notify: (m: string) => void;
 }) {
   const storeName =
@@ -187,7 +185,7 @@ export function MerchantSpace({
       <MerchantHeader
         name={storeName}
         onSwitch={onSwitch}
-        onLogout={onLogout}
+        onProfile={onProfile}
       />
       <main
         className={cx(
@@ -210,11 +208,11 @@ export function MerchantSpace({
 function MerchantHeader({
   name,
   onSwitch,
-  onLogout,
+  onProfile,
 }: {
   name: string;
   onSwitch: () => void;
-  onLogout: () => void;
+  onProfile: () => void;
 }) {
   return (
     <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+14px)]">
@@ -226,12 +224,19 @@ function MerchantHeader({
           </p>
           <p className="truncate text-[15px] font-bold text-[#0F172A]">{name}</p>
         </div>
-        <IconBtn onClick={onLogout} label="Déconnexion">
-          <LogOut size={16} />
-        </IconBtn>
-        <IconBtn onClick={onSwitch} label="Changer de profil">
-          <ArrowLeftRight size={17} />
-        </IconBtn>
+        <button
+          onClick={onSwitch}
+          className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm"
+        >
+          <ArrowLeftRight size={14} /> Espace client
+        </button>
+        <button
+          onClick={onProfile}
+          aria-label="Mon profil"
+          className="rounded-full bg-[#FF7A1A] px-2.5 py-1.5 text-[11px] font-bold text-white"
+        >
+          Profil
+        </button>
       </div>
     </header>
   );

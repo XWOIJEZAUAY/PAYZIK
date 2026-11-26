@@ -6,6 +6,7 @@ import type { Profile } from "../../services/auth";
 import type { Store as StoreType } from "../../state/store";
 import { ClientSpace, type ClientTab } from "./client";
 import { MerchantSpace, type MerchantTab } from "./merchant";
+import { ProfileSettings } from "./ProfileSettings";
 
 type Mode = "client" | "merchant";
 
@@ -13,14 +14,17 @@ export function PayzikMobile({
   store,
   user,
   onLogout,
+  onUserUpdate,
 }: {
   store: StoreType;
   user: Profile;
   onLogout: () => void;
+  onUserUpdate: (u: Profile) => void;
 }) {
   const [mode, setMode] = useState<Mode>(
     user.role === "merchant" ? "merchant" : "client",
   );
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [clientTab, setClientTab] = useState<ClientTab>("home");
   const [merchantTab, setMerchantTab] = useState<MerchantTab>("caisse");
   const [toast, setToast] = useState("");
@@ -54,7 +58,7 @@ export function PayzikMobile({
             tab={clientTab}
             setTab={setClientTab}
             onSwitch={switchMode}
-            onLogout={onLogout}
+            onProfile={() => setSettingsOpen(true)}
             notify={notify}
           />
         ) : (
@@ -64,9 +68,21 @@ export function PayzikMobile({
             tab={merchantTab}
             setTab={setMerchantTab}
             onSwitch={switchMode}
-            onLogout={onLogout}
+            onProfile={() => setSettingsOpen(true)}
             notify={notify}
           />
+        )}
+
+        {settingsOpen && (
+          <div className="absolute inset-0 z-50">
+            <ProfileSettings
+              user={user}
+              onClose={() => setSettingsOpen(false)}
+              onUpdated={onUserUpdate}
+              onLogout={onLogout}
+              notify={notify}
+            />
+          </div>
         )}
 
         {toast && (

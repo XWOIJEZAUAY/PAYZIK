@@ -4,7 +4,15 @@ import { PayzikMobile } from "../features/mobile/PayzikMobile";
 import { getCurrentUser, restoreSession, subscribeAuth, signOut, type Profile } from "../services/auth";
 import { useStore } from "../state/store";
 
-function AppShell({ user, onLogout }: { user: Profile; onLogout: () => void }) {
+function AppShell({
+  user,
+  onLogout,
+  onUserUpdate,
+}: {
+  user: Profile;
+  onLogout: () => void;
+  onUserUpdate: (u: Profile) => void;
+}) {
   const store = useStore(user.id);
 
   return (
@@ -12,6 +20,7 @@ function AppShell({ user, onLogout }: { user: Profile; onLogout: () => void }) {
       store={store}
       user={user}
       onLogout={onLogout}
+      onUserUpdate={onUserUpdate}
     />
   );
 }
@@ -54,6 +63,7 @@ export default function App() {
   return (
     <AppShell
       user={user}
+      onUserUpdate={setUser}
       onLogout={() => {
         void signOut();
         setUser(null);

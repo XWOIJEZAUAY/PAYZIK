@@ -22,6 +22,10 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [shopAddress, setShopAddress] = useState("");
   const [shopPhone, setShopPhone] = useState("");
   const [shopImage, setShopImage] = useState<string | null>(null);
+  const [profilePhone, setProfilePhone] = useState("");
+  const [profileCity, setProfileCity] = useState("");
+  const [profileAddress, setProfileAddress] = useState("");
+  const [responsible, setResponsible] = useState("");
 
   const savePendingShop = () => {
     if (role === "merchant" && shopName.trim()) {
@@ -51,7 +55,12 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
     const res =
       mode === "login"
         ? await signIn(email.trim(), password)
-        : await signUp(email.trim(), password, name.trim(), role);
+        : await signUp(email.trim(), password, name.trim(), role, {
+            phone: profilePhone.trim() || null,
+            city: profileCity.trim() || null,
+            address: profileAddress.trim() || null,
+            responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
+          });
     setBusy(false);
     if (!res.ok) {
       setError(res.error ?? "Erreur");
@@ -105,7 +114,12 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
               onClick={async () => {
                 setBusy(true);
                 setError("");
-                const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role);
+                const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role, {
+                  phone: profilePhone.trim() || null,
+                  city: profileCity.trim() || null,
+                  address: profileAddress.trim() || null,
+                  responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
+                });
                 setBusy(false);
                 if (res.ok && res.user) {
                   const raw = localStorage.getItem("payzik.pending.shop");
@@ -196,8 +210,12 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
                 <Store size={14} className="mr-1 inline" /> Commerçant
               </button>
             </div>
+            <Input value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} placeholder="Téléphone *" />
+            <Input value={profileCity} onChange={(e) => setProfileCity(e.target.value)} placeholder="Ville *" />
+            <Input value={profileAddress} onChange={(e) => setProfileAddress(e.target.value)} placeholder="Adresse *" />
             {role === "merchant" && (
               <>
+                <Input value={responsible} onChange={(e) => setResponsible(e.target.value)} placeholder="Responsable commercial *" />
                 <Input value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="Nom du hanout (boutique) *" />
                 <Input value={shopCity} onChange={(e) => setShopCity(e.target.value)} placeholder="Ville" />
                 <Input value={shopAddress} onChange={(e) => setShopAddress(e.target.value)} placeholder="Adresse" />

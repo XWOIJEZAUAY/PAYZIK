@@ -56,12 +56,12 @@ const CLIENT_KRIDI: ClientDebt[] = [
 export function ClientKridi({
   user,
   onSwitch,
-  onLogout,
+  onProfile,
   notify,
 }: {
   user: Profile;
   onSwitch: () => void;
-  onLogout: () => void;
+  onProfile: () => void;
   notify: (m: string) => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
@@ -166,10 +166,10 @@ export function ClientKridi({
             <ArrowLeftRight size={14} /> Espace commerçant
           </button>
           <button
-            onClick={onLogout}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FEF2F2] py-2.5 text-[11.5px] font-bold text-[#DC2626] active:scale-[.98]"
+            onClick={onProfile}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FFF1EA] py-2.5 text-[11.5px] font-bold text-[#D95F00] active:scale-[.98]"
           >
-            <LogOut size={14} /> Déconnexion
+            <LogOut size={14} /> Modifier mon profil
           </button>
         </div>
       </Pane>

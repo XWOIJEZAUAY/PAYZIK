@@ -9,6 +9,11 @@ export type Shop = {
   verified: boolean;
   in_network: boolean;
   is_active: boolean;
+  city?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  responsible_name?: string | null;
+  image?: string | null;
 };
 
 export type PayzikCard = {
@@ -111,7 +116,7 @@ export async function listMyShops(): Promise<Result<Shop[]>> {
   if (!u.user) return { ok: false, error: "Non connecté" };
   const { data, error } = await sb
     .from("shops")
-    .select("id, shop_name, owner_user_id, verified, in_network, is_active")
+    .select("id, shop_name, owner_user_id, verified, in_network, is_active, city, address, phone, responsible_name, image")
     .eq("owner_user_id", u.user.id)
     .order("shop_name", { ascending: true });
   if (error) return { ok: false, error: error.message };
