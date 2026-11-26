@@ -1,6 +1,7 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
 import { signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp, type Profile } from "../../services/auth";
+import { createShop } from "../../services/backend/payzikCards";
 import { Button, Card, Input } from "../../components/ui";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
@@ -16,6 +17,11 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [otpCode, setOtpCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [otpMode, setOtpMode] = useState<"signup" | "reset" | null>(null);
+  const [shopName, setShopName] = useState("");
+  const [shopCity, setShopCity] = useState("");
+  const [shopAddress, setShopAddress] = useState("");
+  const [shopPhone, setShopPhone] = useState("");
+  const [shopImage, setShopImage] = useState<string | null>(null);
 
   const submit = async () => {
     setError("");
@@ -41,6 +47,14 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
       setConfirmSent(true);
       setOtpMode("signup");
       return;
+    }
+    if (res.user && role === "merchant" && shopName.trim()) {
+      await createShop(shopName.trim(), {
+        city: shopCity.trim() || null,
+        address: shopAddress.trim() || null,
+        phone: shopPhone.trim() || null,
+        image: shopImage,
+      });
     }
     if (res.user) onAuth(res.user);
   };
@@ -76,8 +90,17 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
                 setError("");
                 const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role);
                 setBusy(false);
-                if (res.ok && res.user) onAuth(res.user);
-                else setError(res.error ?? "Code invalide");
+                if (res.ok && res.user) {
+                  if (role === "merchant" && shopName.trim()) {
+                    await createShop(shopName.trim(), {
+                      city: shopCity.trim() || null,
+                      address: shopAddress.trim() || null,
+                      phone: shopPhone.trim() || null,
+                      image: shopImage,
+                    });
+                  }
+                  onAuth(res.user);
+                } else setError(res.error ?? "Code invalide");
               }}
             >
               {busy ? "…" : "Vérifier le code"}
@@ -141,6 +164,29 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
                 <Store size={14} className="mr-1 inline" /> Commerçant
               </button>
             </div>
+            {role === "merchant" && (
+              <>
+                <Input value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="Nom du hanout (boutique) *" />
+                <Input value={shopCity} onChange={(e) => setShopCity(e.target.value)} placeholder="Ville" />
+                <Input value={shopAddress} onChange={(e) => setShopAddress(e.target.value)} placeholder="Adresse" />
+                <Input value={shopPhone} onChange={(e) => setShopPhone(e.target.value)} placeholder="Téléphone" />
+                <label className="block text-xs text-slate-500">
+                  Photo de la boutique (optionnel)
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="mt-1 block w-full text-xs"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      const r = new FileReader();
+                      r.onload = () => setShopImage(String(r.result));
+                      r.readAsDataURL(f);
+                    }}
+                  />
+                </label>
+              </>
+            )}
           </>
         )}
 

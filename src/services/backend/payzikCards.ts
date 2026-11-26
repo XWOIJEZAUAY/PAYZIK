@@ -55,14 +55,53 @@ export async function listShops(): Promise<Result<Shop[]>> {
   return { ok: true, data: (data ?? []) as Shop[] };
 }
 
-export async function createShop(name: string): Promise<Result<{ shop_id: string }>> {
+export type ShopDetails = {
+  city?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  responsible?: string | null;
+  image?: string | null;
+};
+
+export async function createShop(
+  name: string,
+  details?: ShopDetails,
+): Promise<Result<{ shop_id: string }>> {
   const sb = await client();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
-  const { data, error } = await sb.rpc("create_shop", { p_shop_name: name });
+  const { data, error } = await sb.rpc("create_shop", {
+    p_shop_name: name,
+    p_city: details?.city ?? null,
+    p_address: details?.address ?? null,
+    p_phone: details?.phone ?? null,
+    p_responsible: details?.responsible ?? null,
+    p_image: details?.image ?? null,
+  });
   if (error) return { ok: false, error: error.message };
   const r = data as { ok?: boolean; shop_id?: string; error?: string };
   if (!r?.ok || !r.shop_id) return { ok: false, error: r?.error ?? "Création impossible" };
   return { ok: true, data: { shop_id: r.shop_id } };
+}
+
+export async function updateShop(
+  shopId: string,
+  details: ShopDetails & { name?: string | null },
+): Promise<Result<null>> {
+  const sb = await client();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb.rpc("update_shop", {
+    p_shop: shopId,
+    p_shop_name: details.name ?? null,
+    p_city: details.city ?? null,
+    p_address: details.address ?? null,
+    p_phone: details.phone ?? null,
+    p_responsible: details.responsible ?? null,
+    p_image: details.image ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  const r = data as { ok?: boolean; error?: string };
+  if (!r?.ok) return { ok: false, error: r?.error ?? "Modification impossible" };
+  return { ok: true, data: null };
 }
 
 export async function listMyShops(): Promise<Result<Shop[]>> {
