@@ -40,7 +40,11 @@ export async function signUp(email: string, password: string, name: string, role
     localStorage.setItem(LS_ROLE, role);
     return { ok: true, user: u };
   }
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: window.location.origin },
+  });
   if (error || !data.user) return { ok: false, error: error?.message ?? "inscription échouée" };
   // Si la confirmation email est activée, l'utilisateur doit vérifier son email.
   const needsConfirm = !data.user.email_confirmed_at;

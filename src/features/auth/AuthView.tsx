@@ -23,6 +23,20 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [shopPhone, setShopPhone] = useState("");
   const [shopImage, setShopImage] = useState<string | null>(null);
 
+  const savePendingShop = () => {
+    if (role === "merchant" && shopName.trim()) {
+      localStorage.setItem("payzik.pending.shop", JSON.stringify({
+        email: email.trim(),
+        name: shopName.trim(),
+        city: shopCity.trim(),
+        address: shopAddress.trim(),
+        phone: shopPhone.trim(),
+        responsible: name.trim(),
+        image: shopImage,
+      }));
+    }
+  };
+
   const submit = async () => {
     setError("");
     if (!email.trim() || !password.trim()) {
@@ -44,6 +58,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
       return;
     }
     if (res.needsConfirm) {
+      savePendingShop();
       setConfirmSent(true);
       setOtpMode("signup");
       return;
@@ -53,6 +68,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
         city: shopCity.trim() || null,
         address: shopAddress.trim() || null,
         phone: shopPhone.trim() || null,
+        responsible: name.trim() || null,
         image: shopImage,
       });
     }
@@ -76,9 +92,9 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             </p>
             <input
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="Code à 6 chiffres"
-              inputMode="numeric"
+              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9-]/g, "").slice(0, 12).toUpperCase())}
+              placeholder="Code reçu par email (6 ou 8 caractères)"
+              inputMode="text"
               className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
             />
             <Button
@@ -91,11 +107,26 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
                 const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role);
                 setBusy(false);
                 if (res.ok && res.user) {
-                  if (role === "merchant" && shopName.trim()) {
+                  const raw = localStorage.getItem("payzik.pending.shop");
+                  if (raw) {
+                    try {
+                      const p = JSON.parse(raw) as {
+                        email?: string; name?: string; city?: string; address?: string;
+                        phone?: string; responsible?: string; image?: string | null;
+                      };
+                      if (p.email === email.trim() && p.name) {
+                        await createShop(p.name, {
+                          city: p.city || null, address: p.address || null,
+                          phone: p.phone || null, responsible: p.responsible || null,
+                          image: p.image ?? null,
+                        });
+                      }
+                    } catch { /* ignore */ }
+                    localStorage.removeItem("payzik.pending.shop");
+                  } else if (role === "merchant" && shopName.trim()) {
                     await createShop(shopName.trim(), {
-                      city: shopCity.trim() || null,
-                      address: shopAddress.trim() || null,
-                      phone: shopPhone.trim() || null,
+                      city: shopCity.trim() || null, address: shopAddress.trim() || null,
+                      phone: shopPhone.trim() || null, responsible: name.trim() || null,
                       image: shopImage,
                     });
                   }
@@ -258,9 +289,9 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             </p>
             <input
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="Code à 6 chiffres"
-              inputMode="numeric"
+              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9-]/g, "").slice(0, 12).toUpperCase())}
+              placeholder="Code reçu par email (6 ou 8 caractères)"
+              inputMode="text"
               className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
             />
             <input
