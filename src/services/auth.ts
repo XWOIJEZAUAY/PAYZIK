@@ -234,7 +234,15 @@ export function subscribeAuth(callback: (user: Profile | null) => void): () => v
 export async function resetPassword(email: string): Promise<{ ok: boolean; error?: string }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
+  const clean = email.trim().toLowerCase();
+  // Vérification explicite : Supabase ne révèle pas l'existence d'un email,
+  // donc on passe par une fonction dédiée qui ne expose pas les profils.
+  const { data: exists, error: checkError } = await sb.rpc("payzik_email_exists", { p_email: clean });
+  if (checkError) return { ok: false, error: checkError.message };
+  if (!exists) {
+    return { ok: false, error: "Aucun compte n'existe avec cet email." };
+  }
+  const { error } = await sb.auth.resetPasswordForEmail(clean, {
     redirectTo: window.location.origin,
   });
   if (error) return { ok: false, error: error.message };
