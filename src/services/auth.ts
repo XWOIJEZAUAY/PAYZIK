@@ -3,8 +3,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const env = import.meta.env as Record<string, string | undefined>;
-const URL = (env.VITE_SUPABASE_URL ?? "").trim();
-const ANON = (env.VITE_SUPABASE_ANON_KEY ?? "").trim();
+const URL = (env.VITE_SUPABASE_URL || env.SUPABASE_URL || "").trim();
+const ANON = (env.VITE_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || "").trim();
 
 let client: SupabaseClient | null = null;
 function getClient(): SupabaseClient | null {
@@ -174,7 +174,7 @@ export async function verifySignupOtp(
   const u: Profile = {
     id: data.user.id,
     email: data.user.email ?? email.trim(),
-    name: prof?.name ?? name.trim() || email.split("@")[0],
+    name: prof?.name || name.trim() || email.split("@")[0],
     role: (prof?.role as "merchant" | "customer") ?? role,
     premium: !!prof?.premium,
   };
