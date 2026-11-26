@@ -42,3 +42,4 @@ ios/App/App/public/
 ios/App/App/capacitor.config.json
 ios/App/*.xcworkspace/xcuserdata/
 ios/App/*.xcodeproj/xcuserdata/
+.vercel
