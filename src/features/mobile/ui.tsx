@@ -204,14 +204,16 @@ export function TabBar<T extends string>({
   items,
   value,
   onChange,
+  columns = 4,
 }: {
   items: { id: T; label: string; icon: typeof Home }[];
   value: T;
   onChange: (v: T) => void;
+  columns?: number;
 }) {
   return (
     <nav className="absolute inset-x-0 bottom-0 z-30 border-t border-[#E2E8F0] bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="grid grid-cols-4">
+      <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
         {items.map((it) => {
           const Icon = it.icon;
           const active = it.id === value;

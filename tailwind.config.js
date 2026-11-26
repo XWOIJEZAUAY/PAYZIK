@@ -118,6 +118,10 @@ export default {
           "0%, 100%": { top: "10%" },
           "50%": { top: "85%" },
         },
+        shimmer: {
+          "0%": { transform: "translateX(-120%)" },
+          "100%": { transform: "translateX(220%)" },
+        },
       },
       animation: {
         wave: "wave 1s ease-in-out infinite",
@@ -128,6 +132,7 @@ export default {
         "paperUnfold": "paperUnfold .55s cubic-bezier(.2,.8,.2,1)",
         "toast-in": "toast-in .2s ease-out",
         "scan-line": "scan-line 2.2s ease-in-out infinite",
+        shimmer: "shimmer 1.8s ease-in-out infinite",
       },
     },
   },

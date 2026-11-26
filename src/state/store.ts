@@ -35,8 +35,20 @@ function usePersisted<T>(key: string, initial: T) {
   return [value, setValue] as const;
 }
 
+/** Catalogue de référence : on garde les produits/éditions locaux et on ajoute
+ *  les nouvelles références du catalogue sans écraser le travail du commerçant. */
+function loadProducts(): Product[] {
+  const stored = load<Product[]>(LS.products, DEMO_PRODUCTS);
+  const ids = new Set(stored.map((p) => p.id));
+  const missing = DEMO_PRODUCTS.filter((p) => !ids.has(p.id));
+  return missing.length ? [...stored, ...missing] : stored;
+}
+
 export function useStore() {
-  const [products, setProducts] = usePersisted<Product[]>(LS.products, DEMO_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(loadProducts);
+  useEffect(() => {
+    localStorage.setItem(LS.products, JSON.stringify(products));
+  }, [products]);
   const [clients, setClients] = usePersisted<Client[]>(LS.clients, DEMO_CLIENTS);
   const [sales, setSales] = usePersisted<Sale[]>(LS.sales, []);
   const [ticketNo, setTicketNo] = usePersisted<number>(LS.ticketNo, 1042);
@@ -132,6 +144,50 @@ export function useStore() {
       return sale;
     },
     [cart, cartTotal, clients, productById, setClients, setProducts, setSales, setTicketNo, ticketNo],
+  );
+
+  /** Annule une vente déjà confirmée (remet le stock et le kridi comme avant). */
+  const voidSale = useCallback(
+    (saleId: string): boolean => {
+      const sale = sales.find((s) => s.id === saleId);
+      if (!sale) return false;
+      setSales((list) => list.filter((s) => s.id !== saleId));
+      setProducts((ps) =>
+        ps.map((p) => {
+          const line = sale.lines.find((l) => l.name === p.name);
+          return line ? { ...p, stock: p.stock + line.qty } : p;
+        }),
+      );
+      if (sale.method === "kridi" && sale.clientName) {
+        setClients((cs) =>
+          cs.map((c) =>
+            c.name === sale.clientName
+              ? {
+                  ...c,
+                  debtDh: Math.max(0, c.debtDh - sale.totalDh),
+                  history: c.history.filter((h) => h.label !== `Ticket #${sale.ticketNo}`),
+                }
+              : c,
+          ),
+        );
+      }
+      // Vente par carte PAYZIK : on recrédite la carte et on retire l'opération.
+      if (sale.method === "wallet" || sale.method === "card") {
+        const tx = cardTx.find(
+          (t) => t.type === "pay" && t.label === `Ticket #${sale.ticketNo}`,
+        );
+        if (tx) {
+          setCardTx((list) => list.filter((t) => t.id !== tx.id));
+          setCards((cs) =>
+            cs.map((c) =>
+              c.id === tx.cardId ? { ...c, balanceDh: c.balanceDh + sale.totalDh } : c,
+            ),
+          );
+        }
+      }
+      return true;
+    },
+    [cardTx, sales, setCards, setCardTx, setClients, setProducts, setSales],
   );
 
   /** Acompte sur une dette kridi. */
@@ -296,7 +352,8 @@ export function useStore() {
         name: input.name.trim(),
         phone: input.phone?.trim() || undefined,
         pin: input.pin?.trim() || undefined,
-        balanceDh: input.initialDh && input.initialDh > 0 ? input.initialDh : 0,
+        // Le solde est crédité par recordCardTx ci-dessous (évite le double comptage).
+        balanceDh: 0,
         createdAt: new Date().toISOString(),
       };
       setCards((cs) => [card, ...cs]);
@@ -329,6 +386,18 @@ export function useStore() {
       return true;
     },
     [cards, recordCardTx],
+  );
+
+  /** Encaisse le panier avec une carte PAYZIK : la carte doit exister en base
+   *  et avoir assez de solde. Le solde est débité en même temps que la vente. */
+  const checkoutWithCard = useCallback(
+    (cardId: string): Sale | null => {
+      const card = cards.find((c) => c.id === cardId);
+      if (!card || cart.length === 0 || card.balanceDh < cartTotal) return null;
+      recordCardTx(cardId, "pay", cartTotal, `Ticket #${ticketNo}`);
+      return checkout("wallet");
+    },
+    [cards, cart.length, cartTotal, checkout, recordCardTx, ticketNo],
   );
 
   const updateCard = useCallback(
@@ -391,6 +460,7 @@ export function useStore() {
     setQty,
     clearCart,
     checkout,
+    voidSale,
     payDebt,
     addClient,
     addDebt,
@@ -403,6 +473,7 @@ export function useStore() {
     findCardByCode,
     topUpCard,
     payWithCard,
+    checkoutWithCard,
     updateCard,
     cardTxFor,
     resetDemo,

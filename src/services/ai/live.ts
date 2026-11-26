@@ -107,10 +107,9 @@ NOMBRES EN DARIJA (quantités et total) :
 Pour les MONTANTS d'argent, les chiffres français sont très utilisés au Maroc ("vingt-quatre", "deux cents")
 — c'est OK. Dis le montant (darija ou chiffres français) toujours suivi de « derhem ».
 
-TOTAL (quand il demande « ch7al lmajmou3 ? » ou « ch7al lkhlas ? ») :
-1) appelle getCart, 2) puis dis : « A khoya, lmajmou3 : <montant> derhem. »
-   À crédit (kridi) : « Ghadi nktebha 3lik f lkridi n <client>. »
-   Comptant : « 3ndo <montant> derhem. »
+TOTAL (quand il demande « ch7al lmajmou3 ? » / « lhsab nk ? » / « le total ? ») :
+1) appelle getCart — le ticket s'affiche alors automatiquement à l'écran —
+2) puis annonce le total à voix haute DANS LA LANGUE CHOISIE, toujours suivi de « derhem ».
 
 COMMANDES :
 - Commande ("zid jouj Sidi Ali", "wa7ed atay", "jouj sokkar") -> appelle addProduct
@@ -121,12 +120,15 @@ COMMANDES :
 - L'image de chaque produit ajouté s'affiche automatiquement à l'écran : tu n'as pas à la décrire.
 
 TOTAL & PAIEMENT (important) :
-- Quand le client a fini (ou dit "safi", "khelles", "ch7al lmajmou3 ?"), donne d'abord le total à voix haute :
-  « Lmajmou3 : <montant> derhem. »
+- Quand le client a fini (ou dit "safi", "khelles", "ch7al lmajmou3 ?", "lhsab nk ?"), donne d'abord le total à voix haute dans la langue choisie, suivi de « derhem ».
 - Puis demande le mode de paiement : « Wach b cash, kridi, wla carte ? » — les 3 boutons
   (Espèces / Crédit / Carte) s'affichent alors à l'écran ; le caissier peut appuyer dessus.
-- Si le client répond à la voix : "cash"/"kash"/"flous" -> checkout cash ; "carte"/"kart" -> checkout card ;
+- Si le client répond à la voix : "cash"/"kash"/"flous" -> checkout cash ;
   "kridi"/"lkrida" -> checkout kridi (demande le nom du client si tu ne l'as pas).
+- "carte"/"kart" -> il faut TOUJOURS le QR/code de la carte PAYZIK : appelle findCard avec le code
+  (scan ou dictée), vérifie le solde en base, puis payWithCard avec le MÊME code.
+  Jamais de paiement par carte sans code — si le code manque, demande-le.
+  Carte inconnue -> dis « Cette carte n'est pas valide ». Solde insuffisant -> dis-le.
 
 CARNET DE CRÉDIT (lkridi) — tu y as accès :
 - « chkoun 3lih lkridi ? » / « ch7al lkridi ? » -> getDebts, puis cite les clients et montants.
@@ -138,13 +140,20 @@ CARNET DE CRÉDIT (lkridi) — tu y as accès :
 - Infos personnelles : « beddel smiya <ancien> -> <nouveau> », « zid tilifon <nom> 06… », « note 3la <nom> … » -> updateClient.
 
 IMPORTANT : l'argument items de addDebt doit contenir le nom EXACT du catalogue et la quantité. Ne devine jamais les prix : prends-les du catalogue.
-Dis toujours les montants suivis de « derhem ». Ne parle jamais tachelhit/amazigh pour l'instant.
+Dis toujours les montants suivis de « derhem ». Respecte la langue choisie plus haut (darija ou tachelhit).
 
-STOCK & CARTES PAYZIK (tu y as accès) :
+STOCK, CARTES, VENTES (tu as accès aux données réelles) :
 - « ch7al 3endna f stock ? » / « chnou qrib ykmel ? » / « stock » -> getStock, puis cite les produits bas/rupture.
-- « cartes » / « solde des cartes » / « combien sur les cartes » -> getCards, puis cite les cartes et soldes.
+- « cartes » / « solde des cartes » -> getCards. « carte de <nom> / code PZK… » -> findCard (solde + mouvements).
+- « recharge carte <nom/code> <montant> » -> topUpCard. « paie par carte <code> » -> payWithCard.
+- « ch7al khda lyoum ? » / « ventes » / « bilan » -> getSales (nombre de ventes + total du jour).
 
-CATALOGUE :
+CATALOGUE : tu peux MODIFIER les données, pas seulement les lire :
+- « prix de <produit> = <montant> » -> setPrice ; « stock de <produit> = <n> » ou « zid/naqqs stock <n> » -> setStock.
+- « ajoute produit <nom> prix <montant> stock <n> » -> addCatalogProduct ; « catalogue » -> getCatalog.
+- cite toujours les NOMS EXACTS du catalogue ci-dessous pour ces outils.
+
+CATALOGUE DE RÉFÉRENCE :
 ${cat}`;
   }
 
@@ -187,20 +196,109 @@ ${cat}`;
             parameters: { type: "object", properties: {} },
           },
           {
+            name: "findCard",
+            description:
+              "Vérifie une carte dans la base : solde et derniers mouvements. Le code QR est obligatoire, sinon demande-le au client.",
+            parameters: {
+              type: "object",
+              properties: {
+                code: { type: "string", description: "Code QR de la carte (ex. PZK-XXXX-XXXX)" },
+                name: { type: "string", description: "Nom du porteur si le code est absent" },
+              },
+            },
+          },
+          {
+            name: "topUpCard",
+            description: "Recharge le solde d'une carte PAYZIK existante après vérification en base",
+            parameters: {
+              type: "object",
+              properties: {
+                code: { type: "string", description: "Code QR de la carte" },
+                name: { type: "string", description: "Nom du porteur" },
+                amountDh: { type: "number", description: "Montant de la recharge en dirhams" },
+              },
+            },
+          },
+          {
+            name: "payWithCard",
+            description:
+              "Débite une carte PAYZIK du montant du panier. Vérifie d'abord la carte en base ; refuse si solde insuffisant. Code QR obligatoire.",
+            parameters: {
+              type: "object",
+              properties: {
+                code: { type: "string", description: "Code QR de la carte scannée" },
+                name: { type: "string", description: "Nom du porteur si pas de code" },
+              },
+            },
+          },
+          {
+            name: "getSales",
+            description: "Ventes du jour : nombre, chiffre d'affaires et derniers tickets",
+            parameters: { type: "object", properties: {} },
+          },
+          {
+            name: "getCatalog",
+            description: "Liste le catalogue de référence avec prix et stock",
+            parameters: { type: "object", properties: {} },
+          },
+          {
+            name: "setStock",
+            description: "Modifie le stock d'un produit du catalogue (quantité ou delta)",
+            parameters: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Nom exact du produit" },
+                qty: { type: "number", description: "Nouveau stock" },
+                delta: { type: "number", description: "Ajout/retrait par rapport au stock actuel" },
+              },
+              required: ["name"],
+            },
+          },
+          {
+            name: "setPrice",
+            description: "Modifie le prix d'un produit du catalogue",
+            parameters: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Nom exact du produit" },
+                priceDh: { type: "number", description: "Nouveau prix en dirhams" },
+              },
+              required: ["name", "priceDh"],
+            },
+          },
+          {
+            name: "addCatalogProduct",
+            description: "Ajoute un nouveau produit au catalogue de référence",
+            parameters: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                priceDh: { type: "number" },
+                stock: { type: "number" },
+              },
+              required: ["name", "priceDh"],
+            },
+          },
+          {
             name: "getCart",
             description: "Liste le panier actuel et son total en dirhams",
             parameters: { type: "object", properties: {} },
           },
           {
             name: "checkout",
-            description: "Encaisse le panier et termine le ticket",
+            description:
+              "Encaisse le panier. method=card/wallet = carte PAYZIK rechargeable : code/QR OBLIGATOIRE, solde vérifié en base. Ne jamais encaisser par carte sans code.",
             parameters: {
               type: "object",
               properties: {
-                method: { type: "string", enum: ["cash", "card", "kridi"] },
+                method: { type: "string", enum: ["cash", "card", "wallet", "kridi"] },
                 client: {
                   type: "string",
                   description: "Nom du client (obligatoire si method=kridi)",
+                },
+                code: {
+                  type: "string",
+                  description: "Code/QR de la carte scanné (obligatoire si method=card/wallet)",
                 },
               },
               required: ["method"],

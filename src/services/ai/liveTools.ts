@@ -21,6 +21,19 @@ export function createLiveToolHandlers(getStore: () => Store) {
     );
   };
 
+  const findCardByArg = (args: Record<string, unknown>) => {
+    const q = String(args.code || args.card || args.name || "")
+      .trim()
+      .toUpperCase();
+    if (!q) return undefined;
+    const cs = getStore().cards;
+    return (
+      cs.find((c) => c.code.toUpperCase() === q) ??
+      cs.find((c) => c.name.toUpperCase() === q) ??
+      cs.find((c) => c.name.toUpperCase().includes(q))
+    );
+  };
+
   const handlers: Record<string, (args: Record<string, unknown>) => ToolOutcome> = {
     addProduct: (args) => {
       const name = String(args.name ?? "");
@@ -95,6 +108,159 @@ export function createLiveToolHandlers(getStore: () => Store) {
           : "Aucune carte enregistrée",
       };
     },
+    /** Carte précise : solde + derniers mouvements (vérification base de données). */
+    findCard: (args) => {
+      const cur = getStore();
+      const card = findCardByArg(args);
+      if (!card)
+        return {
+          data: { ok: false, error: "carte introuvable" },
+          message: "Cette carte n'est pas valide — elle n'existe pas dans la base.",
+        };
+      const txs = cur
+        .cardTxFor(card.id)
+        .slice(0, 5)
+        .map((t) => `${t.type === "topup" ? "+" : "-"}${fmtDh(t.amountDh)} (${t.label})`);
+      return {
+        data: {
+          ok: true,
+          code: card.code,
+          name: card.name,
+          balanceDh: card.balanceDh,
+          transactions: txs,
+        },
+        message: `Carte ${card.name} (${card.code}) : ${fmtDh(card.balanceDh)} disponibles${
+          txs.length ? ` — mouvements : ${txs.join(", ")}` : ""
+        }.`,
+      };
+    },
+    topUpCard: (args) => {
+      const cur = getStore();
+      const card = findCardByArg(args);
+      if (!card)
+        return {
+          data: { ok: false, error: "carte introuvable" },
+          message: "Cette carte n'est pas valide — elle n'existe pas dans la base.",
+        };
+      const amountDh = Math.max(0, Number(args.amountDh) || 0);
+      if (!amountDh)
+        return {
+          data: { ok: false, needAmount: true },
+          message: `Combien veux-tu recharger sur la carte de ${card.name} ?`,
+        };
+      cur.topUpCard(card.id, amountDh, "Recharge via PAYZIK IA");
+      return {
+        data: { ok: true, name: card.name, addedDh: amountDh, balanceDh: card.balanceDh + amountDh },
+        message: `Recharge ${fmtDh(amountDh)} sur ${card.name} — solde ${fmtDh(card.balanceDh + amountDh)}.`,
+      };
+    },
+    /** Paiement du panier par carte rechargeable : code/QR obligatoire. */
+    payWithCard: (args) => {
+      const cur = getStore();
+      const card = findCardByArg(args);
+      if (!card)
+        return {
+          data: { ok: false, error: "carte introuvable" },
+          message: "Cette carte n'est pas valide — scan son QR ou donne son code.",
+        };
+      if (cur.cart.length === 0)
+        return { data: { ok: false, error: "panier vide" }, message: "Panier vide, rien à payer" };
+      const sale = cur.checkoutWithCard(card.id);
+      if (!sale)
+        return {
+          data: { ok: false, error: "solde insuffisant" },
+          message: `Solde insuffisant sur ${card.name} (${fmtDh(card.balanceDh)} pour ${fmtDh(cur.cartTotal)}).`,
+        };
+      return {
+        data: {
+          ok: true,
+          ticket: sale.ticketNo,
+          totalDh: sale.totalDh,
+          remainingDh: card.balanceDh - sale.totalDh,
+        },
+        message: `Ticket #${sale.ticketNo} — ${fmtDh(sale.totalDh)} payés par carte ${card.name}, reste ${fmtDh(card.balanceDh - sale.totalDh)}.`,
+      };
+    },
+    getSales: () => {
+      const cur = getStore();
+      const today = new Date().toDateString();
+      const sales = cur.sales.filter((s) => new Date(s.date).toDateString() === today);
+      const total = sales.reduce((sum, s) => sum + s.totalDh, 0);
+      return {
+        data: {
+          ok: true,
+          count: sales.length,
+          totalDh: total,
+          last: sales.slice(0, 5).map((s) => ({ ticket: s.ticketNo, totalDh: s.totalDh, method: s.method })),
+        },
+        message: sales.length
+          ? `Aujourd'hui : ${sales.length} vente${sales.length > 1 ? "s" : ""}, ${fmtDh(total)} — derniers tickets ${sales
+              .slice(0, 5)
+              .map((s) => `#${s.ticketNo} ${fmtDh(s.totalDh)}`)
+              .join(", ")}.`
+          : "Aucune vente enregistrée aujourd'hui.",
+      };
+    },
+    getCatalog: () => {
+      const cur = getStore();
+      return {
+        data: {
+          ok: true,
+          products: cur.products.map((p) => ({ name: p.name, priceDh: p.priceDh, stock: p.stock })),
+        },
+        message: `Catalogue (${cur.products.length}) : ${cur.products
+          .slice(0, 30)
+          .map((p) => `${p.name} ${fmtDh(p.priceDh)} (${p.stock})`)
+          .join(", ")}.`,
+      };
+    },
+    setStock: (args) => {
+      const cur = getStore();
+      const matched = matchProducts([{ name: String(args.name ?? ""), qty: 1 }], cur.products);
+      if (!matched.length)
+        return { data: { ok: false }, message: `Produit inconnu : ${args.name ?? "?"}` };
+      const p = matched[0].product;
+      if (args.qty != null) cur.updateProduct(p.id, { stock: Math.max(0, Number(args.qty) || 0) });
+      else cur.adjustStock(p.id, Number(args.delta) || 0);
+      const stock = cur.productById(p.id)?.stock ?? p.stock;
+      return { data: { ok: true, name: p.name, stock }, message: `Stock ${p.name} : ${stock} unités.` };
+    },
+    setPrice: (args) => {
+      const cur = getStore();
+      const matched = matchProducts([{ name: String(args.name ?? ""), qty: 1 }], cur.products);
+      if (!matched.length)
+        return { data: { ok: false }, message: `Produit inconnu : ${args.name ?? "?"}` };
+      const priceDh = Math.max(0, Number(args.priceDh ?? args.price) || 0);
+      if (!priceDh) return { data: { ok: false, needPrice: true }, message: "Quel est le nouveau prix ?" };
+      const p = matched[0].product;
+      cur.updateProduct(p.id, { priceDh });
+      return {
+        data: { ok: true, name: p.name, priceDh },
+        message: `Prix de ${p.name} mis à jour : ${fmtDh(priceDh)}.`,
+      };
+    },
+    addCatalogProduct: (args) => {
+      const cur = getStore();
+      const name = String(args.name ?? "").trim();
+      const priceDh = Math.max(0, Number(args.priceDh ?? args.price) || 0);
+      if (!name || !priceDh)
+        return {
+          data: { ok: false, needNameOrPrice: true },
+          message: "Il me manque le nom et le prix du nouveau produit.",
+        };
+      cur.addProduct({
+        name,
+        priceDh,
+        stock: Math.max(0, Number(args.stock) || 0),
+        category: "Épicerie",
+        emoji: "🧺",
+        aliases: [name.toLowerCase()],
+      });
+      return {
+        data: { ok: true, name, priceDh },
+        message: `${name} ajouté au catalogue à ${fmtDh(priceDh)}.`,
+      };
+    },
     getCart: () => {
       const cur = getStore();
       const chips = cur.cart.map((l) => {
@@ -118,7 +284,28 @@ export function createLiveToolHandlers(getStore: () => Store) {
     checkout: (args) => {
       const cur = getStore();
       const raw = String(args.method ?? "cash");
-      const method = raw === "card" ? "card" : raw === "kridi" ? "kridi" : "cash";
+      const method = raw === "card" || raw === "wallet" ? "card" : raw === "kridi" ? "kridi" : "cash";
+      // Carte = carte PAYZIK rechargeable : QR/code obligatoire + solde vérifié.
+      if (method === "card") {
+        const card = findCardByArg(args);
+        if (!card)
+          return {
+            data: { ok: false, needCard: true },
+            message: "Pour payer par carte, scan le QR ou donne le code de la carte.",
+          };
+        if (cur.cart.length === 0)
+          return { data: { ok: false, error: "panier vide" }, message: "Panier vide, rien à encaisser" };
+        const sale = cur.checkoutWithCard(card.id);
+        if (!sale)
+          return {
+            data: { ok: false, error: "solde insuffisant" },
+            message: `Cette carte n'est pas valide ou son solde est insuffisant (${fmtDh(card.balanceDh)}).`,
+          };
+        return {
+          data: { ok: true, ticket: sale.ticketNo, totalDh: sale.totalDh, method: "wallet" },
+          message: `Ticket #${sale.ticketNo} — ${fmtDh(sale.totalDh)} payés par carte ${card.name}, reste ${fmtDh(card.balanceDh - sale.totalDh)}.`,
+        };
+      }
       let clientId: string | undefined;
       let clientName: string | undefined;
       if (method === "kridi") {
@@ -134,8 +321,7 @@ export function createLiveToolHandlers(getStore: () => Store) {
       const sale = cur.checkout(method, clientId);
       if (!sale)
         return { data: { ok: false, error: "panier vide" }, message: "Panier vide, rien à encaisser" };
-      const label =
-        method === "card" ? "carte" : method === "kridi" ? `kridi ${clientName}` : "espèces";
+      const label = method === "kridi" ? `kridi ${clientName}` : "espèces";
       return {
         data: { ok: true, ticket: sale.ticketNo, totalDh: sale.totalDh, method },
         message: `Ticket #${sale.ticketNo} — ${fmtDh(sale.totalDh)} (${label}) encaissé ✓`,
