@@ -92,15 +92,16 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             </p>
             <input
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9-]/g, "").slice(0, 12).toUpperCase())}
-              placeholder="Code reçu par email (6 ou 8 caractères)"
+              onChange={(e) => setOtpCode(e.target.value.replace(/\s/g, "").slice(0, 20))}
+              placeholder="Code reçu par email (6, 8 ou plus)"
               inputMode="text"
+              autoComplete="one-time-code"
               className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
             />
             <Button
               variant="primary"
               className="w-full"
-              disabled={busy || otpCode.length < 6}
+              disabled={busy || otpCode.length < 4}
               onClick={async () => {
                 setBusy(true);
                 setError("");
@@ -289,9 +290,10 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             </p>
             <input
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9-]/g, "").slice(0, 12).toUpperCase())}
-              placeholder="Code reçu par email (6 ou 8 caractères)"
+              onChange={(e) => setOtpCode(e.target.value.replace(/\s/g, "").slice(0, 20))}
+              placeholder="Code reçu par email (6, 8 ou plus)"
               inputMode="text"
+              autoComplete="one-time-code"
               className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
             />
             <input
@@ -304,7 +306,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             <Button
               variant="primary"
               className="w-full"
-              disabled={busy || otpCode.length < 6 || newPassword.length < 6}
+              disabled={busy || otpCode.length < 4 || newPassword.length < 6}
               onClick={async () => {
                 setBusy(true);
                 setError("");

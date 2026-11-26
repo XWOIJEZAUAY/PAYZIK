@@ -160,7 +160,15 @@ export async function verifySignupOtp(
 ): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
-  const { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: "email" });
+  const clean = token.trim();
+  let { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: clean, type: "email" });
+  if ((error || !data.user) && clean.length > 6) {
+    const retry = await sb.auth.verifyOtp({ email: email.trim(), token: clean.slice(0, 6), type: "email" });
+    if (!retry.error && retry.data.user) {
+      data = retry.data;
+      error = null;
+    }
+  }
   if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
 
   const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
@@ -194,7 +202,15 @@ export async function resetPasswordWithOtp(
 ): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
-  const { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: "recovery" });
+  const clean = token.trim();
+  let { data, error } = await sb.auth.verifyOtp({ email: email.trim(), token: clean, type: "recovery" });
+  if ((error || !data.user) && clean.length > 6) {
+    const retry = await sb.auth.verifyOtp({ email: email.trim(), token: clean.slice(0, 6), type: "recovery" });
+    if (!retry.error && retry.data.user) {
+      data = retry.data;
+      error = null;
+    }
+  }
   if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
 
   const { error: uErr } = await sb.auth.updateUser({ password: newPassword });
