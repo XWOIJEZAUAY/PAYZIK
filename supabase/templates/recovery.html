@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Payzik — mot de passe</title></head>
+<body style="margin:0;padding:24px;background:#FFF8EA;color:#3A2A1F;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#FFFFFF;border-radius:16px;padding:28px;">
+    <tr><td style="font-size:22px;font-weight:700;color:#FF7A1A;">PAYZIK</td></tr>
+    <tr><td style="padding-top:20px;font-size:18px;font-weight:700;">Réinitialisez votre mot de passe</td></tr>
+    <tr><td style="padding-top:12px;font-size:14px;line-height:22px;">
+      Une demande de réinitialisation a été effectuée pour <strong>{{ .Email }}</strong>.<br>
+      Utilisez le lien ci-dessous pour choisir un nouveau mot de passe. Ce lien est à usage unique.
+    </td></tr>
+    <tr><td style="padding-top:22px;">
+      <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#FF7A1A;color:#FFFFFF;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;">Réinitialiser le mot de passe</a>
+    </td></tr>
+    <tr><td style="padding-top:22px;font-size:12px;line-height:20px;color:#6B594A;">
+      Lien de secours : <span style="word-break:break-all;">{{ .ConfirmationURL }}</span><br><br>
+      Si vous n'êtes pas à l'origine de cette demande, ignorez cet email ; votre mot de passe restera inchangé.
+    </td></tr>
+  </table>
+</body>
+</html>

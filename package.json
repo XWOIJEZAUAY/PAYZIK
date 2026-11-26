@@ -9,6 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "icons": "python scripts/generate_icons.py",
+    "test:backend": "node scripts/backend-tests.mjs",
+    "email:config": "node scripts/build-hosted-auth-config.mjs",
     "mobile:sync": "npm run build && cap sync",
     "mobile:android": "npm run mobile:sync && cap open android"
   },
