@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { listShops, type PayzikCard } from "../../services/backend/payzikCards";
 import { requestCardPayment } from "../../services/backend/payzikOrders";
 import { listActiveOffers, type ShopOffer } from "../../services/backend/payzikOffers";
+import { listPartnerAds, type PartnerAd } from "../../services/backend/payzikPartnerAds";
 import type { Ad } from "../../types";
 import { fmtDh } from "../../lib/format";
 import type { Profile } from "../../services/auth";
@@ -30,6 +31,7 @@ import { ClientKridi } from "./client-kridi";
 import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import { ClientCatalog } from "./ClientCatalog";
 import { ClientCardSheet } from "./ClientCardSheet";
+import { PartnerAdBanner } from "./PartnerAdBanner";
 import { useClientCard } from "./useClientCard";
 import {
   Avatar,
@@ -58,17 +60,23 @@ type RealNetwork = {
   shops: Establishment[];
   offers: ShopOffer[];
   ads: Ad[];
+  partnerAds: PartnerAd[];
 };
 
 /** Récupère les vraies boutiques et offres Supabase (aucune simulation). */
 function useRealNetwork(): RealNetwork {
   const [shops, setShops] = useState<Establishment[]>([]);
   const [offers, setOffers] = useState<ShopOffer[]>([]);
+  const [partnerAds, setPartnerAds] = useState<PartnerAd[]>([]);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [s, o] = await Promise.all([listShops(), listActiveOffers()]);
+      const [s, o, p] = await Promise.all([
+        listShops(),
+        listActiveOffers(),
+        listPartnerAds("home"),
+      ]);
       if (!alive) return;
       const offerByShop = new Map<string, ShopOffer>();
       if (o.ok) o.data.forEach((x) => { if (!offerByShop.has(x.shop_id)) offerByShop.set(x.shop_id, x); });
@@ -92,6 +100,7 @@ function useRealNetwork(): RealNetwork {
         }));
       }
       if (o.ok) setOffers(o.data);
+      if (p.ok) setPartnerAds(p.data);
     })();
     return () => { alive = false; };
   }, []);
@@ -106,7 +115,7 @@ function useRealNetwork(): RealNetwork {
     tone: "amber" as const,
   }));
 
-  return { shops, offers, ads };
+  return { shops, offers, ads, partnerAds };
 }
 
 export function ClientSpace({
@@ -127,6 +136,7 @@ export function ClientSpace({
   const [payTarget, setPayTarget] = useState<Establishment | null>(null);
   const [qrOpen, setQrOpen] = useState(false);
   const [catalogShopId, setCatalogShopId] = useState("");
+  const [hiddenPartnerAd, setHiddenPartnerAd] = useState("");
   const name = user.name ?? card?.name ?? "Client";
   const network = useRealNetwork();
 
@@ -167,7 +177,9 @@ export function ClientSpace({
             onQr={() => setQrOpen(true)}
             onPay={setPayTarget}
             shops={network.shops}
-            ads={network.ads}
+            partnerAds={network.partnerAds}
+            hiddenPartnerAd={hiddenPartnerAd}
+            onHidePartnerAd={setHiddenPartnerAd}
           />
         )}
         {tab === "card" && (
@@ -285,7 +297,9 @@ function ClientHome({
   onQr,
   onPay,
   shops,
-  ads,
+  partnerAds,
+  hiddenPartnerAd,
+  onHidePartnerAd,
 }: {
   card: PayzikCard | null;
   onScan: () => void;
@@ -296,14 +310,19 @@ function ClientHome({
   onQr: () => void;
   onPay: (e: Establishment) => void;
   shops: Establishment[];
-  ads: Ad[];
+  partnerAds: PartnerAd[];
+  hiddenPartnerAd: string;
+  onHidePartnerAd: (id: string) => void;
 }) {
   const [hidden, setHidden] = useState(false);
   const nearby = shops.slice(0, 3);
+  const partnerAd = partnerAds.find((a) => a.id !== hiddenPartnerAd);
 
   return (
     <div className="animate-fade-up space-y-2.5">
-      {ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />}
+      {partnerAd && (
+        <PartnerAdBanner ad={partnerAd} onHide={() => onHidePartnerAd(partnerAd.id)} />
+      )}
 
       <Pane className="p-3.5">
         <div className="flex items-start justify-between">
