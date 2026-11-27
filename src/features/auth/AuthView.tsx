@@ -1,8 +1,8 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
 import {
-  signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp,
-  readPendingOnboarding, savePendingOnboarding,
+  signIn, signUp, signInWithGoogle, resetPassword, resetPasswordWithOtp,
+  savePendingOnboarding,
   type ShopOnboarding, type Profile,
 } from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
@@ -12,7 +12,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"merchant" | "customer">("customer");
+  const [role, setRole] = useState<"merchant" | "customer">("merchant");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmSent, setConfirmSent] = useState(false);
@@ -90,7 +90,6 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
     if (res.needsConfirm) {
       savePendingShop();
       setConfirmSent(true);
-      setOtpMode("signup");
       return;
     }
     if (res.user) onAuth(res.user);
@@ -102,55 +101,19 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
         <div className="text-center">
           <h1 className="text-2xl font-black text-ink">PAYZIK</h1>
           <p className="text-sm text-slate-400">
-            {mode === "login" ? "Connexion" : "Créer un compte"}
+            {mode === "login" ? "Connexion" : role === "merchant" ? "Compte boutique" : "Compte utilisateur"}
           </p>
         </div>
 
-        {confirmSent && otpMode === "signup" && (
+        {confirmSent && (
           <div className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
             <p className="text-center">
-              ✉️ Un code de vérification a été envoyé à <strong>{email}</strong>.
+              ✉️ Confirme l'email envoyé à <strong>{email}</strong>.
             </p>
-            <input
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\s/g, "").slice(0, 20))}
-              placeholder="Code reçu par email (6, 8 ou plus)"
-              inputMode="text"
-              autoComplete="one-time-code"
-              className="h-10 w-full rounded-xl border border-emerald-300 bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-brand"
-            />
-            <Button
-              variant="primary"
-              className="w-full"
-              disabled={busy || otpCode.length < 4}
-              onClick={async () => {
-                setBusy(true);
-                setError("");
-                const pending = readPendingOnboarding(email.trim());
-                const effectiveRole = pending?.role ?? role;
-                const effectiveName = pending?.name || name.trim() || email.trim().split("@")[0];
-                const res = await verifySignupOtp(
-                  email.trim(),
-                  otpCode.trim(),
-                  effectiveName,
-                  effectiveRole,
-                  {
-                    phone: pending?.phone ?? (profilePhone.trim() || null),
-                    city: pending?.city ?? (profileCity.trim() || null),
-                    address: pending?.address ?? (profileAddress.trim() || null),
-                    responsible: pending?.responsible ?? (
-                      effectiveRole === "merchant" ? responsible.trim() || effectiveName || null : null
-                    ),
-                  },
-                  pending?.shop ?? shopInput(),
-                );
-                setBusy(false);
-                if (res.ok && res.user) onAuth(res.user);
-                else setError(res.error ?? "Code invalide");
-              }}
-            >
-              {busy ? "…" : "Vérifier le code"}
-            </Button>
+            <p className="text-center text-xs">
+              Clique sur le lien du mail : la connexion et la création de la boutique se font
+              automatiquement. Aucun code ni nouveau mot de passe à saisir.
+            </p>
           </div>
         )}
 
@@ -342,7 +305,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
         {error && <p className="text-xs text-rose-500">{error}</p>}
 
         <Button variant="primary" className="w-full" disabled={busy} onClick={submit}>
-          {busy ? "…" : mode === "login" ? "Se connecter" : "Créer le compte"}
+          {busy ? "…" : mode === "login" ? "Se connecter" : role === "merchant" ? "Créer le compte boutique" : "Créer le compte"}
         </Button>
 
         <p className="text-center text-[11px] text-slate-400">
