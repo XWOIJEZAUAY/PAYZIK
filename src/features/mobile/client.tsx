@@ -177,6 +177,7 @@ export function ClientSpace({
             onQr={() => setQrOpen(true)}
             onPay={setPayTarget}
             shops={network.shops}
+            ads={network.ads}
             partnerAds={network.partnerAds}
             hiddenPartnerAd={hiddenPartnerAd}
             onHidePartnerAd={setHiddenPartnerAd}
@@ -297,6 +298,7 @@ function ClientHome({
   onQr,
   onPay,
   shops,
+  ads,
   partnerAds,
   hiddenPartnerAd,
   onHidePartnerAd,
@@ -310,6 +312,7 @@ function ClientHome({
   onQr: () => void;
   onPay: (e: Establishment) => void;
   shops: Establishment[];
+  ads: Ad[];
   partnerAds: PartnerAd[];
   hiddenPartnerAd: string;
   onHidePartnerAd: (id: string) => void;
@@ -320,8 +323,10 @@ function ClientHome({
 
   return (
     <div className="animate-fade-up space-y-2.5">
-      {partnerAd && (
+      {partnerAd ? (
         <PartnerAdBanner ad={partnerAd} onHide={() => onHidePartnerAd(partnerAd.id)} />
+      ) : (
+        ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />
       )}
 
       <Pane className="p-3.5">
