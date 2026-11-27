@@ -1,5 +1,8 @@
 -- PAYZIK — Migration 1/3 : socle multi-boutiques, relations, cartes, ledger.
 -- Non destructif : aucune donnée existante n'est supprimée ni réécrite.
+-- IMPORTANT : exécuter UNE SEULE FOIS, dans un nouvel onglet SQL, sans autre requête concurrente.
+SET lock_timeout = '30s';
+SET statement_timeout = '180s';
 -- Les lignes historiques sans shop_id restent lisibles par leur propriétaire
 -- uniquement (voir migration 3/3).
 

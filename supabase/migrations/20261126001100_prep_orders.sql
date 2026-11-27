@@ -1,5 +1,7 @@
 -- PAYZIK — Migration 11/11 : catalogue public + commandes de préparation IA.
--- Non destructif.
+-- Non destructif. Exécuter UNE SEULE FOIS, sans autre requête concurrente.
+SET lock_timeout = '30s';
+SET statement_timeout = '120s';
 
 -- 1) Les clients peuvent voir les produits des boutiques réelles du réseau.
 drop policy if exists "products_select_public" on public.products;
