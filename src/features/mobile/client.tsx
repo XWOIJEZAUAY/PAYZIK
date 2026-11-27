@@ -32,6 +32,7 @@ import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import { ClientCatalog } from "./ClientCatalog";
 import { ClientCardSheet } from "./ClientCardSheet";
 import { PartnerAdBanner } from "./PartnerAdBanner";
+import { GoogleAdBanner } from "./GoogleAdBanner";
 import { useClientCard } from "./useClientCard";
 import {
   Avatar,
@@ -323,6 +324,7 @@ function ClientHome({
 
   return (
     <div className="animate-fade-up space-y-2.5">
+      <GoogleAdBanner />
       {partnerAd && (
         <PartnerAdBanner ad={partnerAd} onHide={() => onHidePartnerAd(partnerAd.id)} />
       )}
