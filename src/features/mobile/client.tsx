@@ -323,10 +323,8 @@ function ClientHome({
 
   return (
     <div className="animate-fade-up space-y-2.5">
-      {partnerAd ? (
+      {partnerAd && (
         <PartnerAdBanner ad={partnerAd} onHide={() => onHidePartnerAd(partnerAd.id)} />
-      ) : (
-        ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />
       )}
 
       <Pane className="p-3.5">
@@ -364,6 +362,13 @@ function ClientHome({
         <Quick icon={Zap} label="Offres" onClick={onShops} />
         <Quick icon={Package} label="Commander" onClick={onCatalog} />
       </div>
+
+      {ads[0] && (
+        <div className="space-y-2">
+          <SectionHead title="Offres du réseau" action="Tout voir" onAction={onShops} />
+          <AdBanner ad={ads[0]} onClick={onShops} />
+        </div>
+      )}
 
       <div className="space-y-2">
         <SectionHead title="Boutiques" action="Tout voir" onAction={onShops} />
