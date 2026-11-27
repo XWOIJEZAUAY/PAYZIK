@@ -242,6 +242,18 @@ export type CloudProduct = {
   image: string | null;
 };
 
+/** Produits des vraies boutiques du réseau, visibles par les clients. */
+export async function listPublicProducts(): Promise<Result<CloudProduct[]>> {
+  const sb = await client();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb
+    .from("products")
+    .select("id, merchant_id, shop_id, name, price_dh, stock, category, emoji, aliases, image")
+    .order("name", { ascending: true });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, data: (data ?? []) as CloudProduct[] };
+}
+
 export async function listCloudProducts(): Promise<Result<CloudProduct[]>> {
   const sb = await client();
   if (!sb) return { ok: false, error: "Supabase non configuré" };

@@ -6,6 +6,7 @@ import {
   Camera,
   Check,
   ChevronRight,
+  ClipboardList,
   CreditCard,
   ImagePlus,
   Images,
@@ -66,8 +67,9 @@ import {
   TabBar,
 } from "./ui";
 import { MerchantOffers } from "./MerchantOffers";
+import { MerchantOrders } from "./MerchantOrders";
 
-export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "recharges" | "promos" | "bilan";
+export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "recharges" | "promos" | "orders" | "bilan";
 
 /* Une seule tentative d'image par référence et par session : évite de
  * relancer l'API Open Food Facts à chaque changement d'onglet. */
@@ -80,6 +82,7 @@ const MERCHANT_TABS: { id: MerchantTab; label: string; icon: typeof Wallet }[] =
   { id: "cartes", label: "Cartes", icon: CreditCard },
   { id: "recharges", label: "Demandes", icon: Wallet },
   { id: "promos", label: "Promos", icon: Zap },
+  { id: "orders", label: "Commandes", icon: ClipboardList },
   { id: "bilan", label: "Bilan", icon: TrendingUp },
 ];
 
@@ -205,9 +208,10 @@ export function MerchantSpace({
         {tab === "cartes" && <MerchantCards store={store} notify={notify} />}
         {tab === "recharges" && <MerchantRecharges notify={notify} />}
         {tab === "promos" && <MerchantOffers notify={notify} />}
+        {tab === "orders" && <MerchantOrders notify={notify} />}
         {tab === "bilan" && <Bilan store={store} />}
       </main>
-      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={7} />
+      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={8} />
     </>
   );
 }

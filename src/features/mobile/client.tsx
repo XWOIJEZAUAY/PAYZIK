@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   MapPin,
+  Package,
   Plus,
   QrCode,
   ScanLine,
@@ -35,6 +36,7 @@ import type { Store as StoreType } from "../../state/store";
 import type { Establishment, WalletCard } from "../../types";
 import { ClientKridi } from "./client-kridi";
 import { CloudRechargePanel } from "../customer/CloudRechargePanel";
+import { ClientCatalog } from "./ClientCatalog";
 import {
   Avatar,
   Btn,
@@ -50,12 +52,13 @@ import {
   hoursFor,
 } from "./ui";
 
-export type ClientTab = "home" | "card" | "shops" | "kridi";
+export type ClientTab = "home" | "card" | "shops" | "catalog" | "kridi";
 
 export const CLIENT_TABS: { id: ClientTab; label: string; icon: typeof Wallet }[] = [
   { id: "home", label: "Accueil", icon: Wallet },
-  { id: "card", label: "Ma carte", icon: CreditCard },
-  { id: "shops", label: "Commerces", icon: Store },
+  { id: "card", label: "Carte", icon: CreditCard },
+  { id: "shops", label: "Boutiques", icon: Store },
+  { id: "catalog", label: "Catalogue", icon: Package },
   { id: "kridi", label: "Kridi", icon: BookOpen },
 ];
 
@@ -92,7 +95,7 @@ function useRealNetwork(): RealNetwork {
             cashbackPct: 0,
             distanceKm: 0,
             promo: offer?.discount_label ?? offer?.title,
-            tone: "teal" as const,
+            tone: "amber" as const,
           };
         }));
       }
@@ -101,14 +104,14 @@ function useRealNetwork(): RealNetwork {
     return () => { alive = false; };
   }, []);
 
-  const ads: Ad[] = offers.slice(0, 4).map((o, i) => ({
+  const ads: Ad[] = offers.slice(0, 4).map((o) => ({
     id: o.id,
     eyebrow: "OFFRE PAYZIK",
     title: o.discount_label || o.title,
     subtitle: o.shop?.shop_name || "Boutique partenaire",
     cta: "Voir l'offre",
     sponsor: o.shop?.shop_name || "PAYZIK",
-    tone: (["teal", "amber", "indigo", "rose"] as const)[i % 4],
+    tone: "amber" as const,
   }));
 
   return { shops, offers, ads };
@@ -179,6 +182,7 @@ export function ClientSpace({
         {tab === "shops" && (
           <ClientShops onPay={setPayTarget} notify={notify} shops={network.shops} ads={network.ads} />
         )}
+        {tab === "catalog" && <ClientCatalog user={user} notify={notify} />}
         {tab === "kridi" && (
           <ClientKridi
             user={user}
@@ -188,7 +192,7 @@ export function ClientSpace({
         )}
       </main>
 
-      <TabBar value={tab} onChange={setTab} items={CLIENT_TABS} />
+      <TabBar value={tab} onChange={setTab} items={CLIENT_TABS} columns={5} />
 
       <ScanModal
         open={scan}
@@ -360,7 +364,7 @@ function Quick({
       onClick={onClick}
       className="relative flex flex-col items-center gap-1.5 rounded-2xl border border-[#E2E8F0] bg-white py-3 shadow-sm transition active:scale-[.98]"
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1F5F9] text-[#0F172A]">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
         <Icon size={18} />
       </span>
       <span className="text-[10.5px] font-semibold text-[#0F172A]">{label}</span>
@@ -377,7 +381,7 @@ function ShopRow({ e, onPay }: { e: Establishment; onPay: () => void }) {
   const Icon = KIND_ICON[e.kind];
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F1F5F9] text-[#0F172A]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
         <Icon size={19} />
       </span>
       <div className="min-w-0 flex-1">
@@ -407,10 +411,10 @@ function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full overflow-hidden rounded-2xl bg-[#0F172A] p-4 text-left text-white shadow-sm active:scale-[.99]"
+      className="w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF7A1A] via-[#FF5200] to-[#C2410C] p-4 text-left text-white shadow-sm active:scale-[.99]"
     >
-      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#FFB27A]">
-        {ad.eyebrow} · sponsorisé
+      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/75">
+        {ad.eyebrow} · offre réelle
       </p>
       <p className="mt-1 text-[15px] font-bold leading-tight">{ad.title}</p>
       <p className="mt-0.5 text-[11px] text-white/60">{ad.subtitle}</p>
@@ -644,7 +648,7 @@ function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
       <div className="flex items-start gap-3 p-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F1F5F9] text-[#0F172A]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
           <Icon size={19} />
         </span>
         <div className="min-w-0 flex-1">
@@ -661,7 +665,7 @@ function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
             </span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-[#ECFDF5] px-1.5 py-0.5 text-[9.5px] font-bold text-[#059669]">
+            <span className="rounded-md bg-[#FFF1EA] px-1.5 py-0.5 text-[9.5px] font-bold text-[#FF5200]">
               +{e.cashbackPct}% cashback
             </span>
             <span className="rounded-md bg-[#F1F5F9] px-1.5 py-0.5 text-[9.5px] font-semibold text-[#64748B]">
@@ -771,7 +775,7 @@ function ScanModal({
                 }}
                 className="flex w-full items-center gap-2 rounded-xl border border-[#E2E8F0] p-2 text-left active:bg-[#F8FAFC]"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F1F5F9] text-[#0F172A]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
                   <Icon size={15} />
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#0F172A]">

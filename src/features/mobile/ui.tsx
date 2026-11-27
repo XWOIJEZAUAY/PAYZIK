@@ -233,7 +233,7 @@ export function TabBar<T extends string>({
               />
               <span
                 className={cx(
-                  "text-[10px] font-semibold",
+                  columns > 6 ? "text-[9px] font-semibold" : "text-[10px] font-semibold",
                   active ? "text-[#FF5200]" : "text-[#64748B]",
                 )}
               >
