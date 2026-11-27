@@ -1,7 +1,7 @@
 """Génère les icônes PWA et Android de PAYZIK (PNG, PIL uniquement)."""
 
 from pathlib import Path
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "public" / "icons"
@@ -75,9 +75,53 @@ def android_foreground(size: int) -> Image.Image:
     return img
 
 
+def avatar_icon(size: int) -> Image.Image:
+    """Avatar PAYZIK (Éclair + nom), identique au SVG, en PNG pour iOS."""
+    s = size / 512
+    bg = Image.new("RGB", (size, size), ORANGE)
+    px = bg.load()
+    for y in range(size):
+        for x in range(size):
+            t = (x + y) / (2 * max(size - 1, 1))
+            px[x, y] = tuple(
+                int(ORANGE[i] + (ORANGE_DEEP[i] - ORANGE[i]) * t) for i in range(3)
+            )
+    mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(
+        (0, 0, size - 1, size - 1), radius=int(112 * s), fill=255
+    )
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    img.paste(bg, (0, 0), mask)
+
+    bolt = [
+        (290, 96), (160, 288), (256, 288),
+        (224, 416), (352, 224), (256, 224),
+    ]
+    scaled = [(int(x * s), int(y * s)) for x, y in bolt]
+    shadow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).polygon(
+        [(x + int(8 * s), y + int(8 * s)) for x, y in scaled],
+        fill=(58, 42, 31, 70),
+    )
+    shadow = shadow.filter(ImageFilter.GaussianBlur(max(1, int(12 * s))))
+    img = Image.alpha_composite(img, shadow)
+    ImageDraw.Draw(img).polygon(scaled, fill=(255, 255, 255, 255))
+
+    try:
+        font = ImageFont.truetype("arial.ttf", max(8, int(56 * s)))
+    except OSError:
+        font = ImageFont.load_default()
+    draw = ImageDraw.Draw(img)
+    draw.text(
+        (size / 2, 470 * s), "PAYZIK", font=font, fill=(255, 255, 255, 235), anchor="mm"
+    )
+    return img.convert("RGB")
+
+
 # --- PWA ---
 # iOS utilise un apple-touch-icon PNG de 180x180 (pas de SVG sur l'écran d'accueil).
-pwa_icon(180, False).save(OUT / "icon-180.png", optimize=True)
+avatar_icon(180).save(OUT / "icon-180.png", optimize=True)
+avatar_icon(512).save(OUT / "avatar-512.png", optimize=True)
 for s in (192, 512):
     pwa_icon(s, False).save(OUT / f"icon-{s}.png", optimize=True)
     pwa_icon(s, True).save(OUT / f"icon-maskable-{s}.png", optimize=True)
