@@ -1,5 +1,6 @@
 /** Commandes de préparation envoyées par l'IA client aux boutiques. */
 import { getSupabaseClient } from "../auth";
+import { fmtDh } from "../../lib/format";
 
 export type PrepItem = { product_id: string; name: string; qty: number; priceDh?: number };
 export type PrepOrder = {
@@ -31,6 +32,18 @@ export async function createPrepOrder(
   const r = data as { ok?: boolean; order_id?: string; error?: string };
   if (!r?.ok || !r.order_id) return { ok: false, error: r?.error ?? "Commande impossible" };
   return { ok: true, data: { order_id: r.order_id } };
+}
+
+/** Envoie un montant à régler au commerçant (paiement par solde). */
+export async function requestCardPayment(
+  shopId: string,
+  amount: number,
+): Promise<Result<{ order_id: string }>> {
+  return createPrepOrder(
+    shopId,
+    [{ product_id: "amount", name: `Montant à régler ${fmtDh(amount)}`, qty: 1, priceDh: amount }],
+    `PAIEMENT-SOLDE:${amount}`,
+  );
 }
 
 export async function listClientOrders(): Promise<Result<PrepOrder[]>> {

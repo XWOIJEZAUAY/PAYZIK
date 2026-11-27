@@ -3,8 +3,6 @@ import { Plus, CheckCircle2, XCircle, Clock3 } from "lucide-react";
 import { fmtDh } from "../../lib/format";
 import { getSupabaseClient } from "../../services/auth";
 import {
-  createGeneralCard,
-  listMyCards,
   listShops,
   requestShopCardRecharge,
   listRechargeRequests,
@@ -20,41 +18,28 @@ const statusInfo = (s: RechargeRequest["status"]) => {
 };
 
 export function CloudRechargePanel({
-  customerName,
+  card,
   onNotice,
+  onRefresh,
 }: {
-  customerName: string;
+  card: PayzikCard | null;
   onNotice: (msg: string) => void;
+  onRefresh: () => Promise<unknown> | void;
 }) {
-  const [card, setCard] = useState<PayzikCard | null>(null);
   const [shops, setShops] = useState<Shop[]>([]);
   const [requests, setRequests] = useState<RechargeRequest[]>([]);
   const [amount, setAmount] = useState<number | "">("");
   const [shopId, setShopId] = useState("");
-  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  const refresh = async () => {
-    const [cardsRes, shopsRes, reqRes] = await Promise.all([
-      listMyCards(),
-      listShops(),
-      listRechargeRequests("client"),
-    ]);
-    let c: PayzikCard | null = cardsRes.ok ? (cardsRes.data[0] ?? null) : null;
-    if (!c) {
-      const created = await createGeneralCard(customerName || "Client PAYZIK");
-      if (created.ok) {
-        const again = await listMyCards();
-        c = again.ok ? (again.data[0] ?? null) : null;
-      }
-    }
-    setCard(c);
-    setError(cardsRes.ok ? "" : cardsRes.error);
-    if (shopsRes.ok) setShops(shopsRes.data);
-    if (reqRes.ok) setRequests(reqRes.data);
-    setLoading(false);
+  const refreshRequests = async () => {
+    const [s, r] = await Promise.all([listShops(), listRechargeRequests("client")]);
+    if (s.ok) setShops(s.data);
+    if (r.ok) setRequests(r.data);
   };
+
+  useEffect(() => { void refreshRequests(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   useEffect(() => {
     const sb = getSupabaseClient();
@@ -64,14 +49,12 @@ export function CloudRechargePanel({
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "recharge_requests" },
-        () => { void refresh(); },
+        () => { void refreshRequests(); void onRefresh(); },
       )
       .subscribe();
     return () => { sb.removeChannel(channel); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => { void refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   const sendRequest = async () => {
     if (!card || !shopId || typeof amount !== "number" || amount <= 0) return;
@@ -82,31 +65,15 @@ export function CloudRechargePanel({
     if (!res.ok) { setError(res.error); return; }
     onNotice(`${fmtDh(amount)} envoyés — validation en cours.`);
     setAmount("");
-    await refresh();
+    await refreshRequests();
   };
 
-  if (loading) {
-    return <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5 text-[11px] text-slate-400">Chargement…</div>;
+  if (!card) {
+    return <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5 text-[11px] text-slate-400">Carte en cours de création…</div>;
   }
 
   return (
     <div className="space-y-2.5">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF7A1A] via-[#FF5200] to-[#C2410C] p-4 text-white shadow-sm">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-white/20 blur-2xl" />
-        <div className="relative flex items-center justify-between">
-          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/75">PAYZIK</p>
-          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[8.5px] font-bold uppercase">Active</span>
-        </div>
-        <p className="relative mt-3 font-mono text-[13px] tracking-[0.16em]">{card?.code ?? "—"}</p>
-        <div className="relative mt-2.5 flex items-end justify-between gap-2">
-          <p className="min-w-0 truncate text-[11.5px] font-semibold">{customerName || "Client PAYZIK"}</p>
-          <div className="shrink-0 text-right">
-            <p className="text-[8px] uppercase tracking-wider text-white/60">Solde</p>
-            <p className="font-mono text-[16px] font-bold leading-none">{fmtDh(card?.balance_dh ?? 0)}</p>
-          </div>
-        </div>
-      </div>
-
       <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
         <h3 className="text-[12.5px] font-bold text-[#0F172A]">Recharge</h3>
         {error && (
@@ -146,7 +113,7 @@ export function CloudRechargePanel({
           className="mt-2 h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 font-mono text-[12px] outline-none focus:border-[#FF5200]"
         />
         <button
-          disabled={!card || !shopId || typeof amount !== "number" || amount <= 0 || sending}
+          disabled={!shopId || typeof amount !== "number" || amount <= 0 || sending}
           onClick={() => void sendRequest()}
           className="mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#FF5200] text-[11px] font-bold text-white disabled:opacity-40"
         >
@@ -156,9 +123,7 @@ export function CloudRechargePanel({
 
       <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
         <p className="text-[11.5px] font-bold text-[#0F172A]">Mes demandes</p>
-        {requests.length === 0 && (
-          <p className="mt-1.5 text-[10.5px] text-slate-500">Aucune demande.</p>
-        )}
+        {requests.length === 0 && <p className="mt-1.5 text-[10.5px] text-slate-500">Aucune demande.</p>}
         <div className="mt-1.5 space-y-1.5">
           {requests.map((r) => {
             const s = statusInfo(r.status);

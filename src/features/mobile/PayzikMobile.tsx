@@ -51,7 +51,6 @@ export function PayzikMobile({
           />
         ) : (
           <ClientSpace
-            store={store}
             user={user}
             tab={clientTab}
             setTab={setClientTab}

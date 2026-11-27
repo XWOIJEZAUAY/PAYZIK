@@ -39,9 +39,9 @@ const STATUS: Record<
   PrepOrder["status"],
   { label: string; cls: string; icon: LucideIcon }
 > = {
-  pending: { label: "Envoyée au commerçant", cls: "bg-amber-50 text-amber-700", icon: Clock3 },
-  confirmed: { label: "Préparation confirmée", cls: "bg-[#FFF1EA] text-[#FF5200]", icon: CheckCircle2 },
-  ready: { label: "Prête — tu peux passer", cls: "bg-emerald-50 text-emerald-700", icon: CheckCircle2 },
+  pending: { label: "En cours", cls: "bg-amber-50 text-amber-700", icon: Clock3 },
+  confirmed: { label: "En préparation", cls: "bg-[#FFF1EA] text-[#FF5200]", icon: CheckCircle2 },
+  ready: { label: "Prêt", cls: "bg-emerald-50 text-emerald-700", icon: CheckCircle2 },
   cancelled: { label: "Annulée", cls: "bg-rose-50 text-rose-600", icon: XCircle },
 };
 
@@ -135,12 +135,14 @@ function parseRequest(
 export function ClientCatalog({
   user,
   notify,
+  initialShopId = "",
 }: {
   user: Profile;
   notify: (m: string) => void;
+  initialShopId?: string;
 }) {
   const [shops, setShops] = useState<Shop[]>([]);
-  const [shopId, setShopId] = useState("");
+  const [shopId, setShopId] = useState(initialShopId);
   const [products, setProducts] = useState<CloudProduct[]>([]);
   const [orders, setOrders] = useState<PrepOrder[]>([]);
   const [q, setQ] = useState("");
@@ -151,7 +153,7 @@ export function ClientCatalog({
     {
       id: "welcome",
       role: "ai",
-      text: "Salam ! Exemple : « 2 lait et 1 pain, j’arrive ». Je vérifie le catalogue réel et j’envoie au commerçant.",
+      text: "Écris ta commande. Ex : 2 lait et 1 pain.",
     },
   ]);
   const endRef = useRef<HTMLDivElement>(null);
@@ -180,6 +182,10 @@ export function ClientCatalog({
     })();
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    if (initialShopId) setShopId(initialShopId);
+  }, [initialShopId]);
 
   useEffect(() => {
     const sb = getSupabaseClient();
@@ -259,7 +265,7 @@ export function ClientCatalog({
       {
         id: `${Date.now()}-a`,
         role: "ai",
-        text: `Commande envoyée à ${shopName(parsed.shopId)} : ${recap}. Le commerçant reçoit la notification et je te préviens dès qu’il confirme.`,
+        text: `Envoyé à ${shopName(parsed.shopId)} · ${recap}. Statut en direct.`,
         kind: "success",
       },
     ]);

@@ -1,41 +1,36 @@
 /** Espace CLIENT — accueil, carte, commerces et scanner. */
 import {
-  ArrowDownLeft,
   ArrowRight,
-  ArrowUpRight,
   Bell,
   BookOpen,
   Check,
   ChevronRight,
-  Clock,
   CreditCard,
   Eye,
   EyeOff,
   MapPin,
   Package,
-  Plus,
   QrCode,
   ScanLine,
   Search,
-  Send,
-  Star,
   Store,
   Wallet,
-  Wifi,
   X,
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { listShops } from "../../services/backend/payzikCards";
+import { listShops, type PayzikCard } from "../../services/backend/payzikCards";
+import { requestCardPayment } from "../../services/backend/payzikOrders";
 import { listActiveOffers, type ShopOffer } from "../../services/backend/payzikOffers";
 import type { Ad } from "../../types";
 import { fmtDh } from "../../lib/format";
 import type { Profile } from "../../services/auth";
-import type { Store as StoreType } from "../../state/store";
-import type { Establishment, WalletCard } from "../../types";
+import type { Establishment } from "../../types";
 import { ClientKridi } from "./client-kridi";
 import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import { ClientCatalog } from "./ClientCatalog";
+import { ClientCardSheet } from "./ClientCardSheet";
+import { useClientCard } from "./useClientCard";
 import {
   Avatar,
   Btn,
@@ -43,7 +38,6 @@ import {
   Empty,
   IconBtn,
   KIND_ICON,
-  KIND_LABEL,
   Pane,
   SectionHead,
   Sheet,
@@ -56,7 +50,7 @@ export const CLIENT_TABS: { id: ClientTab; label: string; icon: typeof Wallet }[
   { id: "home", label: "Accueil", icon: Wallet },
   { id: "card", label: "Carte", icon: CreditCard },
   { id: "shops", label: "Boutiques", icon: Store },
-  { id: "catalog", label: "Catalogue", icon: Package },
+  { id: "catalog", label: "Message", icon: Package },
   { id: "kridi", label: "Kridi", icon: BookOpen },
 ];
 
@@ -116,42 +110,41 @@ function useRealNetwork(): RealNetwork {
 }
 
 export function ClientSpace({
-  store,
   user,
   tab,
   setTab,
   onProfile,
   notify,
 }: {
-  store: StoreType;
   user: Profile;
   tab: ClientTab;
   setTab: (t: ClientTab) => void;
   onProfile: () => void;
   notify: (m: string) => void;
 }) {
-  const card = store.cards[0];
+  const { card, refresh: refreshCard } = useClientCard(user.id, user.name ?? "Client");
   const [scan, setScan] = useState(false);
   const [payTarget, setPayTarget] = useState<Establishment | null>(null);
-  const [p2p, setP2p] = useState(false);
-  const name = card?.name ?? user.name ?? "Client";
+  const [qrOpen, setQrOpen] = useState(false);
+  const [catalogShopId, setCatalogShopId] = useState("");
+  const name = user.name ?? card?.name ?? "Client";
   const network = useRealNetwork();
 
-  const pay = (target: Establishment, amount: number): string | null => {
+  const pay = async (target: Establishment, amount: number): Promise<string | null> => {
     if (!card) return "Aucune carte PAYZIK sur ce compte.";
-    if (amount <= 0) return "Saisis un montant valide.";
-    if (amount > card.balanceDh)
-      return `Solde insuffisant (${fmtDh(card.balanceDh)}). Recharge ta carte.`;
-    const ok = store.payWithCard(card.id, amount, `Paiement ${target.name}`);
-    if (!ok) return "Paiement refusé.";
-    const cashback = Math.round(((amount * target.cashbackPct) / 100) * 100) / 100;
-    if (cashback >= 1) store.topUpCard(card.id, cashback, `Cashback ${target.name}`);
-    notify(
-      `${fmtDh(amount)} payés chez ${target.name}${
-        cashback >= 1 ? ` · +${fmtDh(cashback)} cashback` : ""
-      }`,
-    );
+    if (amount <= 0) return "Montant invalide.";
+    if (amount > card.balance_dh)
+      return `Solde insuffisant (${fmtDh(card.balance_dh)}). Recharge ta carte.`;
+    const res = await requestCardPayment(target.id, amount);
+    if (!res.ok) return `Envoi impossible : ${res.error}`;
+    notify(`${fmtDh(amount)} envoyés à ${target.name}. Paiement en cours.`);
+    await refreshCard();
     return null;
+  };
+
+  const openCatalog = (shopId: string) => {
+    setCatalogShopId(shopId);
+    setTab("catalog");
   };
 
   return (
@@ -160,7 +153,7 @@ export function ClientSpace({
         name={name}
         location={[user.address, user.city].filter(Boolean).join(", ")}
         onProfile={onProfile}
-        onBell={() => notify("Voir les offres réelles des boutiques")}
+        onBell={() => notify("Offres actives des boutiques")}
       />
       <main className="scrollbar-thin flex-1 overflow-y-auto px-4 pb-24 pt-2">
         {tab === "home" && (
@@ -170,27 +163,48 @@ export function ClientSpace({
             onRecharge={() => setTab("card")}
             onKridi={() => setTab("kridi")}
             onShops={() => setTab("shops")}
-            onP2P={() => setP2p(true)}
+            onCatalog={() => openCatalog("")}
+            onQr={() => setQrOpen(true)}
             onPay={setPayTarget}
             shops={network.shops}
             ads={network.ads}
           />
         )}
-        {tab === "card" && <ClientCard store={store} card={card} notify={notify} />}
-        {tab === "shops" && (
-          <ClientShops onPay={setPayTarget} notify={notify} shops={network.shops} ads={network.ads} />
-        )}
-        {tab === "catalog" && <ClientCatalog user={user} notify={notify} />}
-        {tab === "kridi" && (
-          <ClientKridi
-            user={user}
-            onProfile={onProfile}
+        {tab === "card" && (
+          <ClientCard
+            card={card}
+            name={name}
             notify={notify}
+            onRefresh={refreshCard}
+            onQr={() => setQrOpen(true)}
           />
+        )}
+        {tab === "shops" && (
+          <ClientShops
+            onPay={setPayTarget}
+            onCatalog={openCatalog}
+            notify={notify}
+            shops={network.shops}
+            ads={network.ads}
+          />
+        )}
+        {tab === "catalog" && (
+          <ClientCatalog user={user} notify={notify} initialShopId={catalogShopId} />
+        )}
+        {tab === "kridi" && (
+          <ClientKridi user={user} onProfile={onProfile} notify={notify} />
         )}
       </main>
 
       <TabBar value={tab} onChange={setTab} items={CLIENT_TABS} columns={5} />
+
+      <ClientCardSheet
+        open={qrOpen}
+        card={card}
+        name={name}
+        onClose={() => setQrOpen(false)}
+        onRecharge={() => setTab("card")}
+      />
 
       <ScanModal
         open={scan}
@@ -206,15 +220,9 @@ export function ClientSpace({
         card={card}
         onClose={() => setPayTarget(null)}
         onConfirm={pay}
-      />
-      <P2PModal
-        open={p2p}
-        onClose={() => setP2p(false)}
-        card={card}
-        onSend={(phone, amount) => {
-          const ok = card && store.payWithCard(card.id, amount, `Transfert ${phone}`);
-          notify(ok ? `${fmtDh(amount)} envoyés à ${phone}` : "Solde insuffisant");
-          setP2p(false);
+        onShowQr={() => {
+          setPayTarget(null);
+          setQrOpen(true);
         }}
       />
     </>
@@ -273,45 +281,45 @@ function ClientHome({
   onRecharge,
   onKridi,
   onShops,
-  onP2P,
+  onCatalog,
+  onQr,
   onPay,
   shops,
   ads,
 }: {
-  card?: WalletCard;
+  card: PayzikCard | null;
   onScan: () => void;
   onRecharge: () => void;
   onKridi: () => void;
   onShops: () => void;
-  onP2P: () => void;
+  onCatalog: () => void;
+  onQr: () => void;
   onPay: (e: Establishment) => void;
   shops: Establishment[];
   ads: Ad[];
 }) {
   const [hidden, setHidden] = useState(false);
-  const nearby = shops.slice(0, 4);
+  const nearby = shops.slice(0, 3);
 
   return (
     <div className="animate-fade-up space-y-2.5">
+      {ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />}
+
       <Pane className="p-3.5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[10.5px] font-medium text-[#64748B]">Solde disponible</p>
-            <div className="mt-0.5 flex items-center gap-1.5">
-              <p className="font-mono text-[26px] font-bold leading-none tracking-tight text-[#0F172A]">
-                {hidden ? "•••• DH" : fmtDh(card?.balanceDh ?? 0)}
-              </p>
-              <button
-                onClick={() => setHidden((h) => !h)}
-                className="rounded-lg p-1 text-[#94A3B8]"
-                aria-label="Masquer le solde"
-              >
-                {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+            <p className="flex items-center gap-1 text-[10px] font-medium text-[#64748B]">
+              Solde PAYZIK
+              <button onClick={() => setHidden((h) => !h)} aria-label="Masquer le solde">
+                {hidden ? <EyeOff size={12} /> : <Eye size={12} />}
               </button>
-            </div>
-            <p className="mt-1 text-[10px] text-[#64748B]">
-              {card?.code ?? "Carte PAYZIK"}
             </p>
+            <p className="mt-0.5 font-mono text-[24px] font-bold leading-none text-[#0F172A]">
+              {hidden ? "•••• DH" : fmtDh(card?.balance_dh ?? 0)}
+            </p>
+            <button onClick={onQr} className="mt-1 font-mono text-[10px] text-[#FF5200]">
+              {card?.code ?? "Carte PAYZIK"} · voir le QR
+            </button>
           </div>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
             <Wallet size={16} />
@@ -319,28 +327,32 @@ function ClientHome({
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Btn className="h-10 !text-[11px]" onClick={onScan}>
-            <ScanLine size={15} /> Scanner
+            <ScanLine size={15} /> Payer
           </Btn>
-          <Btn variant="soft" className="h-10 !text-[11px]" onClick={onRecharge}>
-            <Plus size={15} /> Recharger
+          <Btn variant="soft" className="h-10 !text-[11px]" onClick={onQr}>
+            <QrCode size={15} /> Mon QR
           </Btn>
         </div>
       </Pane>
 
       <div className="grid grid-cols-3 gap-2">
-        <Quick icon={BookOpen} label="Carnet" badge={3} onClick={onKridi} />
+        <Quick icon={BookOpen} label="Carnet" onClick={onKridi} />
         <Quick icon={Zap} label="Offres" onClick={onShops} />
-        <Quick icon={Send} label="Transfert" onClick={onP2P} />
+        <Quick icon={Package} label="Commander" onClick={onCatalog} />
       </div>
 
-      {ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />}
-
       <div className="space-y-2">
-        <SectionHead title="Offres près de chez toi" action="Tout voir" onAction={onShops} />
+        <SectionHead title="Boutiques" action="Tout voir" onAction={onShops} />
         {nearby.map((e) => (
           <ShopRow key={e.id} e={e} onPay={() => onPay(e)} />
         ))}
       </div>
+      <button
+        onClick={onRecharge}
+        className="w-full rounded-lg border border-[#E2E8F0] bg-white py-2 text-[10.5px] font-semibold text-[#64748B]"
+      >
+        Recharger ma carte
+      </button>
     </div>
   );
 }
@@ -386,13 +398,6 @@ function ShopRow({ e, onPay }: { e: Establishment; onPay: () => void }) {
         <p className="flex items-center gap-1 text-[10px] text-[#64748B]">
           <MapPin size={10} /> {e.district}
         </p>
-        <div className="mt-0.5 flex items-center gap-2 text-[9.5px]">
-          <span className="flex items-center gap-0.5 font-semibold text-[#0F172A]">
-            <Star size={10} className="fill-[#F59E0B] text-[#F59E0B]" />
-            {e.rating.toFixed(1)}
-          </span>
-          <span className="font-semibold text-[#059669]">+{e.cashbackPct}% cashback</span>
-        </div>
       </div>
       <button
         onClick={onPay}
@@ -425,120 +430,46 @@ function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
 /* ------------------------------------------------------------------ */
 
 function ClientCard({
-  store,
   card,
+  name,
   notify,
+  onRefresh,
+  onQr,
 }: {
-  store: StoreType;
-  card?: WalletCard;
+  card: PayzikCard | null;
+  name: string;
   notify: (m: string) => void;
+  onRefresh: () => Promise<unknown> | void;
+  onQr: () => void;
 }) {
-  const txs = card ? store.cardTxFor(card.id) : [];
-  const cashback = txs
-    .filter((t) => t.label.startsWith("Cashback"))
-    .reduce((s, t) => s + t.amountDh, 0);
-
   return (
-    <div className="animate-fade-up space-y-3">
-      {/* carte virtuelle */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#7C2D12] p-5 text-white shadow-lg">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#FF5200]/30 blur-2xl" />
-        <div className="relative flex items-start justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/60">
-              PAYZIK
-            </p>
-            <p className="mt-0.5 text-[11px] text-white/50">Carte prépayée</p>
-          </div>
-          <Wifi size={20} className="rotate-90 text-white/70" />
-        </div>
-        <div className="relative mt-5 flex items-center gap-2">
-          <span className="h-7 w-9 rounded-md bg-gradient-to-br from-[#F5B942] to-[#D98700] ring-1 ring-white/20" />
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
-            NFC
+    <div className="animate-fade-up space-y-2.5">
+      <div className="rounded-2xl bg-gradient-to-br from-[#FF5200] to-[#FF8A3D] p-4 text-white shadow-md">
+        <div className="flex items-start justify-between">
+          <CreditCard size={20} className="text-white/90" />
+          <span className="rounded-full border border-white/25 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/85">
+            PAYZIK
           </span>
         </div>
-        <p className="relative mt-3 font-mono text-[16px] tracking-[0.18em]">
-          {card?.code ?? "PZK-XXXX-XX"}
-        </p>
-        <div className="relative mt-4 flex items-end justify-between">
+        <p className="mt-3 truncate text-[14px] font-bold">{name}</p>
+        <p className="font-mono text-[10.5px] text-white/60">{card?.code ?? "—"}</p>
+        <div className="mt-3 flex items-end justify-between border-t border-white/15 pt-2">
           <div>
-            <p className="text-[9px] uppercase tracking-wider text-white/40">Titulaire</p>
-            <p className="text-[13px] font-semibold">{card?.name ?? "—"}</p>
+            <p className="text-[9px] uppercase tracking-wider text-white/60">Solde</p>
+            <p className="font-mono text-[18px] font-bold">{fmtDh(card?.balance_dh ?? 0)}</p>
           </div>
-          <div className="text-right">
-            <p className="text-[9px] uppercase tracking-wider text-white/40">Solde</p>
-            <p className="font-mono text-[18px] font-bold">{fmtDh(card?.balanceDh ?? 0)}</p>
-          </div>
+          <p className="text-[10px] text-white/70">Une seule carte</p>
         </div>
       </div>
 
-      {/* recharge réelle via commerçant */}
-      <CloudRechargePanel
-        customerName={card?.name ?? "Client PAYZIK"}
-        onNotice={notify}
-      />
+      <button
+        onClick={onQr}
+        className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-[#FF5200] bg-[#FFF1EA] text-[11px] font-bold text-[#FF5200]"
+      >
+        <QrCode size={14} /> Afficher mon QR
+      </button>
 
-      {/* historique */}
-      <Pane className="p-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-[13px] font-bold text-[#0F172A]">Historique</h3>
-          <span className="rounded-md bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-semibold text-[#64748B]">
-            {txs.length} opérations
-          </span>
-        </div>
-        {txs.length === 0 ? (
-          <Empty
-            icon={<CreditCard size={22} />}
-            title="Aucune opération"
-            hint="Recharge ta carte ou paie chez un partenaire."
-          />
-        ) : (
-          <div className="mt-2 divide-y divide-[#F1F5F9]">
-            {txs.slice(0, 8).map((t) => {
-              const up = t.type === "topup";
-              return (
-                <div key={t.id} className="flex items-center gap-2.5 py-2">
-                  <span
-                    className={cx(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                      up ? "bg-[#ECFDF5] text-[#059669]" : "bg-[#FEF2F2] text-[#DC2626]",
-                    )}
-                  >
-                    {up ? <ArrowDownLeft size={15} /> : <ArrowUpRight size={15} />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[12px] font-semibold text-[#0F172A]">
-                      {t.label}
-                    </p>
-                    <p className="text-[10px] text-[#64748B]">
-                      {new Date(t.at).toLocaleString("fr-FR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                  <span
-                    className={cx(
-                      "font-mono text-[12px] font-bold",
-                      up ? "text-[#059669]" : "text-[#DC2626]",
-                    )}
-                  >
-                    {up ? "+" : "−"}
-                    {fmtDh(t.amountDh)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <p className="mt-2 flex items-center justify-between text-[11px] text-[#64748B]">
-          <span>Cashback cumulé</span>
-          <span className="font-mono font-bold text-[#059669]">{fmtDh(cashback)}</span>
-        </p>
-      </Pane>
+      <CloudRechargePanel card={card} onNotice={notify} onRefresh={onRefresh} />
     </div>
   );
 }
@@ -560,11 +491,13 @@ const SHOP_FILTERS: { id: ShopFilter; label: string }[] = [
 
 function ClientShops({
   onPay,
+  onCatalog,
   notify,
   shops,
   ads,
 }: {
   onPay: (e: Establishment) => void;
+  onCatalog: (shopId: string) => void;
   notify: (m: string) => void;
   shops: Establishment[];
   ads: Ad[];
@@ -623,7 +556,12 @@ function ClientShops({
 
       <div className="space-y-2">
         {list.map((e) => (
-          <ShopCard key={e.id} e={e} onPay={() => onPay(e)} />
+          <ShopCard
+            key={e.id}
+            e={e}
+            onPay={() => onPay(e)}
+            onCatalog={() => onCatalog(e.id)}
+          />
         ))}
       </div>
 
@@ -638,7 +576,15 @@ function ClientShops({
   );
 }
 
-function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
+function ShopCard({
+  e,
+  onPay,
+  onCatalog,
+}: {
+  e: Establishment;
+  onPay: () => void;
+  onCatalog: () => void;
+}) {
   const Icon = KIND_ICON[e.kind];
   return (
     <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
@@ -654,31 +600,21 @@ function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
                 <MapPin size={10} /> {e.district}, {e.city}
               </p>
             </div>
-            <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-bold text-[#0F172A]">
-              <Star size={11} className="fill-[#F59E0B] text-[#F59E0B]" />
-              {e.rating.toFixed(1)}
-            </span>
-          </div>
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-[#FFF1EA] px-1.5 py-0.5 text-[9.5px] font-bold text-[#FF5200]">
-              +{e.cashbackPct}% cashback
-            </span>
-            <span className="rounded-md bg-[#F1F5F9] px-1.5 py-0.5 text-[9.5px] font-semibold text-[#64748B]">
-              {KIND_LABEL[e.kind]}
-            </span>
-            <span className="text-[9.5px] text-[#94A3B8]">{e.reviews} avis</span>
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between border-t border-[#F1F5F9] px-2.5 py-1.5">
-        <span className="flex items-center gap-1 text-[9.5px] font-semibold text-[#64748B]">
-          <Clock size={10} /> Ouvert
-        </span>
+      <div className="flex items-center gap-1.5 border-t border-[#F1F5F9] px-2.5 py-1.5">
+        <button
+          onClick={onCatalog}
+          className="flex-1 rounded-md border border-[#E2E8F0] py-1 text-[10px] font-bold text-[#64748B]"
+        >
+          Produits
+        </button>
         <button
           onClick={onPay}
-          className="rounded-md bg-[#FF5200] px-2.5 py-1 text-[10px] font-bold text-white active:scale-95"
+          className="flex-1 rounded-md bg-[#FF5200] py-1 text-[10px] font-bold text-white active:scale-95"
         >
-          Payer en caisse
+          Payer
         </button>
       </div>
     </div>
@@ -791,14 +727,17 @@ function PayModal({
   card,
   onClose,
   onConfirm,
+  onShowQr,
 }: {
   target: Establishment | null;
-  card?: WalletCard;
+  card: PayzikCard | null;
   onClose: () => void;
-  onConfirm: (target: Establishment, amount: number) => string | null;
+  onConfirm: (target: Establishment, amount: number) => Promise<string | null>;
+  onShowQr: () => void;
 }) {
   const [amount, setAmount] = useState<number | "">("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (target) {
@@ -809,41 +748,37 @@ function PayModal({
 
   if (!target) return null;
 
-  const submit = () => {
-    const err = onConfirm(target, typeof amount === "number" ? amount : 0);
+  const submit = async () => {
+    setBusy(true);
+    const err = await onConfirm(target, typeof amount === "number" ? amount : 0);
+    setBusy(false);
     if (err) setError(err);
     else onClose();
   };
 
   return (
-    <Sheet open onClose={onClose} title="Payer avec PAYZIK">
-      <div className="rounded-xl bg-[#0F172A] p-3 text-white">
-        <p className="text-[10px] uppercase tracking-wider text-white/50">Paiement chez</p>
-        <p className="text-[15px] font-bold">{target.name}</p>
-        <p className="text-[11px] text-white/60">
-          {KIND_LABEL[target.kind]} · {target.district} · +{target.cashbackPct}% cashback
-        </p>
+    <Sheet open onClose={onClose} title="Payer">
+      <div className="rounded-xl bg-gradient-to-br from-[#FF7A1A] to-[#FF5200] p-3 text-white">
+        <p className="text-[9px] uppercase tracking-wider text-white/70">Paiement chez</p>
+        <p className="text-[14px] font-bold">{target.name}</p>
       </div>
 
-      <div className="mt-3 flex items-center justify-between rounded-xl border border-[#E2E8F0] px-3 py-2">
-        <span className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#64748B]">
-          <CreditCard size={14} /> {card?.code ?? "Aucune carte"}
+      <div className="mt-2.5 flex items-center justify-between rounded-lg border border-[#E2E8F0] px-2.5 py-2">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#64748B]">
+          <CreditCard size={13} /> {card?.code ?? "—"}
         </span>
-        <span className="font-mono text-[12px] font-bold text-[#0F172A]">
-          {fmtDh(card?.balanceDh ?? 0)}
+        <span className="font-mono text-[11px] font-bold text-[#0F172A]">
+          {fmtDh(card?.balance_dh ?? 0)}
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-4 gap-1.5">
+      <div className="mt-2.5 grid grid-cols-4 gap-1.5">
         {[20, 50, 100, 200].map((v) => (
           <button
             key={v}
-            onClick={() => {
-              setAmount(v);
-              setError("");
-            }}
+            onClick={() => { setAmount(v); setError(""); }}
             className={cx(
-              "rounded-lg border py-2 font-mono text-[12px] font-bold transition",
+              "rounded-lg border py-1.5 font-mono text-[11px] font-bold transition",
               amount === v
                 ? "border-[#FF5200] bg-[#FFF1EA] text-[#FF5200]"
                 : "border-[#E2E8F0] text-[#0F172A]",
@@ -857,85 +792,27 @@ function PayModal({
       <input
         inputMode="numeric"
         value={amount}
-        onChange={(e) => {
-          setAmount(e.target.value ? Number(e.target.value) : "");
-          setError("");
-        }}
+        onChange={(e) => { setAmount(e.target.value ? Number(e.target.value) : ""); setError(""); }}
         placeholder="Autre montant"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 font-mono text-[12px] outline-none focus:border-[#FF5200]"
       />
 
-      {error && <p className="mt-2 text-[11px] font-semibold text-[#DC2626]">{error}</p>}
+      {error && <p className="mt-2 text-[10.5px] font-semibold text-rose-600">{error}</p>}
 
       <Btn
-        className="mt-3 w-full"
-        onClick={submit}
-        disabled={typeof amount !== "number" || amount <= 0}
+        className="mt-2.5 w-full !text-[11px]"
+        onClick={() => void submit()}
+        disabled={busy || typeof amount !== "number" || amount <= 0}
       >
-        <Check size={16} /> Payer {typeof amount === "number" ? fmtDh(amount) : ""}
+        <Check size={14} /> {busy ? "Envoi…" : `Envoyer ${typeof amount === "number" ? fmtDh(amount) : ""}`}
       </Btn>
-    </Sheet>
-  );
-}
 
-function P2PModal({
-  open,
-  onClose,
-  card,
-  onSend,
-}: {
-  open: boolean;
-  onClose: () => void;
-  card?: WalletCard;
-  onSend: (phone: string, amount: number) => void;
-}) {
-  const [amount, setAmount] = useState<number | "">("");
-  const [phone, setPhone] = useState("");
-
-  useEffect(() => {
-    if (open) {
-      setAmount("");
-      setPhone("");
-    }
-  }, [open]);
-
-  return (
-    <Sheet open={open} onClose={onClose} title="Transfert P2P">
-      <p className="text-[11.5px] text-[#64748B]">
-        Envoie de l'argent à un proche sur son numéro.
-      </p>
-      <input
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        placeholder="06 XX XX XX XX"
-        className="mt-3 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[13px] outline-none focus:border-[#FF5200]"
-      />
-      <div className="mt-2 grid grid-cols-4 gap-1.5">
-        {[20, 50, 100, 200].map((v) => (
-          <button
-            key={v}
-            onClick={() => setAmount(v)}
-            className={cx(
-              "rounded-lg border py-2 font-mono text-[12px] font-bold transition",
-              amount === v
-                ? "border-[#FF5200] bg-[#FFF1EA] text-[#FF5200]"
-                : "border-[#E2E8F0] text-[#0F172A]",
-            )}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
-      <Btn
-        className="mt-3 w-full"
-        disabled={!phone.trim() || typeof amount !== "number" || amount <= 0}
-        onClick={() => onSend(phone.trim(), amount as number)}
+      <button
+        onClick={onShowQr}
+        className="mt-2 w-full rounded-lg border border-[#E2E8F0] py-2 text-[10.5px] font-bold text-[#64748B]"
       >
-        <Send size={15} /> Envoyer {typeof amount === "number" ? fmtDh(amount) : ""}
-      </Btn>
-      <p className="mt-2 text-[10.5px] text-[#64748B]">
-        Solde disponible : {fmtDh(card?.balanceDh ?? 0)}
-      </p>
+        Ou présenter mon code / QR au commerçant
+      </button>
     </Sheet>
   );
 }

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ClipboardList, Clock3, PackageCheck, X } from "lucide-react";
 import { getSupabaseClient } from "../../services/auth";
+import { fmtDh } from "../../lib/format";
 import { listMyShops } from "../../services/backend/payzikCards";
 import {
   listShopOrders,
@@ -114,23 +115,38 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
         <div className="space-y-2">
           {orders.map((o) => {
             const st = LABEL[o.status];
+            const isCardPayment = o.note?.startsWith("PAIEMENT-SOLDE:") ?? false;
+            const cardAmount = isCardPayment ? Number(o.note?.split(":")[1]) : NaN;
             return (
               <div key={o.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-[12px] font-bold text-[#0F172A]">
                     {shopNames[o.shop_id] ?? "Ma boutique"}
                   </span>
-                  <span className={`rounded-full px-2 py-0.5 text-[9.5px] font-bold ${st.cls}`}>
-                    {st.text}
+                  <span className="flex shrink-0 items-center gap-1">
+                    {isCardPayment && (
+                      <span className="rounded-full bg-[#FFF1EA] px-2 py-0.5 text-[9.5px] font-bold text-[#FF5200]">
+                        Paiement solde
+                      </span>
+                    )}
+                    <span className={`rounded-full px-2 py-0.5 text-[9.5px] font-bold ${st.cls}`}>
+                      {st.text}
+                    </span>
                   </span>
                 </div>
                 <p className="mt-1.5 text-[11.5px] font-semibold text-[#0F172A]">
                   {o.items.map((i) => `${i.qty}× ${i.name}`).join(" · ")}
                 </p>
-                {o.note && (
-                  <p className="mt-1 rounded-lg bg-[#F8FAFC] px-2 py-1 text-[10.5px] italic text-[#64748B]">
-                    « {o.note} »
+                {isCardPayment && Number.isFinite(cardAmount) ? (
+                  <p className="mt-1 rounded-lg bg-[#FFF1EA] px-2 py-1 text-[10.5px] font-semibold text-[#9A3412]">
+                    À débiter : {fmtDh(cardAmount)}
                   </p>
+                ) : (
+                  o.note && (
+                    <p className="mt-1 rounded-lg bg-[#F8FAFC] px-2 py-1 text-[10.5px] italic text-[#64748B]">
+                      « {o.note} »
+                    </p>
+                  )
                 )}
                 <p className="mt-1 text-[9.5px] text-[#94A3B8]">
                   {new Date(o.created_at).toLocaleString("fr-MA")}

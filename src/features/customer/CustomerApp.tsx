@@ -43,7 +43,6 @@ import {
   StatusDot,
 } from "../../components/ui";
 import { fmtDh } from "../../lib/format";
-import { CloudRechargePanel } from "./CloudRechargePanel";
 import type { Store as StoreType } from "../../state/store";
 import { useNetwork } from "../../state/network";
 import type {
@@ -778,9 +777,6 @@ function WalletView({
             <span>PAYZIK · réseau</span>
           </div>
         </div>
-
-        {/* recharge cloud */}
-        <CloudRechargePanel customerName={customerName} onNotice={onNotice} />
 
         {/* profil */}
         <Card className="p-4">
