@@ -6,7 +6,6 @@ import {
   Bell,
   BookOpen,
   Check,
-  ChevronDown,
   ChevronRight,
   Clock,
   CreditCard,
@@ -49,7 +48,6 @@ import {
   SectionHead,
   Sheet,
   TabBar,
-  hoursFor,
 } from "./ui";
 
 export type ClientTab = "home" | "card" | "shops" | "catalog" | "kridi";
@@ -239,12 +237,12 @@ function ClientHeader({
   onBell: () => void;
 }) {
   return (
-    <header className="shrink-0 bg-[#F8FAFC] px-4 pb-2 pt-[calc(env(safe-area-inset-top)+14px)]">
-      <div className="flex items-center gap-3">
+    <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
+      <div className="flex items-center gap-2.5">
         <Avatar name={name} />
         <div className="min-w-0 flex-1">
-          <p className="text-[10.5px] font-medium text-[#64748B]">Bonjour,</p>
-          <p className="truncate text-[15px] font-bold text-[#0F172A]">{name}</p>
+          <p className="truncate text-[14px] font-bold text-[#0F172A]">Salut, {name}</p>
+          <p className="text-[9.5px] font-semibold uppercase tracking-wider text-[#FF5200]">Espace client</p>
         </div>
         <IconBtn onClick={onBell} label="Notifications">
           <Bell size={17} />
@@ -257,10 +255,9 @@ function ClientHeader({
           Profil
         </button>
       </div>
-      <button className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#0F172A] shadow-sm">
-        <MapPin size={13} className="text-[#FF5200]" />
-        {location || "Ajoute ta ville dans Mon profil"}
-        <ChevronDown size={13} className="text-[#64748B]" />
+      <button className="mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[#FFF1EA] px-2.5 py-1 text-[10.5px] font-semibold text-[#9A3412]">
+        <MapPin size={11} className="shrink-0 text-[#FF5200]" />
+        <span className="truncate">{location || "Ville non renseignée"}</span>
       </button>
     </header>
   );
@@ -295,13 +292,13 @@ function ClientHome({
   const nearby = shops.slice(0, 4);
 
   return (
-    <div className="animate-fade-up space-y-3">
-      <Pane className="p-4">
+    <div className="animate-fade-up space-y-2.5">
+      <Pane className="p-3.5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[12px] font-medium text-[#64748B]">Solde disponible</p>
-            <div className="mt-1 flex items-center gap-2">
-              <p className="font-mono text-[32px] font-bold leading-none tracking-tight text-[#0F172A]">
+            <p className="text-[10.5px] font-medium text-[#64748B]">Solde disponible</p>
+            <div className="mt-0.5 flex items-center gap-1.5">
+              <p className="font-mono text-[26px] font-bold leading-none tracking-tight text-[#0F172A]">
                 {hidden ? "•••• DH" : fmtDh(card?.balanceDh ?? 0)}
               </p>
               <button
@@ -312,28 +309,28 @@ function ClientHome({
                 {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <p className="mt-1.5 text-[11px] text-[#64748B]">
-              Carte {card?.code ?? "—"}
+            <p className="mt-1 text-[10px] text-[#64748B]">
+              {card?.code ?? "Carte PAYZIK"}
             </p>
           </div>
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
-            <Wallet size={18} />
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+            <Wallet size={16} />
           </span>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <Btn className="h-11" onClick={onScan}>
-            <ScanLine size={17} /> Scanner pour payer
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Btn className="h-10 !text-[11px]" onClick={onScan}>
+            <ScanLine size={15} /> Scanner
           </Btn>
-          <Btn variant="soft" className="h-11" onClick={onRecharge}>
-            <Plus size={17} /> Recharger
+          <Btn variant="soft" className="h-10 !text-[11px]" onClick={onRecharge}>
+            <Plus size={15} /> Recharger
           </Btn>
         </div>
       </Pane>
 
       <div className="grid grid-cols-3 gap-2">
-        <Quick icon={BookOpen} label="Carnet Kridi" badge={3} onClick={onKridi} />
-        <Quick icon={Zap} label="Offres flash" onClick={onShops} />
-        <Quick icon={Send} label="Transfert P2P" onClick={onP2P} />
+        <Quick icon={BookOpen} label="Carnet" badge={3} onClick={onKridi} />
+        <Quick icon={Zap} label="Offres" onClick={onShops} />
+        <Quick icon={Send} label="Transfert" onClick={onP2P} />
       </div>
 
       {ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />}
@@ -362,12 +359,12 @@ function Quick({
   return (
     <button
       onClick={onClick}
-      className="relative flex flex-col items-center gap-1.5 rounded-2xl border border-[#E2E8F0] bg-white py-3 shadow-sm transition active:scale-[.98]"
+      className="relative flex flex-col items-center gap-1 rounded-xl border border-[#E2E8F0] bg-white py-2.5 shadow-sm transition active:scale-[.98]"
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
-        <Icon size={18} />
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+        <Icon size={16} />
       </span>
-      <span className="text-[10.5px] font-semibold text-[#0F172A]">{label}</span>
+      <span className="text-[9.5px] font-semibold text-[#0F172A]">{label}</span>
       {badge ? (
         <span className="absolute right-2 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF5200] px-1 text-[9px] font-bold text-white">
           {badge}
@@ -380,16 +377,16 @@ function Quick({
 function ShopRow({ e, onPay }: { e: Establishment; onPay: () => void }) {
   const Icon = KIND_ICON[e.kind];
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
-        <Icon size={19} />
+    <div className="flex items-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-white p-2.5 shadow-sm">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+        <Icon size={17} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-bold text-[#0F172A]">{e.name}</p>
-        <p className="flex items-center gap-1 text-[11px] text-[#64748B]">
-          <MapPin size={10} /> {e.district} · {e.distanceKm} km
+        <p className="truncate text-[12.5px] font-bold text-[#0F172A]">{e.name}</p>
+        <p className="flex items-center gap-1 text-[10px] text-[#64748B]">
+          <MapPin size={10} /> {e.district}
         </p>
-        <div className="mt-0.5 flex items-center gap-2 text-[10.5px]">
+        <div className="mt-0.5 flex items-center gap-2 text-[9.5px]">
           <span className="flex items-center gap-0.5 font-semibold text-[#0F172A]">
             <Star size={10} className="fill-[#F59E0B] text-[#F59E0B]" />
             {e.rating.toFixed(1)}
@@ -411,14 +408,12 @@ function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF7A1A] via-[#FF5200] to-[#C2410C] p-4 text-left text-white shadow-sm active:scale-[.99]"
+      className="w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#FF7A1A] via-[#FF5200] to-[#C2410C] p-3 text-left text-white shadow-sm active:scale-[.99]"
     >
-      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/75">
-        {ad.eyebrow} · offre réelle
-      </p>
-      <p className="mt-1 text-[15px] font-bold leading-tight">{ad.title}</p>
-      <p className="mt-0.5 text-[11px] text-white/60">{ad.subtitle}</p>
-      <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#FF5200] px-2.5 py-1 text-[10.5px] font-bold">
+      <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/75">{ad.eyebrow}</p>
+      <p className="mt-0.5 text-[13px] font-bold leading-tight">{ad.title}</p>
+      <p className="text-[10px] text-white/65">{ad.subtitle}</p>
+      <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-white/20 px-2 py-0.5 text-[9.5px] font-bold">
         {ad.cta} <ArrowRight size={11} />
       </span>
     </button>
@@ -646,17 +641,17 @@ function ClientShops({
 function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
   const Icon = KIND_ICON[e.kind];
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
-      <div className="flex items-start gap-3 p-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
-          <Icon size={19} />
+    <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+      <div className="flex items-start gap-2.5 p-2.5">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+          <Icon size={17} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-[13.5px] font-bold text-[#0F172A]">{e.name}</p>
-              <p className="flex items-center gap-1 text-[11px] text-[#64748B]">
-                <MapPin size={10} /> {e.district}, {e.city} · {e.distanceKm} km
+              <p className="truncate text-[12.5px] font-bold text-[#0F172A]">{e.name}</p>
+              <p className="flex items-center gap-1 text-[10px] text-[#64748B]">
+                <MapPin size={10} /> {e.district}, {e.city}
               </p>
             </div>
             <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-bold text-[#0F172A]">
@@ -675,13 +670,13 @@ function ShopCard({ e, onPay }: { e: Establishment; onPay: () => void }) {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between border-t border-[#F1F5F9] px-3 py-2">
-        <span className="flex items-center gap-1 text-[10.5px] font-semibold text-[#059669]">
-          <Clock size={11} /> {hoursFor(e)}
+      <div className="flex items-center justify-between border-t border-[#F1F5F9] px-2.5 py-1.5">
+        <span className="flex items-center gap-1 text-[9.5px] font-semibold text-[#64748B]">
+          <Clock size={10} /> Ouvert
         </span>
         <button
           onClick={onPay}
-          className="rounded-lg bg-[#FF5200] px-3 py-1.5 text-[11px] font-bold text-white active:scale-95"
+          className="rounded-md bg-[#FF5200] px-2.5 py-1 text-[10px] font-bold text-white active:scale-95"
         >
           Payer en caisse
         </button>

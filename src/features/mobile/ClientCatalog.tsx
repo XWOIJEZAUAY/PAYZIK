@@ -151,7 +151,7 @@ export function ClientCatalog({
     {
       id: "welcome",
       role: "ai",
-      text: "Salam ! Je suis l’assistant PAYZIK. Choisis une boutique, puis dis-moi par exemple : « prépare-moi 2 lait et 1 pain, j’arrive bientôt ». Je vérifie le catalogue réel et j’envoie la commande au commerçant.",
+      text: "Salam ! Exemple : « 2 lait et 1 pain, j’arrive ». Je vérifie le catalogue réel et j’envoie au commerçant.",
     },
   ]);
   const endRef = useRef<HTMLDivElement>(null);
@@ -269,21 +269,18 @@ export function ClientCatalog({
   };
 
   return (
-    <div className="animate-fade-up space-y-3">
-      <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
+    <div className="animate-fade-up space-y-2.5">
+      <section className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
-            <Store size={18} />
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+            <Store size={16} />
           </span>
-          <div>
-            <h2 className="text-[14px] font-bold text-[#0F172A]">Catalogue réel</h2>
-            <p className="text-[11px] text-[#64748B]">Produits enregistrés par les boutiques.</p>
-          </div>
+          <h2 className="text-[13px] font-bold text-[#0F172A]">Catalogue réel</h2>
         </div>
         <select
           value={shopId}
           onChange={(e) => setShopId(e.target.value)}
-          className="mt-3 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] font-semibold text-[#0F172A] outline-none focus:border-[#FF5200]"
+          className="mt-2.5 h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 text-[11px] font-semibold text-[#0F172A] outline-none focus:border-[#FF5200]"
         >
           <option value="">Toutes les boutiques</option>
           {shops.map((s) => (
@@ -296,7 +293,7 @@ export function ClientCatalog({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Chercher un produit (lait, pain…)"
-            className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] pl-9 pr-3 text-[12px] outline-none focus:border-[#FF5200]"
+            className="h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] pl-8 pr-2.5 text-[11px] outline-none focus:border-[#FF5200]"
           />
         </div>
 
@@ -307,7 +304,7 @@ export function ClientCatalog({
             Aucun produit réel dans cette boutique pour l’instant.
           </div>
         ) : (
-          <div className="mt-3 max-h-52 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+          <div className="mt-2.5 max-h-40 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
             {visible.map((p) => (
               <button
                 key={p.id}
@@ -337,25 +334,22 @@ export function ClientCatalog({
         )}
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white">
-        <div className="flex items-center gap-2 border-b border-[#E2E8F0] bg-[#FFF7F2] px-4 py-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF5200] text-white">
-            <Bot size={16} />
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+        <div className="flex items-center gap-2 border-b border-[#E2E8F0] bg-[#FFF7F2] px-3 py-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF5200] text-white">
+            <Bot size={14} />
           </span>
-          <div>
-            <p className="text-[12.5px] font-bold text-[#0F172A]">Assistant PAYZIK</p>
-            <p className="text-[10px] text-[#64748B]">Prépare tes produits jusqu’à ton arrivée.</p>
-          </div>
-          <Sparkles size={14} className="ml-auto text-[#FF7A1A]" />
+          <p className="text-[12px] font-bold text-[#0F172A]">Assistant PAYZIK</p>
+          <Sparkles size={13} className="ml-auto text-[#FF7A1A]" />
         </div>
-        <div className="max-h-72 space-y-2 overflow-y-auto scrollbar-thin p-3">
+        <div className="max-h-56 space-y-2 overflow-y-auto scrollbar-thin p-2.5">
           {msgs.map((m) => (
             <div
               key={m.id}
               className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] leading-snug ${
+                className={`max-w-[88%] rounded-xl px-2.5 py-1.5 text-[11.5px] leading-snug ${
                   m.role === "user"
                     ? "rounded-br-md bg-[#FF5200] text-white"
                     : m.kind === "error"
@@ -374,30 +368,28 @@ export function ClientCatalog({
           )}
           <div ref={endRef} />
         </div>
-        <div className="flex items-center gap-2 border-t border-[#E2E8F0] p-2.5">
+        <div className="flex items-center gap-1.5 border-t border-[#E2E8F0] p-2">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void send(); }}
-            placeholder="Ex : 2 lait et 1 pain, j’arrive…"
-            className="h-10 min-w-0 flex-1 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+            placeholder="2 lait et 1 pain, j’arrive…"
+            className="h-9 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 text-[11px] outline-none focus:border-[#FF5200]"
           />
           <button
             onClick={() => void send()}
             disabled={!text.trim() || busy}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF5200] text-white disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FF5200] text-white disabled:opacity-40"
           >
-            <Send size={16} />
+            <Send size={14} />
           </button>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-        <h2 className="text-[13px] font-bold text-[#0F172A]">Suivi de mes commandes</h2>
+      <section className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
+        <h2 className="text-[12px] font-bold text-[#0F172A]">Suivi des commandes</h2>
         {orders.length === 0 ? (
-          <p className="mt-2 text-[11px] text-slate-500">
-            Aucune commande. Demande une préparation à l’assistant ci-dessus.
-          </p>
+          <p className="mt-1.5 text-[10.5px] text-slate-500">Aucune commande.</p>
         ) : (
           <div className="mt-2 space-y-2">
             {orders.map((o) => {

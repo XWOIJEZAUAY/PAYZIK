@@ -30,17 +30,17 @@ export function ClientKridi({
   const total = CLIENT_KRIDI.reduce((s, k) => s + k.amountDh, 0);
 
   return (
-    <div className="animate-fade-up space-y-3">
-      <Pane className="p-4">
+    <div className="animate-fade-up space-y-2.5">
+      <Pane className="p-3.5">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[11px] text-[#64748B]">Total dû au quartier</p>
-            <p className="mt-1 font-mono text-[26px] font-bold text-[#DC2626]">{fmtDh(total)}</p>
+            <p className="mt-1 font-mono text-[22px] font-bold text-[#FF5200]">{fmtDh(total)}</p>
             <p className="mt-0.5 text-[11px] text-[#64748B]">
               Chez {CLIENT_KRIDI.length} commerçants · à régler avant échéance.
             </p>
           </div>
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#DC2626]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#FF5200]">
             <BookOpen size={20} />
           </span>
         </div>
@@ -75,7 +75,7 @@ export function ClientKridi({
                 <span
                   className={cx(
                     "text-[9.5px] font-bold",
-                    late ? "text-[#DC2626]" : "text-[#059669]",
+                    late ? "text-[#FF5200]" : "text-[#059669]",
                   )}
                 >
                   {late ? "En retard" : "À venir"}
@@ -116,7 +116,7 @@ export function ClientKridi({
         );
       })}
 
-      <Pane className="p-4">
+      <Pane className="p-3.5">
         <h3 className="text-[13px] font-bold text-[#0F172A]">Mon profil</h3>
         <div className="mt-3 flex items-center gap-3">
           <Avatar name={user.name} size={44} />
