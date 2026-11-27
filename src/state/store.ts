@@ -1,5 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { daysSince, fmtDh } from "../lib/format";
+import {
+  deletePublishedProduct,
+  fetchMyPublishedProducts,
+  publishProduct,
+  resetPrimaryShopCache,
+} from "../services/backend/payzikCatalog";
 import type { CardTx, CartLine, Client, KridiEntry, Product, Sale, WalletCard } from "../types";
 
 /** Espace de stockage isolé par utilisateur (pas de données partagées ni de démo). */
@@ -42,6 +48,44 @@ export function useStore(userId = "anon") {
   useEffect(() => {
     localStorage.setItem(productsKey, JSON.stringify(products));
   }, [productsKey, products]);
+
+  // Hydratation depuis PostgreSQL : le cache local sert d'abord l'UI,
+  // la base prend le dessus dès qu'elle répond (sauf si l'utilisateur a déjà
+  // modifié quelque chose entre-temps).
+  const dirtyRef = useRef(false);
+  const hydratedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (hydratedRef.current === userId) return;
+    hydratedRef.current = userId;
+    dirtyRef.current = false;
+    resetPrimaryShopCache();
+    let alive = true;
+    void (async () => {
+      const res = await fetchMyPublishedProducts(userId);
+      if (!alive || !res.ok || dirtyRef.current || res.data.length === 0) return;
+      setProducts((local) => {
+        const merged = [...local];
+        for (const cloud of res.data) {
+          const idx = merged.findIndex((p) => p.id === cloud.id);
+          if (idx >= 0) merged[idx] = { ...merged[idx], ...cloud };
+          else merged.push(cloud);
+        }
+        return merged;
+      });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
+
+  const syncProducts = useCallback(
+    (list: Product[]) => {
+      dirtyRef.current = true;
+      for (const product of list) void publishProduct(userId, product);
+    },
+    [userId],
+  );
+
   const [clients, setClients] = usePersisted<Client[]>(clientsKey, []);
   const [sales, setSales] = usePersisted<Sale[]>(salesKey, []);
   const [ticketNo, setTicketNo] = usePersisted<number>(ticketKey, 1);
@@ -103,12 +147,12 @@ export function useStore(userId = "anon") {
       setSales((s) => [sale, ...s]);
       setTicketNo((n) => n + 1);
       // décrément du stock
-      setProducts((ps) =>
-        ps.map((p) => {
-          const line = cart.find((l) => l.productId === p.id);
-          return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
-        }),
-      );
+      const nextProducts = products.map((p) => {
+        const line = cart.find((l) => l.productId === p.id);
+        return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
+      });
+      setProducts(nextProducts);
+      syncProducts(nextProducts.filter((p) => cart.some((l) => l.productId === p.id)));
       // dette kridi
       if (method === "kridi" && client) {
         setClients((cs) =>
@@ -136,7 +180,7 @@ export function useStore(userId = "anon") {
       setCart([]);
       return sale;
     },
-    [cart, cartTotal, clients, productById, setClients, setProducts, setSales, setTicketNo, ticketNo],
+    [cart, cartTotal, clients, productById, products, setClients, setProducts, setSales, setTicketNo, syncProducts, ticketNo],
   );
 
   /** Annule une vente déjà confirmée (remet le stock et le kridi comme avant). */
@@ -145,12 +189,12 @@ export function useStore(userId = "anon") {
       const sale = sales.find((s) => s.id === saleId);
       if (!sale) return false;
       setSales((list) => list.filter((s) => s.id !== saleId));
-      setProducts((ps) =>
-        ps.map((p) => {
-          const line = sale.lines.find((l) => l.name === p.name);
-          return line ? { ...p, stock: p.stock + line.qty } : p;
-        }),
-      );
+      const nextProducts = products.map((p) => {
+        const line = sale.lines.find((l) => l.name === p.name);
+        return line ? { ...p, stock: p.stock + line.qty } : p;
+      });
+      setProducts(nextProducts);
+      syncProducts(nextProducts.filter((p) => sale.lines.some((l) => l.name === p.name)));
       if (sale.method === "kridi" && sale.clientName) {
         setClients((cs) =>
           cs.map((c) =>
@@ -180,7 +224,7 @@ export function useStore(userId = "anon") {
       }
       return true;
     },
-    [cardTx, sales, setCards, setCardTx, setClients, setProducts, setSales],
+    [cardTx, products, sales, setCards, setCardTx, setClients, setProducts, setSales, syncProducts],
   );
 
   /** Acompte sur une dette kridi. */
@@ -267,21 +311,23 @@ export function useStore(userId = "anon") {
 
   const adjustStock = useCallback(
     (productId: string, delta: number) => {
-      setProducts((ps) =>
-        ps.map((p) =>
-          p.id === productId ? { ...p, stock: Math.max(0, p.stock + delta) } : p,
-        ),
+      const next = products.map((p) =>
+        p.id === productId ? { ...p, stock: Math.max(0, p.stock + delta) } : p,
       );
+      setProducts(next);
+      syncProducts(next.filter((p) => p.id === productId));
     },
-    [setProducts],
+    [products, setProducts, syncProducts],
   );
 
   /** Modifie un produit (nom, prix, catégorie, emoji, image, alias…). */
   const updateProduct = useCallback(
     (productId: string, patch: Partial<Omit<Product, "id">>) => {
-      setProducts((ps) => ps.map((p) => (p.id === productId ? { ...p, ...patch } : p)));
+      const next = products.map((p) => (p.id === productId ? { ...p, ...patch } : p));
+      setProducts(next);
+      syncProducts(next.filter((p) => p.id === productId));
     },
-    [setProducts],
+    [products, setProducts, syncProducts],
   );
 
   /** Crée un nouveau produit (stock initial, sans image par défaut). */
@@ -289,16 +335,19 @@ export function useStore(userId = "anon") {
     (input: Omit<Product, "id">): Product => {
       const product: Product = { ...input, id: `p-${Date.now()}` };
       setProducts((ps) => [product, ...ps]);
+      syncProducts([product]);
       return product;
     },
-    [setProducts],
+    [setProducts, syncProducts],
   );
 
   const removeProduct = useCallback(
     (productId: string) => {
       setProducts((ps) => ps.filter((p) => p.id !== productId));
+      dirtyRef.current = true;
+      void deletePublishedProduct(userId, productId);
     },
-    [setProducts],
+    [setProducts, userId],
   );
 
   // ---- cartes PAYZIK (portefeuille boucle fermée) ----

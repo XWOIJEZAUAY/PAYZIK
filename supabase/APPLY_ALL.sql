@@ -3193,6 +3193,117 @@ begin
 end $$;
 
 -- =============================================================
+-- 6b) PUBLICATION DES PRODUITS : LE CATALOGUE CLIENT VIENT DE LA BASE
+-- =============================================================
+create or replace function public.upsert_shop_product(
+  p_id text,
+  p_shop uuid,
+  p_name text,
+  p_price numeric,
+  p_stock integer,
+  p_category text default null,
+  p_emoji text default null,
+  p_aliases text[] default '{}',
+  p_image text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_owner uuid;
+  v_result_id text;
+begin
+  if auth.uid() is null then
+    raise exception 'unauthenticated' using errcode = '42501';
+  end if;
+  if p_id is null or btrim(p_id) = '' then
+    raise exception 'invalid_product_id' using errcode = '22023';
+  end if;
+  if p_shop is null or not public.payzik_can_manage_shop(p_shop) then
+    raise exception 'shop_forbidden' using errcode = '42501';
+  end if;
+  if p_price is null or p_price < 0 then
+    raise exception 'invalid_price' using errcode = '22023';
+  end if;
+  if p_stock is null or p_stock < 0 then
+    raise exception 'invalid_stock' using errcode = '22023';
+  end if;
+
+  select merchant_id into v_owner from public.products pr where pr.id = p_id;
+  if found and v_owner is distinct from auth.uid() then
+    raise exception 'product_forbidden' using errcode = '42501';
+  end if;
+
+  insert into public.products (
+    id, merchant_id, shop_id, name, price_dh, stock,
+    category, emoji, aliases, image
+  ) values (
+    p_id, auth.uid(), p_shop,
+    nullif(btrim(coalesce(p_name, '')), ''), p_price, p_stock,
+    nullif(btrim(coalesce(p_category, '')), ''), nullif(btrim(coalesce(p_emoji, '')), ''),
+    coalesce(p_aliases, '{}'::text[]), p_image
+  )
+  on conflict (id) do update set
+    shop_id = excluded.shop_id,
+    name = excluded.name,
+    price_dh = excluded.price_dh,
+    stock = excluded.stock,
+    category = excluded.category,
+    emoji = excluded.emoji,
+    aliases = excluded.aliases,
+    image = excluded.image
+  returning id into v_result_id;
+
+  perform public.payzik_audit(
+    'product_published', p_shop, auth.uid(), 'product', v_result_id,
+    jsonb_build_object('name', p_name, 'price_dh', p_price, 'stock', p_stock)
+  );
+
+  return jsonb_build_object('ok', true, 'id', v_result_id);
+end $$;
+
+create or replace function public.delete_shop_product(p_id text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_pr public.products%rowtype;
+begin
+  if auth.uid() is null then
+    raise exception 'unauthenticated' using errcode = '42501';
+  end if;
+
+  select * into v_pr from public.products pr where pr.id = p_id for update;
+  if not found then
+    return jsonb_build_object('ok', true, 'id', p_id);
+  end if;
+  if v_pr.merchant_id is distinct from auth.uid() then
+    raise exception 'product_forbidden' using errcode = '42501';
+  end if;
+  if v_pr.shop_id is not null and not public.payzik_can_manage_shop(v_pr.shop_id) then
+    raise exception 'shop_forbidden' using errcode = '42501';
+  end if;
+
+  delete from public.products pr where pr.id = p_id;
+
+  perform public.payzik_audit(
+    'product_unpublished', v_pr.shop_id, auth.uid(), 'product', p_id,
+    jsonb_build_object('name', v_pr.name)
+  );
+
+  return jsonb_build_object('ok', true, 'id', p_id);
+end $$;
+
+revoke all on function public.upsert_shop_product(text, uuid, text, numeric, integer, text, text, text[], text) from public, anon;
+revoke all on function public.delete_shop_product(text) from public, anon;
+grant execute on function public.upsert_shop_product(text, uuid, text, numeric, integer, text, text, text[], text) to authenticated;
+grant execute on function public.delete_shop_product(text) to authenticated;
+
+-- =============================================================
 -- 7) DÉCOUVERTE MULTI-UTILISATEUR SANS EXPOSER LES DONNÉES PRIVÉES
 -- =============================================================
 drop policy if exists "profiles_select_all" on public.profiles;

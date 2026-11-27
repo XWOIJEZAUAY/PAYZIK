@@ -17,7 +17,8 @@ Appliquer dans cet ordre sur le projet Supabase (CLI ou SQL Editor avec un compt
 12. `20261126001100_prep_orders.sql` — catalogue public et commandes de préparation.
 13. `20261127000100_partner_ads.sql` — publicités partenaires.
 14. `20261128000100_identity_lifecycle.sql` — identité, onboarding persistant,
-    provisioning marchand idempotent, durcissement RLS/ledger, Realtime produits/cartes.
+    provisioning marchand idempotent, publication produits en base, durcissement
+    RLS/ledger, Realtime produits/cartes.
 
 `supabase/APPLY_ALL.sql` est la concaténation exécutable de ces migrations (hors `schema.sql`).
 Sur une base déjà migrée, ne jamais ré-exécuter `schema.sql`.
