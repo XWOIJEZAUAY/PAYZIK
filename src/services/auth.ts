@@ -134,6 +134,75 @@ function clearAuthCacheOnly(): void {
   }
 }
 
+const PENDING_KEY = "payzik.pending.onboarding";
+const LEGACY_PENDING_KEY = "payzik.pending.shop";
+
+export type PendingOnboarding = {
+  email: string;
+  role: "merchant" | "customer";
+  name: string;
+  phone?: string | null;
+  city?: string | null;
+  address?: string | null;
+  responsible?: string | null;
+  shop?: ShopOnboarding;
+};
+
+/** L'intention d'inscription survit au rechargement provoqué par le lien email. */
+export function savePendingOnboarding(input: PendingOnboarding): void {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(input));
+}
+
+export function readPendingOnboarding(email?: string | null): PendingOnboarding | null {
+  const raw = localStorage.getItem(PENDING_KEY);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as PendingOnboarding;
+      if (!email || parsed.email?.toLowerCase() === email.toLowerCase()) return parsed;
+    } catch {
+      localStorage.removeItem(PENDING_KEY);
+    }
+  }
+  // Compatibilité avec l'ancien brouillon qui ne contenait pas le rôle.
+  const legacy = localStorage.getItem(LEGACY_PENDING_KEY);
+  if (legacy) {
+    try {
+      const p = JSON.parse(legacy) as {
+        email?: string; name?: string; city?: string; address?: string;
+        phone?: string; responsible?: string; image?: string | null;
+      };
+      if (p.email && (!email || p.email.toLowerCase() === email.toLowerCase())) {
+        return {
+          email: p.email,
+          role: "merchant",
+          name: (p.responsible || p.name || "").trim() || p.email.split("@")[0],
+          phone: p.phone || null,
+          city: p.city || null,
+          address: p.address || null,
+          responsible: p.responsible || null,
+          shop: p.name
+            ? {
+                name: p.name,
+                city: p.city || null,
+                address: p.address || null,
+                phone: p.phone || null,
+                image: p.image ?? null,
+              }
+            : undefined,
+        };
+      }
+    } catch {
+      localStorage.removeItem(LEGACY_PENDING_KEY);
+    }
+  }
+  return null;
+}
+
+export function clearPendingOnboarding(): void {
+  localStorage.removeItem(PENDING_KEY);
+  localStorage.removeItem(LEGACY_PENDING_KEY);
+}
+
 type OnboardingInput = {
   role: "merchant" | "customer";
   name?: string | null;
@@ -162,7 +231,31 @@ async function completeOnboarding(input: OnboardingInput): Promise<{ ok: boolean
   if (!data) return { ok: false, error: "Profil non retourné par la base" };
   const profile = mapProfile(data as ProfileRow);
   persistProfile(profile);
+  clearPendingOnboarding();
   return { ok: true, user: profile };
+}
+
+/** Rejoue une inscription confirmée par email après le rechargement de la page. */
+async function resumePendingOnboarding(profile: Profile | null): Promise<Profile | null> {
+  if (!profile?.needsRole) return profile;
+  const pending = readPendingOnboarding(profile.email);
+  if (!pending) return profile;
+  const done = await completeOnboarding({
+    role: pending.role,
+    name: pending.name,
+    details: {
+      phone: pending.phone ?? null,
+      city: pending.city ?? null,
+      address: pending.address ?? null,
+      responsible: pending.responsible ?? null,
+    },
+    shop: pending.shop,
+  });
+  if (!done.ok || !done.user) {
+    console.error("PAYZIK — reprise de l'inscription impossible :", done.error);
+    return profile;
+  }
+  return done.user;
 }
 
 export async function signUp(
@@ -257,7 +350,7 @@ export async function restoreSession(): Promise<Profile | null> {
     return null;
   }
   try {
-    const profile = await fetchProfile();
+    const profile = await resumePendingOnboarding(await fetchProfile());
     if (profile) persistProfile(profile);
     else clearAuthCacheOnly();
     return profile;
@@ -354,7 +447,7 @@ export function startAuthLifecycle(callback: (user: Profile | null) => void): ()
       if (!alive) return;
       if (!force && uid === lastUid && lastProfile) return;
       try {
-        const profile = await fetchProfile();
+        const profile = await resumePendingOnboarding(await fetchProfile());
         if (alive) emit(profile);
       } catch {
         const cached = getCurrentUser();

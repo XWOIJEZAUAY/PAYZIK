@@ -1,6 +1,10 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
-import { signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp, type ShopOnboarding, type Profile } from "../../services/auth";
+import {
+  signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp,
+  readPendingOnboarding, savePendingOnboarding,
+  type ShopOnboarding, type Profile,
+} from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
@@ -27,17 +31,24 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [responsible, setResponsible] = useState("");
 
   const savePendingShop = () => {
-    if (role === "merchant" && shopName.trim()) {
-      localStorage.setItem("payzik.pending.shop", JSON.stringify({
-        email: email.trim(),
-        name: shopName.trim(),
-        city: shopCity.trim(),
-        address: shopAddress.trim(),
-        phone: shopPhone.trim(),
-        responsible: name.trim(),
-        image: shopImage,
-      }));
-    }
+    savePendingOnboarding({
+      email: email.trim(),
+      role,
+      name: name.trim() || email.trim().split("@")[0] || "Utilisateur",
+      phone: profilePhone.trim() || null,
+      city: profileCity.trim() || null,
+      address: profileAddress.trim() || null,
+      responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
+      shop: role === "merchant" && shopName.trim()
+        ? {
+            name: shopName.trim(),
+            city: shopCity.trim() || null,
+            address: shopAddress.trim() || null,
+            phone: shopPhone.trim() || null,
+            image: shopImage,
+          }
+        : undefined,
+    });
   };
 
   const shopInput = (): ShopOnboarding | undefined =>
@@ -115,36 +126,27 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
               onClick={async () => {
                 setBusy(true);
                 setError("");
-                let pendingShop: ShopOnboarding | undefined;
-                const raw = localStorage.getItem("payzik.pending.shop");
-                if (raw) {
-                  try {
-                    const p = JSON.parse(raw) as {
-                      email?: string; name?: string; city?: string; address?: string;
-                      phone?: string; image?: string | null;
-                    };
-                    if (p.email === email.trim() && p.name) {
-                      pendingShop = {
-                        name: p.name,
-                        city: p.city || null,
-                        address: p.address || null,
-                        phone: p.phone || null,
-                        image: p.image ?? null,
-                      };
-                    }
-                  } catch { /* brouillon ignoré */ }
-                }
-                const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role, {
-                  phone: profilePhone.trim() || null,
-                  city: profileCity.trim() || null,
-                  address: profileAddress.trim() || null,
-                  responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
-                }, pendingShop ?? shopInput());
+                const pending = readPendingOnboarding(email.trim());
+                const effectiveRole = pending?.role ?? role;
+                const effectiveName = pending?.name || name.trim() || email.trim().split("@")[0];
+                const res = await verifySignupOtp(
+                  email.trim(),
+                  otpCode.trim(),
+                  effectiveName,
+                  effectiveRole,
+                  {
+                    phone: pending?.phone ?? (profilePhone.trim() || null),
+                    city: pending?.city ?? (profileCity.trim() || null),
+                    address: pending?.address ?? (profileAddress.trim() || null),
+                    responsible: pending?.responsible ?? (
+                      effectiveRole === "merchant" ? responsible.trim() || effectiveName || null : null
+                    ),
+                  },
+                  pending?.shop ?? shopInput(),
+                );
                 setBusy(false);
-                if (res.ok && res.user) {
-                  localStorage.removeItem("payzik.pending.shop");
-                  onAuth(res.user);
-                } else setError(res.error ?? "Code invalide");
+                if (res.ok && res.user) onAuth(res.user);
+                else setError(res.error ?? "Code invalide");
               }}
             >
               {busy ? "…" : "Vérifier le code"}
