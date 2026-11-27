@@ -173,7 +173,19 @@ export function MerchantSpace({
           tab === "caisse" ? "flex overflow-hidden pb-0" : "pb-24",
         )}
       >
-        {tab === "caisse" && <Caisse store={store} notify={notify} merchantName={storeName} />}
+        {tab === "caisse" && (
+        <Caisse
+          store={store}
+          notify={notify}
+          merchantName={storeName}
+          shopName={shopName}
+          shopBadge={
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-[#FF7A1A] to-[#FF5200] text-white font-bold text-[10px]">
+              {shopName.split(" ")[0]?.[0] ?? "M"}
+            </div>
+          }
+        />
+      )}
         {tab === "kridi" && <MerchantKridi store={store} notify={notify} />}
         {tab === "stock" && <MerchantStock store={store} notify={notify} />}
         {tab === "cartes" && <MerchantCards store={store} notify={notify} />}
@@ -230,10 +242,14 @@ function Caisse({
   store,
   notify,
   merchantName,
+  shopBadge,
+  shopName,
 }: {
   store: StoreType;
   notify: (m: string) => void;
   merchantName?: string;
+  shopBadge?: React.ReactNode;
+  shopName?: string;
 }) {
   const [msgs, setMsgs] = useState<VoiceMsg[]>([]);
   const [draft, setDraft] = useState("");
@@ -515,7 +531,16 @@ function Caisse({
   // (Produits fréquents supprimés de l'affichage pour alléger la caisse.)
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col">
+    <div className="relative flex h-full min-h-0 flex-col bg-[#F8FAFC]">
+      {/* ---------------- en-tête boutique ---------------- */}
+      {shopBadge && (
+        <div className="p-3 border-b border-[#E2E8F0] bg-white">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-[#0F172A]">{shopName ?? "Ma boutique"}</span>
+            {shopBadge}
+          </div>
+        </div>
+      )}
       {/* ---------------- fil de discussion (style AgentChat) ---------------- */}
       <div ref={threadRef} className="scrollbar-thin min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
 
