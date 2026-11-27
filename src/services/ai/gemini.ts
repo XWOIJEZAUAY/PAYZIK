@@ -190,10 +190,13 @@ export async function parseVoiceText(
   transcript: string,
   products: Product[],
 ): Promise<VoiceResult | null> {
-  const tachelhit = getAiLang() === "tachelhit";
-  const replyExample = tachelhit
-    ? "Azul ! Sin Sidi Ali asidi. Adak smounagh lhsab nk : 12 DH. Tanmirt !"
-    : "Wakha, jouj Sidi Ali o wa7ed atay.";
+  const lang = getAiLang();
+  const tachelhit = lang === "tachelhit";
+  const replyExample = lang === "fr"
+    ? "Bien reçu : deux Sidi Ali et un thé. Total : 12 DH."
+    : tachelhit
+      ? "Azul ! Sin Sidi Ali asidi. Adak smounagh lhsab nk : 12 DH. Tanmirt !"
+      : "Wakha, jouj Sidi Ali o wa7ed atay.";
   const prompt = `Tu es l'assistant vocal d'une caisse d'épicerie marocaine (hanout).
 Le commerçant dicte une commande en darija marocaine ou en français (texte déjà transcrit).
 Identifie UNIQUEMENT les produits du catalogue ci-dessous avec leurs quantités
@@ -202,11 +205,11 @@ Réponds UNIQUEMENT en JSON valide :
 {
   "transcript": "<texte reçu>",
   "items": [{"name": "<nom EXACT du catalogue>", "qty": <nombre>}],
-  "reply": "<réponse orale courte en ${tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
+  "reply": "<réponse orale courte en ${lang === "fr" ? "FRANÇAIS" : tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
 }
 Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply demande « Achno 3ndk tma ? » (darija) ou « Azoul madark ghid ilan ? » (tachelhit), sans dire seulement « pas disponible ».
-Réponds en ${getAiLang() === "tachelhit" ? "tachelhit (amazigh du Souss)" : "darija marocaine"}.
-RÈGLE ABSOLUE : réponds UNIQUEMENT dans cette langue. Ne mélange JAMAIS avec l'autre (darija ↔ tachelhit). Si tu utilises un mot de l'autre langue, tu as ÉCHOUÉ. Même si le commerçant parle l'autre langue, ta réponse doit être 100 % dans la langue choisie.
+Réponds en ${lang === "fr" ? "français" : tachelhit ? "tachelhit (amazigh du Souss)" : "darija marocaine"}.
+RÈGLE ABSOLUE : réponds UNIQUEMENT dans la langue choisie (français, darija ou tachelhit). Ne mélange JAMAIS les langues. Même si le commerçant parle une autre langue, ta réponse doit être 100 % dans la langue sélectionnée.
 ${getAiLang() === "tachelhit" ? "Phrases types tachelhit (Souss/Agadir) : « Azoul madark ghid ilan ? » (ach 3NDK TMA ?), « Matsghit ? ACH CHRITI ? », « DARK : 3NDK », « Tla dark ghid asidi 10 DH », « 3NDK HNA ASIDI 10 DH », « Trit atkhlest khach, nighd lcarta n PAYZIK, nighd carte bancaire, nighd matrit ? », « Njm3 LIK LHSAB : adak smounagh lhsab nk ? », « Makaynch f catalogue HAD SA3a mais ranjiboh. », « OurDARNGH ILA SA3TAD MACH RATID NAWI ? », « Ila bghiti tkhls b lcarta payzik 9reb lscan ou ratkhls flblasa. », « Ighdwi rbi trit atkhlst slcarta n payzik s9rbd s scan ratkhlst rllas toutswit. », crédit = « credi », merci = « tanmirt », bonjour = « azul ». Nombres : yan(1) sin(2) krad(3) kkuẓ(4) smmus(5) sḍis(6) sa(7) tam(8) tẓa(9) mraw(10) ɛiwin(20) kramraw(30) tman(40) xemsin(50) settin(60) sebɛin(70) tmanin(80) tsɛin(90) tma(100)." : ""}
 
 TEXTE : ${transcript}
@@ -257,10 +260,13 @@ export async function parseVoiceOrder(
   audio: Blob,
   products: Product[],
 ): Promise<VoiceResult | null> {
-  const tachelhit = getAiLang() === "tachelhit";
-  const replyExample = tachelhit
-    ? "Azul ! Sin Sidi Ali asidi. Adak smounagh lhsab nk : 12 DH. Tanmirt !"
-    : "Wakha, jouj Sidi Ali o wa7ed atay.";
+  const lang = getAiLang();
+  const tachelhit = lang === "tachelhit";
+  const replyExample = lang === "fr"
+    ? "Bien reçu : deux Sidi Ali et un thé. Total : 12 DH."
+    : tachelhit
+      ? "Azul ! Sin Sidi Ali asidi. Adak smounagh lhsab nk : 12 DH. Tanmirt !"
+      : "Wakha, jouj Sidi Ali o wa7ed atay.";
   const prompt = `Tu es l'assistant vocal d'une caisse d'épicerie marocaine (hanout).
 Le commerçant dicte une commande en darija marocaine ou en français.
 Transcris l'audio, puis identifie UNIQUEMENT les produits du catalogue ci-dessous
@@ -269,11 +275,11 @@ Réponds UNIQUEMENT en JSON valide :
 {
   "transcript": "<ce que tu as entendu>",
   "items": [{"name": "<nom EXACT du catalogue>", "qty": <nombre>}],
-  "reply": "<réponse orale courte en ${tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
+  "reply": "<réponse orale courte en ${lang === "fr" ? "FRANÇAIS" : tachelhit ? "TACHELHIT" : "DARIJA marocaine"}, ex: '${replyExample}'>"
 }
 Règles : n'invente aucun produit ; si rien n'est reconnu, items=[] et reply demande « Achno 3ndk tma ? » (darija) ou « Azoul madark ghid ilan ? » (tachelhit), sans dire seulement « pas disponible ».
-Réponds en ${getAiLang() === "tachelhit" ? "tachelhit (amazigh du Souss)" : "darija marocaine"} (pas dans l'autre langue, pas en français).
-RÈGLE ABSOLUE : réponds UNIQUEMENT dans cette langue. Ne mélange JAMAIS avec l'autre (darija ↔ tachelhit). Si tu utilises un mot de l'autre langue, tu as ÉCHOUÉ. Même si le commerçant parle l'autre langue, ta réponse doit être 100 % dans la langue choisie.
+Réponds en ${lang === "fr" ? "français" : tachelhit ? "tachelhit (amazigh du Souss)" : "darija marocaine"} (une seule langue, sans mélange).
+RÈGLE ABSOLUE : réponds UNIQUEMENT dans la langue choisie (français, darija ou tachelhit). Ne mélange JAMAIS les langues. Même si le commerçant parle une autre langue, ta réponse doit être 100 % dans la langue sélectionnée.
 ${getAiLang() === "tachelhit" ? "Phrases types tachelhit (Souss/Agadir) : « Azoul madark ghid ilan ? » (ach 3NDK TMA ?), « Matsghit ? ACH CHRITI ? », « DARK : 3NDK », « Tla dark ghid asidi 10 DH », « 3NDK HNA ASIDI 10 DH », « Trit atkhlest khach, nighd lcarta n PAYZIK, nighd carte bancaire, nighd matrit ? », « Njm3 LIK LHSAB : adak smounagh lhsab nk ? », « Makaynch f catalogue HAD SA3a mais ranjiboh. », « OurDARNGH ILA SA3TAD MACH RATID NAWI ? », « Ila bghiti tkhls b lcarta payzik 9reb lscan ou ratkhls flblasa. », « Ighdwi rbi trit atkhlst slcarta n payzik s9rbd s scan ratkhlst rllas toutswit. », crédit = « credi », merci = « tanmirt », bonjour = « azul ». Nombres : yan(1) sin(2) krad(3) kkuẓ(4) smmus(5) sḍis(6) sa(7) tam(8) tẓa(9) mraw(10) ɛiwin(20) kramraw(30) tman(40) xemsin(50) settin(60) sebɛin(70) tmanin(80) tsɛin(90) tma(100)." : ""}
 
 CATALOGUE :
@@ -403,7 +409,7 @@ export function speak(text: string) {
   const u = new SpeechSynthesisUtterance(text);
   // Tachelhit n'a pas de voix TTS : on utilise le français.
   const lang = getAiLang();
-  u.lang = lang === "tachelhit" ? "fr-FR" : /[\u0600-\u06FF]/.test(text) ? "ar-MA" : "fr-FR";
+  u.lang = lang === "fr" || lang === "tachelhit" ? "fr-FR" : /[\u0600-\u06FF]/.test(text) ? "ar-MA" : "fr-FR";
   u.rate = 1.05;
   window.speechSynthesis.speak(u);
 }

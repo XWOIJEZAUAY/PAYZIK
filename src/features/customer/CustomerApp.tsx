@@ -108,7 +108,7 @@ const TONE: Record<
     dot: "bg-rose-500",
   },
   indigo: {
-    grad: "from-[#2E2659] via-[#8A6EDD] to-[#8A6EDD]",
+    grad: "from-[#21152C] via-[#8136A8] to-[#8136A8]",
     soft: "bg-indigo-50",
     text: "text-indigo-700",
     ring: "ring-indigo-200",

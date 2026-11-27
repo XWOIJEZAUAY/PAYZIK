@@ -367,7 +367,7 @@ export function Pills({
 export function Sparkline({
   data,
   className,
-  stroke = "#8A6EDD",
+  stroke = "#8136A8",
   width = 96,
   height = 32,
 }: {
@@ -553,7 +553,7 @@ export function StatCard({
           {sparkline && (
             <Sparkline
               data={sparkline}
-              stroke={accent ? "#B9A6F0" : "#8A6EDD"}
+              stroke={accent ? "#D3B0E6" : "#8136A8"}
               width={84}
               height={26}
             />
@@ -758,7 +758,7 @@ export function QrCode({
       margin: 1,
       width: size * 2,
       errorCorrectionLevel: "M",
-      color: { dark: "#2E2659", light: "#FFFFFF" },
+      color: { dark: "#21152C", light: "#FFFFFF" },
     })
       .then((url) => {
         if (alive) setSrc(url);

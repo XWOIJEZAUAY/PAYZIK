@@ -285,7 +285,7 @@ function CardDetailModal({
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Carte ${card.code}</title>
       <style>body{font-family:ui-sans-serif,Arial;text-align:center;padding:24px;color:#F47721}
       .code{font-size:22px;font-weight:800;letter-spacing:2px;margin:8px 0}
-      .name{font-size:20px;font-weight:800}.sub{color:#6B6389;font-size:12px}
+      .name{font-size:20px;font-weight:800}.sub{color:#81748A;font-size:12px}
       img{width:260px;height:260px}@media print{.noprint{display:none}}</style></head>
       <body><div class="name">${card.name}</div><div class="sub">Carte PAYZIK recyclable</div>
       <img src="${qr}"/><div class="code">${card.code}</div>

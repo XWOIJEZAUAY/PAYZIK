@@ -191,10 +191,10 @@ export function DashboardView({ store }: { store: Store }) {
           <DonutChart totals={methodTotals} total={methodTotal} />
           <div className="mt-3 space-y-1.5">
             {[
-              { label: "Espèces", value: methodTotals.cash, color: "#8A6EDD" },
-              { label: "Kridi", value: methodTotals.kridi, color: "#F4437A" },
-              { label: "Carte", value: methodTotals.card, color: "#F4437A" },
-              { label: "Carte PAYZIK", value: methodTotals.wallet, color: "#8A6EDD" },
+              { label: "Espèces", value: methodTotals.cash, color: "#8136A8" },
+              { label: "Kridi", value: methodTotals.kridi, color: "#F43F9E" },
+              { label: "Carte", value: methodTotals.card, color: "#F43F9E" },
+              { label: "Carte PAYZIK", value: methodTotals.wallet, color: "#8136A8" },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5">
@@ -401,10 +401,10 @@ function DonutChart({
   total: number;
 }) {
   const segments = [
-    { value: totals.cash, color: "#8A6EDD" },
-    { value: totals.kridi, color: "#F4437A" },
-    { value: totals.card, color: "#F4437A" },
-    { value: totals.wallet, color: "#8A6EDD" },
+    { value: totals.cash, color: "#8136A8" },
+    { value: totals.kridi, color: "#F43F9E" },
+    { value: totals.card, color: "#F43F9E" },
+    { value: totals.wallet, color: "#8136A8" },
   ];
   const r = 40;
   const cx = 50;
@@ -413,7 +413,7 @@ function DonutChart({
   let offset = 0;
   return (
     <svg viewBox="0 0 100 100" className="mx-auto h-28 w-28">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#DFD9EF" strokeWidth={12} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#E9DDF2" strokeWidth={12} />
       {segments.map((seg, i) => {
         const len = total > 0 ? (seg.value / total) * circ : 0;
         const dash = `${len} ${circ - len}`;
@@ -435,10 +435,10 @@ function DonutChart({
         offset += len;
         return el;
       })}
-      <text x={cx} y={cy - 2} textAnchor="middle" className="tnum text-[11px] font-black" fill="#2E2659">
+      <text x={cx} y={cy - 2} textAnchor="middle" className="tnum text-[11px] font-black" fill="#21152C">
         {total > 0 ? fmtDh(total) : "0"}
       </text>
-      <text x={cx} y={cy + 8} textAnchor="middle" className="text-[7px]" fill="#6B6389">
+      <text x={cx} y={cy + 8} textAnchor="middle" className="text-[7px]" fill="#81748A">
         total
       </text>
     </svg>

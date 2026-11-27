@@ -69,21 +69,21 @@ export function CloudRechargePanel({
   };
 
   if (!card) {
-    return <div className="rounded-xl border border-[#DFD9EF] bg-white p-3.5 text-[11px] text-slate-400">Carte en cours de création…</div>;
+    return <div className="rounded-xl border border-[#E9DDF2] bg-white p-3.5 text-[11px] text-slate-400">Carte en cours de création…</div>;
   }
 
   return (
     <div className="space-y-2.5">
-      <div className="rounded-xl border border-[#DFD9EF] bg-white p-3.5">
-        <h3 className="text-[12.5px] font-bold text-[#2E2659]">Recharge</h3>
+      <div className="rounded-xl border border-[#E9DDF2] bg-white p-3.5">
+        <h3 className="text-[12.5px] font-bold text-[#21152C]">Recharge</h3>
         {error && (
           <p className="mt-2 rounded-lg bg-rose-50 px-2 py-1.5 text-[10.5px] font-semibold text-rose-600">{error}</p>
         )}
-        <label className="mt-2.5 block text-[9px] font-bold uppercase tracking-wider text-[#6B6389]">Boutique</label>
+        <label className="mt-2.5 block text-[9px] font-bold uppercase tracking-wider text-[#81748A]">Boutique</label>
         <select
           value={shopId}
           onChange={(e) => setShopId(e.target.value)}
-          className="mt-1 h-9 w-full rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-2.5 text-[11px] outline-none focus:border-[#433874]"
+          className="mt-1 h-9 w-full rounded-lg border border-[#E9DDF2] bg-[#FDF9FE] px-2.5 text-[11px] outline-none focus:border-[#E91E83]"
         >
           <option value="">Choisir une boutique…</option>
           {shops.map((s) => (
@@ -97,8 +97,8 @@ export function CloudRechargePanel({
               onClick={() => setAmount(v)}
               className={`rounded-lg border py-1.5 font-mono text-[11px] font-bold transition ${
                 amount === v
-                  ? "border-[#433874] bg-[#E9E6F5] text-[#433874]"
-                  : "border-[#DFD9EF] text-[#2E2659]"
+                  ? "border-[#E91E83] bg-[#F1E5FA] text-[#E91E83]"
+                  : "border-[#E9DDF2] text-[#21152C]"
               }`}
             >
               {v}
@@ -110,30 +110,30 @@ export function CloudRechargePanel({
           value={amount}
           onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
           placeholder="Autre montant"
-          className="mt-2 h-9 w-full rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-2.5 font-mono text-[12px] outline-none focus:border-[#433874]"
+          className="mt-2 h-9 w-full rounded-lg border border-[#E9DDF2] bg-[#FDF9FE] px-2.5 font-mono text-[12px] outline-none focus:border-[#E91E83]"
         />
         <button
           disabled={!shopId || typeof amount !== "number" || amount <= 0 || sending}
           onClick={() => void sendRequest()}
-          className="mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#433874] text-[11px] font-bold text-white disabled:opacity-40"
+          className="mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#E91E83] text-[11px] font-bold text-white disabled:opacity-40"
         >
           <Plus size={14} /> {sending ? "Envoi…" : "Demander la recharge"}
         </button>
       </div>
 
-      <div className="rounded-xl border border-[#DFD9EF] bg-white p-3.5">
-        <p className="text-[11.5px] font-bold text-[#2E2659]">Mes demandes</p>
+      <div className="rounded-xl border border-[#E9DDF2] bg-white p-3.5">
+        <p className="text-[11.5px] font-bold text-[#21152C]">Mes demandes</p>
         {requests.length === 0 && <p className="mt-1.5 text-[10.5px] text-slate-500">Aucune demande.</p>}
         <div className="mt-1.5 space-y-1.5">
           {requests.map((r) => {
             const s = statusInfo(r.status);
             const Icon = s.icon;
             return (
-              <div key={r.id} className="flex items-center justify-between rounded-lg bg-[#F7F5FC] px-2.5 py-1.5">
+              <div key={r.id} className="flex items-center justify-between rounded-lg bg-[#FDF9FE] px-2.5 py-1.5">
                 <span className={`flex items-center gap-1 text-[10.5px] font-semibold ${s.color}`}>
                   <Icon size={12} /> {s.label}
                 </span>
-                <span className="font-mono text-[11px] font-bold text-[#2E2659]">{fmtDh(r.amount)}</span>
+                <span className="font-mono text-[11px] font-bold text-[#21152C]">{fmtDh(r.amount)}</span>
               </div>
             );
           })}

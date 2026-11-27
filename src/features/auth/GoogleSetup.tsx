@@ -18,7 +18,7 @@ function Field({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
+      className="h-10 w-full rounded-xl border border-[#E9DDF2] bg-[#FDF9FE] px-3 text-[12px] outline-none focus:border-[#E91E83]"
     />
   );
 }
@@ -77,11 +77,11 @@ export function GoogleSetup({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#DFD9EF] p-4">
-      <div className="w-full max-w-[420px] space-y-3 rounded-2xl border border-[#DFD9EF] bg-white p-5 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-[#E9DDF2] p-4">
+      <div className="w-full max-w-[420px] space-y-3 rounded-2xl border border-[#E9DDF2] bg-white p-5 shadow-lg">
         <div>
-          <h1 className="text-[17px] font-bold text-[#2E2659]">Un dernier pas</h1>
-          <p className="text-[11px] text-[#6B6389]">Choisis ton espace.</p>
+          <h1 className="text-[17px] font-bold text-[#21152C]">Un dernier pas</h1>
+          <p className="text-[11px] text-[#81748A]">Choisis ton espace.</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -89,8 +89,8 @@ export function GoogleSetup({
             onClick={() => setRole("customer")}
             className={`flex items-center justify-center gap-1.5 rounded-xl border py-3 text-[12px] font-bold ${
               role === "customer"
-                ? "border-transparent bg-[#433874] text-white"
-                : "border-[#DFD9EF] text-[#6B6389]"
+                ? "border-transparent bg-[#E91E83] text-white"
+                : "border-[#E9DDF2] text-[#81748A]"
             }`}
           >
             <Wallet size={15} /> Client
@@ -99,8 +99,8 @@ export function GoogleSetup({
             onClick={() => setRole("merchant")}
             className={`flex items-center justify-center gap-1.5 rounded-xl border py-3 text-[12px] font-bold ${
               role === "merchant"
-                ? "border-transparent bg-[#433874] text-white"
-                : "border-[#DFD9EF] text-[#6B6389]"
+                ? "border-transparent bg-[#E91E83] text-white"
+                : "border-[#E9DDF2] text-[#81748A]"
             }`}
           >
             <Store size={15} /> Commerçant
@@ -129,7 +129,7 @@ export function GoogleSetup({
         <button
           onClick={() => void submit()}
           disabled={busy || !role}
-          className="w-full rounded-xl bg-[#433874] py-3 text-[12px] font-bold text-white disabled:opacity-40"
+          className="w-full rounded-xl bg-[#E91E83] py-3 text-[12px] font-bold text-white disabled:opacity-40"
         >
           {busy ? "Un instant…" : "Continuer"}
         </button>

@@ -8,6 +8,7 @@ export interface Product {
   category: Category;
   emoji: string;
   aliases: string[]; // darija / variantes pour la dictée vocale
+  barcode?: string; // code-barres EAN/UPC du produit, lorsqu'il est renseigné
   image?: string; // photo du produit (data URL base64)
   rating?: number; // note moyenne (0-5)
   ratingCount?: number; // nombre d'avis
@@ -93,6 +94,7 @@ export interface Establishment {
   kind: EstablishmentKind;
   city: string;
   district: string;
+  image?: string | null;
   rating: number;
   reviews: number;
   tags: string[];

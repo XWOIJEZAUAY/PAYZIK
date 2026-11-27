@@ -151,25 +151,25 @@ export function CardScanSheet({
 
   return (
     <Sheet open onClose={onClose} title="Paiement par carte PAYZIK">
-      <p className="text-[11.5px] leading-relaxed text-[#6B6389]">
+      <p className="text-[11.5px] leading-relaxed text-[#81748A]">
         Scan le QR / code-barres de la carte du client. Le solde est vérifié dans la base avant
         débit — une carte inconnue est refusée.
       </p>
 
       {!card && (
         <>
-          <div className="relative mt-3 aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#2E2659]">
+          <div className="relative mt-3 aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#21152C]">
             <video ref={videoRef} playsInline muted className="absolute inset-0 h-full w-full object-cover" />
-            <div className="pointer-events-none absolute inset-x-10 inset-y-6 rounded-lg border-2 border-[#433874]" />
+            <div className="pointer-events-none absolute inset-x-10 inset-y-6 rounded-lg border-2 border-[#E91E83]" />
             <div className="absolute inset-x-0 bottom-2 flex justify-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold text-[#2E2659]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold text-[#21152C]">
                 {cameraOn ? (
                   <>
-                    <ScanLine size={12} className="text-[#433874]" /> Vise la carte…
+                    <ScanLine size={12} className="text-[#E91E83]" /> Vise la carte…
                   </>
                 ) : (
                   <>
-                    <Loader2 size={12} className="animate-spin text-[#433874]" /> Caméra…
+                    <Loader2 size={12} className="animate-spin text-[#E91E83]" /> Caméra…
                   </>
                 )}
               </span>
@@ -186,7 +186,7 @@ export function CardScanSheet({
               value={manual}
               onChange={(e) => setManual(e.target.value.toUpperCase())}
               placeholder="Code carte (PZK-XXXX-XXXX)"
-              className="h-10 min-w-0 flex-1 rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[11px] outline-none focus:border-[#433874]"
+              className="h-10 min-w-0 flex-1 rounded-lg border border-[#E9DDF2] bg-[#FDF9FE] px-3 font-mono text-[11px] outline-none focus:border-[#E91E83]"
             />
             <Btn type="submit" variant="dark" disabled={!manual.trim()}>
               <ScanLine size={14} /> Vérifier
@@ -196,25 +196,25 @@ export function CardScanSheet({
       )}
 
       {card && (
-        <div className="animate-popIn mt-3 rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] p-3">
+        <div className="animate-popIn mt-3 rounded-xl border border-[#E9DDF2] bg-[#FDF9FE] p-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#433874] shadow-sm">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#E91E83] shadow-sm">
               <Wallet size={17} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[12.5px] font-bold text-[#2E2659]">{card.name}</p>
-              <p className="truncate font-mono text-[10px] text-[#6B6389]">{card.code}</p>
+              <p className="truncate text-[12.5px] font-bold text-[#21152C]">{card.name}</p>
+              <p className="truncate font-mono text-[10px] text-[#81748A]">{card.code}</p>
             </div>
           </div>
-          <div className="mt-2 flex items-end justify-between border-t border-[#DFD9EF] pt-2">
-            <span className="text-[11px] text-[#6B6389]">Solde disponible</span>
+          <div className="mt-2 flex items-end justify-between border-t border-[#E9DDF2] pt-2">
+            <span className="text-[11px] text-[#81748A]">Solde disponible</span>
             <span className="font-mono text-[17px] font-bold text-[#059669]">
               {fmtDh(card.balanceDh)}
             </span>
           </div>
           <div className="flex items-end justify-between">
-            <span className="text-[11px] text-[#6B6389]">Montant à payer</span>
-            <span className="font-mono text-[13px] font-bold text-[#2E2659]">{fmtDh(totalDh)}</span>
+            <span className="text-[11px] text-[#81748A]">Montant à payer</span>
+            <span className="font-mono text-[13px] font-bold text-[#21152C]">{fmtDh(totalDh)}</span>
           </div>
           {needPin && (
             <input
@@ -222,14 +222,14 @@ export function CardScanSheet({
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
               inputMode="numeric"
               placeholder="Code PIN (4 chiffres)"
-              className="mt-2 h-10 w-full rounded-lg border border-[#DFD9EF] bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-[#433874]"
+              className="mt-2 h-10 w-full rounded-lg border border-[#E9DDF2] bg-white px-3 text-center font-mono text-[13px] tracking-widest outline-none focus:border-[#E91E83]"
             />
           )}
         </div>
       )}
 
       {error && (
-        <p className="animate-popIn mt-3 flex items-start gap-2 rounded-lg bg-[#FCE4EE] px-3 py-2 text-[11px] font-semibold text-[#DC2626]">
+        <p className="animate-popIn mt-3 flex items-start gap-2 rounded-lg bg-[#FCEAF4] px-3 py-2 text-[11px] font-semibold text-[#DC2626]">
           <AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}
         </p>
       )}

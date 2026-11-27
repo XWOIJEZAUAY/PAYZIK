@@ -1,11 +1,11 @@
-/** Langue de l'agent IA : darija (par défaut) ou tachelhit (amazigh du Souss). */
-export type AiLang = "darija" | "tachelhit";
+/** Langue de l'agent IA : français, darija (par défaut) ou tachelhit (amazigh du Souss). */
+export type AiLang = "fr" | "darija" | "tachelhit";
 
 const KEY = "payzik_ai_lang";
 
 export function getAiLang(): AiLang {
   const v = (localStorage.getItem(KEY) ?? "").trim();
-  return v === "tachelhit" ? "tachelhit" : "darija";
+  return v === "tachelhit" || v === "fr" ? v : "darija";
 }
 
 export function setAiLang(lang: AiLang) {
@@ -13,11 +13,17 @@ export function setAiLang(lang: AiLang) {
 }
 
 export function aiLangLabel(lang: AiLang): string {
-  return lang === "tachelhit" ? "Tachelhit (amazigh du Souss)" : "Darija (marocaine)";
+  if (lang === "fr") return "Français";
+  return lang === "tachelhit" ? "Tamazight — Souss / Tachelhit" : "Darija marocaine";
 }
 
 /** Instruction injectée dans les prompts système. */
 export function aiLangInstruction(lang: AiLang): string {
+  if (lang === "fr") {
+    return `Tu réponds à VOIX HAUTE et par écrit en FRANÇAIS clair et courtois. \
+Tu restes dans le registre du commerce de proximité marocain (hanout), avec les termes usuels \
+(caisse, panier, ticket, espèces, carte PAYZIK, Kridi). N'invente aucun produit ni aucun montant.`;
+  }
   if (lang === "tachelhit") {
     return `Tu réponds à VOIX HAUTE en TACHELHIT (amazigh du Souss, région Souss-Massa / Agadir), \
 avec les emprunts français/arabes habituels du commerce. Tu ne parles PAS darija pour l'instant.

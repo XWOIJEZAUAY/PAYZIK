@@ -9,23 +9,32 @@
    Thème clair par défaut ; .dark sur <html> pour le sombre.
    ============================================================ */
 :root {
-  --c-bg: #F7F5FC; /* fond lavande clair */
-  --c-surface: #FFFFFF; /* surface blanche */
-  --c-surface-2: #E9E6F5; /* lavande */
-  --c-ink: #2E2659; /* violet profond */
-  --c-muted: #6B6389;
-  --c-line: rgba(46, 38, 89, 0.14);
-  --c-primary: #433874; /* violet profond */
-  --c-accent: #8A6EDD; /* violet milieu */
-  --c-rose: #F4437A; /* rose */
+  /* PAYZIK — cahier des charges visuel (source unique de couleur) */
+  --c-bg: #FDF9FE;            /* fond blanc légèrement teinté */
+  --c-surface: #FFFFFF;       /* surface principale */
+  --c-surface-2: #F1E5FA;     /* lavande */
+  --c-surface-3: #FCEAF4;     /* rose pastel */
+  --c-ink: #21152C;           /* texte principal */
+  --c-muted: #81748A;         /* texte secondaire */
+  --c-line: rgba(81, 32, 111, 0.12);
+  --c-primary: #E91E83;       /* fuchsia — actions principales */
+  --c-primary-deep: #C2185B;
+  --c-accent: #8136A8;        /* violet intermédiaire — navigation */
+  --c-deep: #51206F;          /* violet profond — états immersifs */
+  --c-rose: #F43F9E;
+  /* Rayons et ombres du design system */
+  --r-card: 22px;
+  --r-btn: 16px;
+  --shadow-card: 0 6px 20px rgba(81, 32, 111, 0.07);
 }
 
 .dark {
-  --c-bg: #1B1638;
-  --c-surface: #2E2659;
-  --c-surface-2: #5B4E9E;
+  --c-bg: #160C1D;
+  --c-surface: #2A1239;
+  --c-surface-2: #51206F;
+  --c-surface-3: #3A1152;
   --c-ink: #FFFFFF;
-  --c-muted: #BDB2DA;
+  --c-muted: #D3B0E6;
   --c-line: rgba(255, 255, 255, 0.12);
 }
 
@@ -44,11 +53,11 @@
     border-color: var(--c-line);
   }
   :focus-visible {
-    outline: 2px solid #8A6EDD;
+    outline: 2px solid #E91E83;
     outline-offset: 2px;
   }
   ::selection {
-    background: rgba(138,110,221, 0.28);
+    background: rgba(233, 30, 131, 0.18);
   }
 }
 

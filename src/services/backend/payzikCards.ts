@@ -53,7 +53,7 @@ export async function listShops(): Promise<Result<Shop[]>> {
   if (!sb) return { ok: false, error: "Supabase non configuré" };
   const { data, error } = await sb
     .from("shops")
-    .select("id, shop_name, owner_user_id, verified, in_network, is_active")
+    .select("id, shop_name, owner_user_id, verified, in_network, is_active, city, address, image, phone, responsible_name")
     .eq("is_active", true)
     .order("shop_name", { ascending: true });
   if (error) return { ok: false, error: error.message };
