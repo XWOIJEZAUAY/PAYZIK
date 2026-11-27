@@ -131,7 +131,7 @@ export function ClientSpace({
   notify: (m: string) => void;
 }) {
   const { card, refresh: refreshCard } = useClientCard(user.id, user.name ?? "Client");
-  const { summary: spending } = useClientSpending();
+  const { summary: spending, refresh: refreshSpending } = useClientSpending();
   const [scan, setScan] = useState(false);
   const [payTarget, setPayTarget] = useState<Establishment | null>(null);
   const [qrOpen, setQrOpen] = useState(false);
@@ -147,8 +147,9 @@ export function ClientSpace({
       return `Solde insuffisant (${fmtDh(card.balance_dh)}). Recharge ta carte.`;
     const res = await requestCardPayment(target.id, amount, card.id);
     if (!res.ok) return `Envoi impossible : ${res.error}`;
-    notify(`${fmtDh(amount)} envoyés à ${target.name}. Paiement en cours.`);
+    notify(`${fmtDh(amount)} envoyés à ${target.name}.`);
     await refreshCard();
+    await refreshSpending();
     return null;
   };
 

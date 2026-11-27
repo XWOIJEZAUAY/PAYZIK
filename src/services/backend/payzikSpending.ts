@@ -107,5 +107,35 @@ export function useClientSpending() {
     void refresh();
   }, [refresh]);
 
+  // Le suivi se met à jour dès que le commerçant débite réellement la carte.
+  useEffect(() => {
+    const sb = getSupabaseClient();
+    if (!sb) return;
+    let channel: ReturnType<typeof sb.channel> | null = null;
+    let alive = true;
+    (async () => {
+      const { data } = await sb.auth.getUser();
+      const uid = data.user?.id;
+      if (!alive || !uid) return;
+      channel = sb
+        .channel(`client-spending-${uid}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "card_transactions",
+            filter: `client_id=eq.${uid}`,
+          },
+          () => { void refresh(); },
+        )
+        .subscribe();
+    })();
+    return () => {
+      alive = false;
+      if (channel) sb.removeChannel(channel);
+    };
+  }, [refresh]);
+
   return { summary, loading, refresh };
 }
