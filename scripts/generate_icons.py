@@ -76,6 +76,8 @@ def android_foreground(size: int) -> Image.Image:
 
 
 # --- PWA ---
+# iOS utilise un apple-touch-icon PNG de 180x180 (pas de SVG sur l'écran d'accueil).
+pwa_icon(180, False).save(OUT / "icon-180.png", optimize=True)
 for s in (192, 512):
     pwa_icon(s, False).save(OUT / f"icon-{s}.png", optimize=True)
     pwa_icon(s, True).save(OUT / f"icon-maskable-{s}.png", optimize=True)
