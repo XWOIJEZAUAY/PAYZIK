@@ -1,7 +1,6 @@
 import { LogIn, UserPlus, Store, Wallet } from "lucide-react";
 import { useState } from "react";
-import { signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp, type Profile } from "../../services/auth";
-import { createShop } from "../../services/backend/payzikCards";
+import { signIn, signUp, signInWithGoogle, resetPassword, verifySignupOtp, resetPasswordWithOtp, type ShopOnboarding, type Profile } from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
@@ -41,6 +40,17 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
     }
   };
 
+  const shopInput = (): ShopOnboarding | undefined =>
+    role === "merchant" && shopName.trim()
+      ? {
+          name: shopName.trim(),
+          city: shopCity.trim() || null,
+          address: shopAddress.trim() || null,
+          phone: shopPhone.trim() || null,
+          image: shopImage,
+        }
+      : undefined;
+
   const submit = async () => {
     setError("");
     if (!email.trim() || !password.trim()) {
@@ -60,7 +70,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             city: profileCity.trim() || null,
             address: profileAddress.trim() || null,
             responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
-          });
+          }, shopInput());
     setBusy(false);
     if (!res.ok) {
       setError(res.error ?? "Erreur");
@@ -71,15 +81,6 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
       setConfirmSent(true);
       setOtpMode("signup");
       return;
-    }
-    if (res.user && role === "merchant" && shopName.trim()) {
-      await createShop(shopName.trim(), {
-        city: shopCity.trim() || null,
-        address: shopAddress.trim() || null,
-        phone: shopPhone.trim() || null,
-        responsible: name.trim() || null,
-        image: shopImage,
-      });
     }
     if (res.user) onAuth(res.user);
   };
@@ -114,37 +115,34 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
               onClick={async () => {
                 setBusy(true);
                 setError("");
+                let pendingShop: ShopOnboarding | undefined;
+                const raw = localStorage.getItem("payzik.pending.shop");
+                if (raw) {
+                  try {
+                    const p = JSON.parse(raw) as {
+                      email?: string; name?: string; city?: string; address?: string;
+                      phone?: string; image?: string | null;
+                    };
+                    if (p.email === email.trim() && p.name) {
+                      pendingShop = {
+                        name: p.name,
+                        city: p.city || null,
+                        address: p.address || null,
+                        phone: p.phone || null,
+                        image: p.image ?? null,
+                      };
+                    }
+                  } catch { /* brouillon ignoré */ }
+                }
                 const res = await verifySignupOtp(email.trim(), otpCode.trim(), name.trim(), role, {
                   phone: profilePhone.trim() || null,
                   city: profileCity.trim() || null,
                   address: profileAddress.trim() || null,
                   responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
-                });
+                }, pendingShop ?? shopInput());
                 setBusy(false);
                 if (res.ok && res.user) {
-                  const raw = localStorage.getItem("payzik.pending.shop");
-                  if (raw) {
-                    try {
-                      const p = JSON.parse(raw) as {
-                        email?: string; name?: string; city?: string; address?: string;
-                        phone?: string; responsible?: string; image?: string | null;
-                      };
-                      if (p.email === email.trim() && p.name) {
-                        await createShop(p.name, {
-                          city: p.city || null, address: p.address || null,
-                          phone: p.phone || null, responsible: p.responsible || null,
-                          image: p.image ?? null,
-                        });
-                      }
-                    } catch { /* ignore */ }
-                    localStorage.removeItem("payzik.pending.shop");
-                  } else if (role === "merchant" && shopName.trim()) {
-                    await createShop(shopName.trim(), {
-                      city: shopCity.trim() || null, address: shopAddress.trim() || null,
-                      phone: shopPhone.trim() || null, responsible: name.trim() || null,
-                      image: shopImage,
-                    });
-                  }
+                  localStorage.removeItem("payzik.pending.shop");
                   onAuth(res.user);
                 } else setError(res.error ?? "Code invalide");
               }}

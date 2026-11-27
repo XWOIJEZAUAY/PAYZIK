@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Store, Wallet } from "lucide-react";
 import { completeGoogleSignup, type Profile } from "../../services/auth";
-import { createShop } from "../../services/backend/payzikCards";
 
 function Field({
   value,
@@ -59,19 +58,18 @@ export function GoogleSetup({
       city: city.trim() || null,
       address: null,
       responsible: role === "merchant" ? name.trim() || null : null,
+      shop: role === "merchant" ? {
+        name: shopName.trim(),
+        city: shopCity.trim() || null,
+        address: shopAddress.trim() || null,
+        phone: shopPhone.trim() || null,
+        responsible: name.trim() || null,
+      } : undefined,
     });
     if (!res.ok || !res.user) {
       setBusy(false);
       setError(res.error ?? "Création impossible.");
       return;
-    }
-    if (role === "merchant") {
-      await createShop(shopName.trim(), {
-        city: shopCity.trim() || null,
-        address: shopAddress.trim() || null,
-        phone: shopPhone.trim() || null,
-        responsible: name.trim() || null,
-      });
     }
     onDone(res.user);
   };

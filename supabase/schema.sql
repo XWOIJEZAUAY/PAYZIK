@@ -1,5 +1,7 @@
 -- PAYZIK — schéma multi-utilisateurs (PostgreSQL / Supabase).
--- Idempotent : peut être ré-exécuté sans erreur.
+-- Socle historique. Les politiques RLS sont définies UNIQUEMENT dans les migrations
+-- (APPLY_ALL.sql / supabase/migrations/*.sql) : ne pas ré-exécuter ce fichier sur une
+-- base déjà migrée, afin de ne pas réintroduire d'anciennes politiques permissives.
 
 -- ===================== PROFILS =====================
 create table if not exists public.profiles (
@@ -13,11 +15,11 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 drop policy if exists "profiles_select_all" on public.profiles;
-create policy "profiles_select_all" on public.profiles for select to authenticated using (true);
+-- create policy "profiles_select_all" on public.profiles for select to authenticated using (true);
 drop policy if exists "profiles_insert_own" on public.profiles;
-create policy "profiles_insert_own" on public.profiles for insert to authenticated with check (auth.uid() = id);
+-- create policy "profiles_insert_own" on public.profiles for insert to authenticated with check (auth.uid() = id);
 drop policy if exists "profiles_update_own" on public.profiles;
-create policy "profiles_update_own" on public.profiles for update to authenticated using (auth.uid() = id);
+-- create policy "profiles_update_own" on public.profiles for update to authenticated using (auth.uid() = id);
 
 -- ===================== PRODUITS (par marchand) =====================
 create table if not exists public.products (
@@ -35,9 +37,9 @@ create table if not exists public.products (
 alter table public.products enable row level security;
 
 drop policy if exists "products_select_all" on public.products;
-create policy "products_select_all" on public.products for select to authenticated using (true);
+-- create policy "products_select_all" on public.products for select to authenticated using (true);
 drop policy if exists "products_write_own" on public.products;
-create policy "products_write_own" on public.products for all to authenticated using (auth.uid() = merchant_id) with check (auth.uid() = merchant_id);
+-- create policy "products_write_own" on public.products for all to authenticated using (auth.uid() = merchant_id) with check (auth.uid() = merchant_id);
 
 -- ===================== VENTES =====================
 create table if not exists public.sales (
@@ -54,9 +56,9 @@ create table if not exists public.sales (
 alter table public.sales enable row level security;
 
 drop policy if exists "sales_select_own_or_customer" on public.sales;
-create policy "sales_select_own_or_customer" on public.sales for select to authenticated using (auth.uid() = merchant_id or auth.uid() = customer_id);
+-- create policy "sales_select_own_or_customer" on public.sales for select to authenticated using (auth.uid() = merchant_id or auth.uid() = customer_id);
 drop policy if exists "sales_insert_merchant" on public.sales;
-create policy "sales_insert_merchant" on public.sales for insert to authenticated with check (auth.uid() = merchant_id);
+-- create policy "sales_insert_merchant" on public.sales for insert to authenticated with check (auth.uid() = merchant_id);
 
 -- ===================== KRIDI (crédit) =====================
 create table if not exists public.kridi (
@@ -72,9 +74,9 @@ create table if not exists public.kridi (
 alter table public.kridi enable row level security;
 
 drop policy if exists "kridi_select_own" on public.kridi;
-create policy "kridi_select_own" on public.kridi for select to authenticated using (auth.uid() = merchant_id or auth.uid() = customer_id);
+-- create policy "kridi_select_own" on public.kridi for select to authenticated using (auth.uid() = merchant_id or auth.uid() = customer_id);
 drop policy if exists "kridi_insert_merchant" on public.kridi;
-create policy "kridi_insert_merchant" on public.kridi for insert to authenticated with check (auth.uid() = merchant_id);
+-- create policy "kridi_insert_merchant" on public.kridi for insert to authenticated with check (auth.uid() = merchant_id);
 
 -- ===================== CARTES PAYZIK =====================
 create table if not exists public.cards (
@@ -89,9 +91,9 @@ create table if not exists public.cards (
 alter table public.cards enable row level security;
 
 drop policy if exists "cards_select_own" on public.cards;
-create policy "cards_select_own" on public.cards for select to authenticated using (auth.uid() = owner_id);
+-- create policy "cards_select_own" on public.cards for select to authenticated using (auth.uid() = owner_id);
 drop policy if exists "cards_insert_own" on public.cards;
-create policy "cards_insert_own" on public.cards for insert to authenticated with check (auth.uid() = owner_id);
+-- create policy "cards_insert_own" on public.cards for insert to authenticated with check (auth.uid() = owner_id);
 
 -- ===================== PREMIUM (mise en avant) =====================
 create table if not exists public.promotions (
@@ -105,6 +107,6 @@ create table if not exists public.promotions (
 alter table public.promotions enable row level security;
 
 drop policy if exists "promotions_select_all" on public.promotions;
-create policy "promotions_select_all" on public.promotions for select to authenticated using (active = true);
+-- create policy "promotions_select_all" on public.promotions for select to authenticated using (active = true);
 drop policy if exists "promotions_write_own" on public.promotions;
-create policy "promotions_write_own" on public.promotions for all to authenticated using (auth.uid() = merchant_id) with check (auth.uid() = merchant_id);
+-- create policy "promotions_write_own" on public.promotions for all to authenticated using (auth.uid() = merchant_id) with check (auth.uid() = merchant_id);

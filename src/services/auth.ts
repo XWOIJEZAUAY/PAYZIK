@@ -1,5 +1,6 @@
-/** Authentification Supabase (email + mot de passe) — comptes réels.
- *  Si Supabase n'est pas configuré, l'auth est simulée en localStorage (démo). */
+/** Authentification Supabase (email + mot de passe / Google).
+ *  PostgreSQL est la source de vérité pour le profil, le rôle et l'onboarding.
+ *  Le localStorage n'est qu'un cache d'affichage, jamais une autorité. */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -28,23 +29,141 @@ export type ProfileDetails = {
   image?: string | null;
 };
 
+export type ShopOnboarding = {
+  name?: string | null;
+  city?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  responsible?: string | null;
+  image?: string | null;
+};
+
+export type ShopSummary = {
+  id: string;
+  name: string;
+  city?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  responsible?: string | null;
+  image?: string | null;
+  verified?: boolean;
+  in_network?: boolean;
+  is_active?: boolean;
+};
+
 export type Profile = {
   id: string;
   email: string;
   name: string;
   role: "merchant" | "customer";
   premium: boolean;
-  /** Compte Google sans profil : le type et les infos doivent encore être choisis. */
+  /** Vrai uniquement si PostgreSQL indique que des informations manquent. */
   needsRole?: boolean;
   phone?: string | null;
   city?: string | null;
   address?: string | null;
   responsible?: string | null;
   image?: string | null;
+  onboardingCompleted?: boolean;
+  shops?: ShopSummary[];
+};
+
+type ProfileRow = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  premium?: boolean;
+  needsRole?: boolean;
+  phone?: string | null;
+  city?: string | null;
+  address?: string | null;
+  responsible?: string | null;
+  image?: string | null;
+  onboarding_completed?: boolean;
+  shops?: ShopSummary[];
 };
 
 const LS_USER = "payzik.auth.user";
 const LS_ROLE = "payzik.auth.role";
+const SETUP_PREFIX = "payzik.google.setupDone-";
+
+function mapProfile(row: ProfileRow): Profile {
+  return {
+    id: row.id,
+    email: row.email ?? "",
+    name: row.name ?? "",
+    role: row.role === "customer" ? "customer" : "merchant",
+    premium: !!row.premium,
+    needsRole: !!row.needsRole,
+    phone: row.phone ?? null,
+    city: row.city ?? null,
+    address: row.address ?? null,
+    responsible: row.responsible ?? null,
+    image: row.image ?? null,
+    onboardingCompleted: !!row.onboarding_completed,
+    shops: row.shops ?? [],
+  };
+}
+
+async function fetchProfile(): Promise<Profile | null> {
+  const sb = getClient();
+  if (!sb) return null;
+  const { data, error } = await sb.rpc("payzik_get_my_profile", {});
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return mapProfile(data as ProfileRow);
+}
+
+function persistProfile(profile: Profile | null): void {
+  if (!profile) {
+    localStorage.removeItem(LS_USER);
+    localStorage.removeItem(LS_ROLE);
+    return;
+  }
+  localStorage.setItem(LS_USER, JSON.stringify(profile));
+  localStorage.setItem(LS_ROLE, profile.role);
+}
+
+/** Nettoie uniquement le cache d'identité : les données métier locales sont conservées. */
+function clearAuthCacheOnly(): void {
+  localStorage.removeItem(LS_USER);
+  localStorage.removeItem(LS_ROLE);
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith(SETUP_PREFIX)) localStorage.removeItem(key);
+  }
+}
+
+type OnboardingInput = {
+  role: "merchant" | "customer";
+  name?: string | null;
+  details?: ProfileDetails;
+  shop?: ShopOnboarding;
+};
+
+async function completeOnboarding(input: OnboardingInput): Promise<{ ok: boolean; error?: string; user?: Profile }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb.rpc("payzik_complete_onboarding", {
+    p_role: input.role,
+    p_name: input.name ?? null,
+    p_phone: input.details?.phone ?? null,
+    p_city: input.details?.city ?? null,
+    p_address: input.details?.address ?? null,
+    p_responsible: input.details?.responsible ?? input.shop?.responsible ?? null,
+    p_image: input.details?.image ?? null,
+    p_shop_name: input.shop?.name ?? null,
+    p_shop_city: input.shop?.city ?? null,
+    p_shop_address: input.shop?.address ?? null,
+    p_shop_phone: input.shop?.phone ?? null,
+    p_shop_image: input.shop?.image ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  if (!data) return { ok: false, error: "Profil non retourné par la base" };
+  const profile = mapProfile(data as ProfileRow);
+  persistProfile(profile);
+  return { ok: true, user: profile };
+}
 
 export async function signUp(
   email: string,
@@ -52,13 +171,21 @@ export async function signUp(
   name: string,
   role: "merchant" | "customer",
   details?: ProfileDetails,
+  shop?: ShopOnboarding,
 ): Promise<{ ok: boolean; error?: string; user?: Profile; needsConfirm?: boolean }> {
   const sb = getClient();
   if (!sb) {
-    // mode démo local
-    const u: Profile = { id: "local-" + Date.now(), email, name, role, premium: false, ...details };
-    localStorage.setItem(LS_USER, JSON.stringify(u));
-    localStorage.setItem(LS_ROLE, role);
+    const u: Profile = {
+      id: "local-" + Date.now(),
+      email,
+      name,
+      role,
+      premium: false,
+      needsRole: false,
+      onboardingCompleted: true,
+      ...details,
+    };
+    persistProfile(u);
     return { ok: true, user: u };
   }
   const { data, error } = await sb.auth.signUp({
@@ -67,27 +194,16 @@ export async function signUp(
     options: { emailRedirectTo: window.location.origin },
   });
   if (error || !data.user) return { ok: false, error: error?.message ?? "inscription échouée" };
-  // Si la confirmation email est activée, l'utilisateur doit vérifier son email.
-  const needsConfirm = !data.user.email_confirmed_at;
-  if (needsConfirm) {
-    return { ok: true, needsConfirm: true };
-  }
-  const { error: pErr } = await sb.from("profiles").insert({
-    id: data.user.id,
-    email,
-    name,
-    role,
-    premium: false,
-    phone: details?.phone ?? null,
-    city: details?.city ?? null,
-    address: details?.address ?? null,
-    responsible_name: details?.responsible ?? null,
-  });
-  if (pErr) return { ok: false, error: pErr.message };
-  const u: Profile = { id: data.user.id, email, name, role, premium: false, ...details };
-  localStorage.setItem(LS_USER, JSON.stringify(u));
-  localStorage.setItem(LS_ROLE, role);
-  return { ok: true, user: u };
+
+  const needsConfirm = !data.session && !data.user.email_confirmed_at;
+  if (needsConfirm) return { ok: true, needsConfirm: true };
+
+  // Confirmation désactivée : on établit la session puis on persiste via la base.
+  const signed = await sb.auth.signInWithPassword({ email, password });
+  if (signed.error) return { ok: false, error: signed.error.message };
+  const done = await completeOnboarding({ role, name, details, shop });
+  if (!done.ok || !done.user) return { ok: false, error: done.error };
+  return { ok: true, user: done.user };
 }
 
 export async function signIn(email: string, password: string): Promise<{ ok: boolean; error?: string; user?: Profile; needsConfirm?: boolean }> {
@@ -96,27 +212,20 @@ export async function signIn(email: string, password: string): Promise<{ ok: boo
     const raw = localStorage.getItem(LS_USER);
     if (raw) {
       const u = JSON.parse(raw) as Profile;
-      if (u.email === email) {
-        localStorage.setItem(LS_ROLE, u.role);
-        return { ok: true, user: u };
-      }
+      if (u.email === email) return { ok: true, user: u };
     }
     return { ok: false, error: "compte introuvable (mode démo)" };
   }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if (error || !data.user) return { ok: false, error: error?.message ?? "connexion échouée" };
-  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
-  const u: Profile = {
-    id: data.user.id,
-    email: data.user.email ?? email,
-    name: prof?.name ?? email.split("@")[0],
-    role: (prof?.role as "merchant" | "customer") ?? "customer",
-    premium: !!prof?.premium,
-    needsRole: !prof,
-  };
-  localStorage.setItem(LS_USER, JSON.stringify(u));
-  localStorage.setItem(LS_ROLE, u.role);
-  return { ok: true, user: u };
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) return { ok: false, error: error.message };
+  try {
+    const profile = await fetchProfile();
+    if (!profile) return { ok: false, error: "Profil introuvable en base" };
+    persistProfile(profile);
+    return { ok: true, user: profile };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Lecture du profil impossible" };
+  }
 }
 
 export async function signInWithGoogle(): Promise<{ ok: boolean; error?: string }> {
@@ -143,54 +252,20 @@ export async function restoreSession(): Promise<Profile | null> {
   if (!sb) return getCurrentUser();
   const { data, error } = await sb.auth.getSession();
   if (error) return getCurrentUser();
-  const u = data.session?.user;
-  if (!u) {
-    localStorage.removeItem(LS_USER);
-    localStorage.removeItem(LS_ROLE);
+  if (!data.session?.user) {
+    clearAuthCacheOnly();
     return null;
   }
-  // Vérifie si le compte Google a déjà terminé son setup (stockage persistant)
-  const setupDone = localStorage.getItem(`payzik.google.setupDone-${u.id}`);
-  const { data: prof } = await sb.from("profiles").select("*").eq("id", u.id).maybeSingle();
-  let profile: Profile;
-  if (prof && setupDone) {
-    // Profil existant + setup déjà validé → on restaure tel quel
-    profile = {
-      id: u.id,
-      email: u.email ?? prof.email ?? "",
-      name: prof.name ?? nameFromUser(u),
-      role: (prof.role as "merchant" | "customer") ?? "customer",
-      premium: !!prof.premium,
-      phone: prof.phone ?? null,
-      city: prof.city ?? null,
-      address: prof.address ?? null,
-      responsible: prof.responsible_name ?? null,
-      image: prof.image ?? null,
-    };
-  } else if (prof && !setupDone) {
-    // Profil existé mais setup jamais confirmé → force le choix rôle/infos
-    profile = {
-      id: u.id,
-      email: u.email ?? "",
-      name: prof.name ?? nameFromUser(u),
-      role: "customer",
-      premium: false,
-      needsRole: true,
-    };
-  } else {
-    // Pas de profil → Google setup obligatoire
-    profile = {
-      id: u.id,
-      email: u.email ?? "",
-      name: nameFromUser(u),
-      role: "customer",
-      premium: false,
-      needsRole: true,
-    };
+  try {
+    const profile = await fetchProfile();
+    if (profile) persistProfile(profile);
+    else clearAuthCacheOnly();
+    return profile;
+  } catch {
+    // Panne réseau/passagère : on conserve le dernier cache plutôt que de
+    // réinitialiser un rôle existant sur une erreur de lecture.
+    return getCurrentUser();
   }
-  localStorage.setItem(LS_USER, JSON.stringify(profile));
-  localStorage.setItem(LS_ROLE, profile.role);
-  return profile;
 }
 
 export async function verifySignupOtp(
@@ -199,6 +274,7 @@ export async function verifySignupOtp(
   name: string,
   role: "merchant" | "customer",
   details?: ProfileDetails,
+  shop?: ShopOnboarding,
 ): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
@@ -212,38 +288,12 @@ export async function verifySignupOtp(
     }
   }
   if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
-
-  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
-  if (!prof) {
-    const { error: pErr } = await sb.from("profiles").insert({
-      id: data.user.id,
-      email: email.trim(),
-      name: name.trim() || email.split("@")[0],
-      role,
-      premium: false,
-      phone: details?.phone ?? null,
-      city: details?.city ?? null,
-      address: details?.address ?? null,
-      responsible_name: details?.responsible ?? null,
-    });
-    if (pErr && pErr.code !== "23505") return { ok: false, error: pErr.message };
-  }
-
-  const u: Profile = {
-    id: data.user.id,
-    email: data.user.email ?? email.trim(),
-    name: prof?.name || name.trim() || email.split("@")[0],
-    role: (prof?.role as "merchant" | "customer") ?? role,
-    premium: !!prof?.premium,
-    phone: (prof as Profile | null)?.phone ?? details?.phone ?? null,
-    city: (prof as Profile | null)?.city ?? details?.city ?? null,
-    address: (prof as Profile | null)?.address ?? details?.address ?? null,
-    responsible: ((prof as { responsible_name?: string } | null)?.responsible_name ?? details?.responsible ?? null),
-    image: ((prof as { image?: string } | null)?.image ?? details?.image ?? null),
-  };
-  localStorage.setItem(LS_USER, JSON.stringify(u));
-  localStorage.setItem(LS_ROLE, u.role);
-  return { ok: true, user: u };
+  return completeOnboarding({
+    role,
+    name: name.trim() || data.user.email?.split("@")[0] || "Utilisateur",
+    details,
+    shop,
+  });
 }
 
 export async function resetPasswordWithOtp(
@@ -263,55 +313,87 @@ export async function resetPasswordWithOtp(
     }
   }
   if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
-
   const { error: uErr } = await sb.auth.updateUser({ password: newPassword });
   if (uErr) return { ok: false, error: uErr.message };
-
-  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
-  const u: Profile = {
-    id: data.user.id,
-    email: data.user.email ?? email.trim(),
-    name: prof?.name ?? email.split("@")[0],
-    role: (prof?.role as "merchant" | "customer") ?? "customer",
-    premium: !!prof?.premium,
-  };
-  localStorage.setItem(LS_USER, JSON.stringify(u));
-  localStorage.setItem(LS_ROLE, u.role);
-  return { ok: true, user: u };
+  try {
+    const profile = await fetchProfile();
+    if (profile) persistProfile(profile);
+    return profile ? { ok: true, user: profile } : { ok: false, error: "Profil introuvable" };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Lecture du profil impossible" };
+  }
 }
 
-export function subscribeAuth(callback: (user: Profile | null) => void): () => void {
+/**
+ * Un seul écouteur d'état auth pour toute l'application.
+ * Les résolutions sont sérialisées : une réponse lente ne peut pas écraser
+ * un événement plus récent (login, logout, refresh).
+ */
+export function startAuthLifecycle(callback: (user: Profile | null) => void): () => void {
   const sb = getClient();
-  if (!sb) return () => {};
-  const { data } = sb.auth.onAuthStateChange(async (event, session) => {
+  if (!sb) {
+    callback(getCurrentUser());
+    return () => {};
+  }
+
+  let alive = true;
+  let currentCallback = callback;
+  let lastUid: string | null = null;
+  let lastProfile: Profile | null = null;
+  let chain: Promise<void> = Promise.resolve();
+
+  const emit = (profile: Profile | null) => {
+    lastProfile = profile;
+    lastUid = profile?.id ?? null;
+    persistProfile(profile);
+    currentCallback(profile);
+  };
+
+  const resolve = (uid: string, force: boolean) => {
+    chain = chain.then(async () => {
+      if (!alive) return;
+      if (!force && uid === lastUid && lastProfile) return;
+      try {
+        const profile = await fetchProfile();
+        if (alive) emit(profile);
+      } catch {
+        const cached = getCurrentUser();
+        if (alive && cached?.id === uid) emit(cached);
+      }
+    });
+  };
+
+  const { data } = sb.auth.onAuthStateChange((event, session) => {
+    if (!alive) return;
     if (event === "SIGNED_OUT" || !session?.user) {
-      localStorage.removeItem(LS_USER);
-      localStorage.removeItem(LS_ROLE);
-      callback(null);
+      clearAuthCacheOnly();
+      emit(null);
       return;
     }
-    if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
-      const p = await restoreSession();
-      callback(p);
+    if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      resolve(session.user.id, event !== "TOKEN_REFRESHED");
     }
   });
-  return () => data.subscription.unsubscribe();
+
+  return () => {
+    alive = false;
+    data.subscription.unsubscribe();
+  };
+}
+
+/** Conservé pour compatibilité : délègue au cycle de vie unique. */
+export function subscribeAuth(callback: (user: Profile | null) => void): () => void {
+  return startAuthLifecycle(callback);
 }
 
 export async function resetPassword(email: string): Promise<{ ok: boolean; error?: string }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
   const clean = email.trim().toLowerCase();
-  // Vérification explicite : Supabase ne révèle pas l'existence d'un email,
-  // donc on passe par une fonction dédiée qui ne expose pas les profils.
   const { data: exists, error: checkError } = await sb.rpc("payzik_email_exists", { p_email: clean });
   if (checkError) return { ok: false, error: checkError.message };
-  if (!exists) {
-    return { ok: false, error: "Aucun compte n'existe avec cet email." };
-  }
-  const { error } = await sb.auth.resetPasswordForEmail(clean, {
-    redirectTo: window.location.origin,
-  });
+  if (!exists) return { ok: false, error: "Aucun compte n'existe avec cet email." };
+  const { error } = await sb.auth.resetPasswordForEmail(clean, { redirectTo: window.location.origin });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
@@ -330,11 +412,17 @@ export async function updateProfile(
     p_image: patch.image ?? null,
   });
   if (error) return { ok: false, error: error.message };
-  const profile = await restoreSession();
-  return profile ? { ok: true, profile } : { ok: false, error: "Profil introuvable" };
+  try {
+    const profile = await fetchProfile();
+    if (!profile) return { ok: false, error: "Profil introuvable" };
+    persistProfile(profile);
+    return { ok: true, profile };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Lecture du profil impossible" };
+  }
 }
 
-/** Finalise un compte Google : crée le profil avec le rôle et les infos choisis. */
+/** Finalise un compte Google via la même transaction que l'inscription email. */
 export async function completeGoogleSignup(input: {
   role: "merchant" | "customer";
   name?: string | null;
@@ -342,6 +430,7 @@ export async function completeGoogleSignup(input: {
   city?: string | null;
   address?: string | null;
   responsible?: string | null;
+  shop?: ShopOnboarding;
 }): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
@@ -349,52 +438,20 @@ export async function completeGoogleSignup(input: {
   if (!authData.user) return { ok: false, error: "Session expirée" };
 
   const name = (input.name ?? "").trim() || nameFromUser(authData.user);
-  const { data: existing } = await sb.from("profiles").select("id").eq("id", authData.user.id).maybeSingle();
-  if (!existing) {
-    const { error } = await sb.from("profiles").insert({
-      id: authData.user.id,
-      email: authData.user.email ?? "",
-      name,
-      role: input.role,
-      premium: false,
+  return completeOnboarding({
+    role: input.role,
+    name,
+    details: {
       phone: input.phone ?? null,
       city: input.city ?? null,
       address: input.address ?? null,
-      responsible_name: input.responsible ?? null,
-    });
-    if (error) return { ok: false, error: error.message };
-  } else {
-    // Met à jour le profil existant (permet de changer de rôle client↔commerçant)
-    const { error } = await sb.rpc("update_profile", {
-      p_name: name ?? null,
-      p_phone: input.phone ?? null,
-      p_city: input.city ?? null,
-      p_address: input.address ?? null,
-      p_responsible: input.responsible ?? null,
-      p_image: null,
-    });
-    if (error) return { ok: false, error: error.message };
-  }
-  // Marque le setup comme fait en localStorage (pour ne plus poser de question sur ce device)
-  localStorage.setItem(`payzik.google.setupDone-${authData.user.id}`, "1");
-  const profile: Profile = {
-    id: authData.user.id,
-    email: authData.user.email ?? "",
-    name,
-    role: input.role,
-    premium: false,
-    phone: input.phone ?? null,
-    city: input.city ?? null,
-    address: input.address ?? null,
-    responsible: input.responsible ?? null,
-    needsRole: false,
-  };
-  localStorage.setItem(LS_USER, JSON.stringify(profile));
-  localStorage.setItem(LS_ROLE, profile.role);
-  return { ok: true, user: profile };
+      responsible: input.responsible ?? null,
+    },
+    shop: input.shop,
+  });
 }
 
-/** Efface les données locales isolées par utilisateur (kridi, ventes, cartes). */
+/** Efface les données locales isolées par utilisateur ( Usage explicite uniquement ). */
 export function clearLocalUserData(userId?: string): void {
   const prefix = userId ? `payzik.${userId}.` : "payzik.";
   for (const key of Object.keys(localStorage)) {
@@ -404,11 +461,12 @@ export function clearLocalUserData(userId?: string): void {
 
 export async function signOut(): Promise<void> {
   const sb = getClient();
-  if (sb) await sb.auth.signOut();
-  // On efface tout, y compris le carnet de crédit et les cartes locales.
-  clearLocalUserData();
-  localStorage.removeItem(LS_USER);
-  localStorage.removeItem(LS_ROLE);
+  if (sb) {
+    const { error } = await sb.auth.signOut();
+    if (error) throw new Error(error.message);
+  }
+  // Ne plus effacer les données métier locales à la déconnexion.
+  clearAuthCacheOnly();
 }
 
 export function getCurrentUser(): Profile | null {
@@ -422,6 +480,5 @@ export function getCurrentUser(): Profile | null {
 }
 
 export function getCurrentRole(): "merchant" | "customer" | null {
-  const u = getCurrentUser();
-  return u?.role ?? null;
+  return getCurrentUser()?.role ?? null;
 }

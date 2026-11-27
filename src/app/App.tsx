@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AuthView } from "../features/auth/AuthView";
 import { GoogleSetup } from "../features/auth/GoogleSetup";
 import { PayzikMobile } from "../features/mobile/PayzikMobile";
-import { getCurrentUser, restoreSession, subscribeAuth, signOut, type Profile } from "../services/auth";
+import { startAuthLifecycle, signOut, type Profile } from "../services/auth";
 import { useStore } from "../state/store";
 
 function AppShell({
@@ -27,25 +27,19 @@ function AppShell({
 }
 
 export default function App() {
-  const [user, setUser] = useState<Profile | null>(() => getCurrentUser());
+  const [user, setUser] = useState<Profile | null>(null);
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     let active = true;
-    (async () => {
-      const restored = await restoreSession();
+    const stop = startAuthLifecycle((next) => {
       if (!active) return;
-      if (restored) setUser(restored);
-      setAuthReady(true);
-    })();
-    const unsubscribe = subscribeAuth((u) => {
-      if (!active) return;
-      setUser(u);
+      setUser(next);
       setAuthReady(true);
     });
     return () => {
       active = false;
-      unsubscribe();
+      stop();
     };
   }, []);
 
