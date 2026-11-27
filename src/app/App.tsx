@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AuthView } from "../features/auth/AuthView";
+import { GoogleSetup } from "../features/auth/GoogleSetup";
 import { PayzikMobile } from "../features/mobile/PayzikMobile";
 import { getCurrentUser, restoreSession, subscribeAuth, signOut, type Profile } from "../services/auth";
 import { useStore } from "../state/store";
@@ -58,6 +59,10 @@ export default function App() {
 
   if (!user) {
     return <AuthView onAuth={(u) => setUser(u)} />;
+  }
+
+  if (user.needsRole) {
+    return <GoogleSetup user={user} onDone={setUser} />;
   }
 
   return (

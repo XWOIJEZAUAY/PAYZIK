@@ -166,6 +166,42 @@ export async function getCard(cardId: string): Promise<Result<PayzikCard>> {
   return { ok: true, data: data as PayzikCard };
 }
 
+/** Débit réel d'une carte générale par une boutique du réseau. */
+export async function payGeneralCard(
+  cardId: string,
+  shopId: string,
+  amount: number,
+  reference: string,
+  idempotencyKey: string,
+): Promise<Result<{ transaction_id: string | null; balance_dh: number; duplicate: boolean }>> {
+  const sb = await client();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data, error } = await sb.rpc("pay_general_card", {
+    p_card: cardId,
+    p_shop: shopId,
+    p_amount: amount,
+    p_reference: reference,
+    p_idempotency_key: idempotencyKey,
+  });
+  if (error) return { ok: false, error: error.message };
+  const r = data as {
+    ok?: boolean;
+    transaction_id?: string | null;
+    balance_dh?: number;
+    duplicate?: boolean;
+    error?: string;
+  };
+  if (!r?.ok) return { ok: false, error: r?.error ?? "Paiement impossible" };
+  return {
+    ok: true,
+    data: {
+      transaction_id: r.transaction_id ?? null,
+      balance_dh: r.balance_dh ?? 0,
+      duplicate: !!r.duplicate,
+    },
+  };
+}
+
 export async function listMyCards(): Promise<Result<PayzikCard[]>> {
   const sb = await client();
   if (!sb) return { ok: false, error: "Supabase non configuré" };

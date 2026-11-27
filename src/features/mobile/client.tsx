@@ -2,7 +2,6 @@
 import {
   ArrowRight,
   Bell,
-  BookOpen,
   Check,
   ChevronRight,
   CreditCard,
@@ -21,13 +20,13 @@ import {
 import { useEffect, useState } from "react";
 import { listShops, type PayzikCard } from "../../services/backend/payzikCards";
 import { requestCardPayment } from "../../services/backend/payzikOrders";
+import { useClientSpending, type SpendingSummary } from "../../services/backend/payzikSpending";
 import { listActiveOffers, type ShopOffer } from "../../services/backend/payzikOffers";
 import { listPartnerAds, type PartnerAd } from "../../services/backend/payzikPartnerAds";
 import type { Ad } from "../../types";
 import { fmtDh } from "../../lib/format";
 import type { Profile } from "../../services/auth";
 import type { Establishment } from "../../types";
-import { ClientKridi } from "./client-kridi";
 import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import { ClientCatalog } from "./ClientCatalog";
 import { ClientCardSheet } from "./ClientCardSheet";
@@ -47,14 +46,13 @@ import {
   TabBar,
 } from "./ui";
 
-export type ClientTab = "home" | "card" | "shops" | "catalog" | "kridi";
+export type ClientTab = "home" | "card" | "shops" | "catalog";
 
 export const CLIENT_TABS: { id: ClientTab; label: string; icon: typeof Wallet }[] = [
   { id: "home", label: "Accueil", icon: Wallet },
   { id: "card", label: "Carte", icon: CreditCard },
   { id: "shops", label: "Boutiques", icon: Store },
   { id: "catalog", label: "Message", icon: Package },
-  { id: "kridi", label: "Kridi", icon: BookOpen },
 ];
 
 type RealNetwork = {
@@ -133,6 +131,7 @@ export function ClientSpace({
   notify: (m: string) => void;
 }) {
   const { card, refresh: refreshCard } = useClientCard(user.id, user.name ?? "Client");
+  const { summary: spending } = useClientSpending();
   const [scan, setScan] = useState(false);
   const [payTarget, setPayTarget] = useState<Establishment | null>(null);
   const [qrOpen, setQrOpen] = useState(false);
@@ -146,7 +145,7 @@ export function ClientSpace({
     if (amount <= 0) return "Montant invalide.";
     if (amount > card.balance_dh)
       return `Solde insuffisant (${fmtDh(card.balance_dh)}). Recharge ta carte.`;
-    const res = await requestCardPayment(target.id, amount);
+    const res = await requestCardPayment(target.id, amount, card.id);
     if (!res.ok) return `Envoi impossible : ${res.error}`;
     notify(`${fmtDh(amount)} envoyés à ${target.name}. Paiement en cours.`);
     await refreshCard();
@@ -172,11 +171,12 @@ export function ClientSpace({
             card={card}
             onScan={() => setScan(true)}
             onRecharge={() => setTab("card")}
-            onKridi={() => setTab("kridi")}
+            onCard={() => setTab("card")}
             onShops={() => setTab("shops")}
             onCatalog={() => openCatalog("")}
             onQr={() => setQrOpen(true)}
             onPay={setPayTarget}
+            spending={spending}
             shops={network.shops}
             ads={network.ads}
             partnerAds={network.partnerAds}
@@ -191,6 +191,7 @@ export function ClientSpace({
             notify={notify}
             onRefresh={refreshCard}
             onQr={() => setQrOpen(true)}
+            spending={spending}
           />
         )}
         {tab === "shops" && (
@@ -205,12 +206,9 @@ export function ClientSpace({
         {tab === "catalog" && (
           <ClientCatalog user={user} notify={notify} initialShopId={catalogShopId} />
         )}
-        {tab === "kridi" && (
-          <ClientKridi user={user} onProfile={onProfile} notify={notify} />
-        )}
       </main>
 
-      <TabBar value={tab} onChange={setTab} items={CLIENT_TABS} columns={5} />
+      <TabBar value={tab} onChange={setTab} items={CLIENT_TABS} columns={4} />
 
       <ClientCardSheet
         open={qrOpen}
@@ -293,11 +291,12 @@ function ClientHome({
   card,
   onScan,
   onRecharge,
-  onKridi,
+  onCard,
   onShops,
   onCatalog,
   onQr,
   onPay,
+  spending,
   shops,
   ads,
   partnerAds,
@@ -307,11 +306,12 @@ function ClientHome({
   card: PayzikCard | null;
   onScan: () => void;
   onRecharge: () => void;
-  onKridi: () => void;
+  onCard: () => void;
   onShops: () => void;
   onCatalog: () => void;
   onQr: () => void;
   onPay: (e: Establishment) => void;
+  spending: SpendingSummary;
   shops: Establishment[];
   ads: Ad[];
   partnerAds: PartnerAd[];
@@ -344,6 +344,9 @@ function ClientHome({
             <button onClick={onQr} className="mt-1 font-mono text-[10px] text-[#FF5200]">
               {card?.code ?? "Carte PAYZIK"} · voir le QR
             </button>
+            <p className="mt-1 text-[10px] font-semibold text-[#64748B]">
+              Dépensé ce mois · {fmtDh(spending.spentMonth)}
+            </p>
           </div>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
             <Wallet size={16} />
@@ -360,7 +363,7 @@ function ClientHome({
       </Pane>
 
       <div className="grid grid-cols-3 gap-2">
-        <Quick icon={BookOpen} label="Carnet" onClick={onKridi} />
+        <Quick icon={Wallet} label="Portefeuille" onClick={onCard} />
         <Quick icon={Zap} label="Offres" onClick={onShops} />
         <Quick icon={Package} label="Commander" onClick={onCatalog} />
       </div>
@@ -466,12 +469,14 @@ function ClientCard({
   notify,
   onRefresh,
   onQr,
+  spending,
 }: {
   card: PayzikCard | null;
   name: string;
   notify: (m: string) => void;
   onRefresh: () => Promise<unknown> | void;
   onQr: () => void;
+  spending: SpendingSummary;
 }) {
   return (
     <div className="animate-fade-up space-y-2.5">
@@ -499,6 +504,42 @@ function ClientCard({
       >
         <QrCode size={14} /> Afficher mon QR
       </button>
+
+      <Pane className="p-3.5">
+        <h2 className="text-[12px] font-bold text-[#0F172A]">Portefeuille</h2>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-[#F8FAFC] p-2 text-center">
+            <p className="text-[9px] text-[#64748B]">Solde</p>
+            <p className="font-mono text-[12px] font-bold text-[#0F172A]">
+              {fmtDh(card?.balance_dh ?? 0)}
+            </p>
+          </div>
+          <div className="rounded-xl bg-[#FFF1EA] p-2 text-center">
+            <p className="text-[9px] text-[#9A3412]">Dépensé</p>
+            <p className="font-mono text-[12px] font-bold text-[#FF5200]">
+              {fmtDh(spending.spentMonth)}
+            </p>
+          </div>
+          <div className="rounded-xl bg-[#F8FAFC] p-2 text-center">
+            <p className="text-[9px] text-[#64748B]">Rechargé</p>
+            <p className="font-mono text-[12px] font-bold text-[#0F172A]">
+              {fmtDh(spending.toppedAll)}
+            </p>
+          </div>
+        </div>
+        {spending.recent.length > 0 && (
+          <div className="mt-2 space-y-1 border-t border-[#F1F5F9] pt-2">
+            {spending.recent.slice(0, 3).map((t) => (
+              <div key={t.id} className="flex items-center justify-between text-[10.5px]">
+                <span className="truncate text-[#64748B]">
+                  {t.description || "Paiement"} · {new Date(t.createdAt).toLocaleDateString("fr-MA")}
+                </span>
+                <span className="font-mono font-bold text-[#0F172A]">-{fmtDh(t.amount)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Pane>
 
       <CloudRechargePanel card={card} onNotice={notify} onRefresh={onRefresh} />
     </div>

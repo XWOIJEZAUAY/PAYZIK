@@ -38,11 +38,13 @@ export async function createPrepOrder(
 export async function requestCardPayment(
   shopId: string,
   amount: number,
+  cardId?: string,
 ): Promise<Result<{ order_id: string }>> {
+  // La carte est jointe à la demande : le commerçant ne peut débiter que ce solde.
   return createPrepOrder(
     shopId,
     [{ product_id: "amount", name: `Montant à régler ${fmtDh(amount)}`, qty: 1, priceDh: amount }],
-    `PAIEMENT-SOLDE:${amount}`,
+    `PAIEMENT-SOLDE:${amount}${cardId ? `:${cardId}` : ""}`,
   );
 }
 

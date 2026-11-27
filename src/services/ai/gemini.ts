@@ -5,9 +5,12 @@ import type { Product } from "../../types";
 import { getAiLang } from "../../lib/aiLang";
 
 const KEY = env.geminiKey;
-const PRIMARY_MODEL = "gemini-3.5-flash-lite";
-/** Alias stable utilisé en secours si le modèle principal est surchargé. */
-const FALLBACK_MODEL = "gemini-flash-lite-latest";
+/** Modèles confirmés disponibles avec une clé Google AI gratuite (testés). */
+const MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-flash-lite-latest",
+  "gemini-3-flash-preview",
+];
 const endpoint = (model: string) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
@@ -101,10 +104,9 @@ async function generateJSON(parts: Part[]): Promise<Record<string, unknown> | nu
     lastFailure = { kind: "no-key" };
     return null;
   }
-  // 3 tentatives (le 503 « model overloaded » est fréquent et transitoire),
-  // la dernière bascule sur l'alias stable du modèle.
-  const plan = [PRIMARY_MODEL, PRIMARY_MODEL, FALLBACK_MODEL];
-  const delays = [0, 800, 2_000];
+  // Le 503 « model overloaded » est fréquent : on enchaîne les modèles gratuits.
+  const plan = MODELS;
+  const delays = [0, 700, 1_400];
 
   for (let i = 0; i < plan.length; i++) {
     if (delays[i]) await sleep(delays[i]);
@@ -134,6 +136,52 @@ async function generateJSON(parts: Part[]): Promise<Record<string, unknown> | nu
   }
 
   console.warn("[Payzik IA] échec après tentatives :", lastFailure);
+  return null;
+}
+
+/** Réponse libre courte (utilisée pour rendre les messages plus naturels).
+ *  Pas de JSON : moins de risques de blocage et latence réduite. */
+export async function askGeminiShort(prompt: string): Promise<string | null> {
+  if (!aiAvailable()) {
+    lastFailure = { kind: "no-key" };
+    return null;
+  }
+  for (const model of MODELS) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12_000);
+    try {
+      const res = await fetch(`${endpoint(model)}?key=${KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 80 },
+        }),
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        lastFailure = {
+          kind: res.status === 429 ? "rate-limit" : res.status >= 500 ? "server" : "auth",
+          status: res.status,
+          detail: (await res.text().catch(() => "")).slice(0, 200),
+        };
+        continue;
+      }
+      const data = await res.json();
+      const parts = data?.candidates?.[0]?.content?.parts as { text?: string }[] | undefined;
+      const text = parts?.map((p) => p.text ?? "").join("").trim();
+      if (text) {
+        lastFailure = null;
+        return text;
+      }
+      lastFailure = { kind: "empty" };
+    } catch (e) {
+      const aborted = e instanceof DOMException && e.name === "AbortError";
+      lastFailure = { kind: aborted ? "timeout" : "network", detail: String(e) };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
   return null;
 }
 

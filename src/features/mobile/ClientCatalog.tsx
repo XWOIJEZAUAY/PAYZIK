@@ -26,6 +26,8 @@ import {
   type PrepOrder,
 } from "../../services/backend/payzikOrders";
 import { fmtDh } from "../../lib/format";
+import { shortReply } from "../../services/ai/shortReply";
+import { getClientSpending, type SpendingSummary } from "../../services/backend/payzikSpending";
 import type { Profile } from "../../services/auth";
 
 type Msg = {
@@ -74,6 +76,19 @@ function matchProduct(
   return null;
 }
 
+/** Retrouve un produit réel dans une question du type « qui vend du lait ? ». */
+function productFromText(text: string, products: CloudProduct[]): CloudProduct | null {
+  const needle = norm(text);
+  const sorted = [...products].sort((a, b) => norm(b.name).length - norm(a.name).length);
+  for (const p of sorted) {
+    const names = [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])];
+    if (names.some((n) => norm(String(n)).length >= 3 && needle.includes(norm(String(n))))) {
+      return p;
+    }
+  }
+  return null;
+}
+
 function parseRequest(
   text: string,
   products: CloudProduct[],
@@ -91,7 +106,7 @@ function parseRequest(
 
   const scope = shopId ? products.filter((p) => p.shop_id === shopId) : products;
   if (shopId && scope.length === 0) {
-    return { error: "Aucun produit réel n’est enregistré dans cette boutique pour le moment." };
+    return { error: "Pas encore de produits dans cette boutique." };
   }
 
   const chunks = text
@@ -113,10 +128,7 @@ function parseRequest(
   }
   const items = [...merged.values()];
   if (!items.length) {
-    return {
-      error:
-        "Je n’ai trouvé aucun de ces produits dans le catalogue réel. Clique sur un produit ci-dessus pour l’ajouter à ta demande.",
-    };
+    return { error: "Produit introuvé dans le catalogue." };
   }
 
   if (!shopId) {
@@ -124,7 +136,7 @@ function parseRequest(
       items.map((i) => products.find((p) => p.id === i.product_id)?.shop_id).filter(Boolean),
     );
     if (ids.size !== 1) {
-      return { error: "Choisis la boutique dans la liste avant d’envoyer la commande." };
+      return { error: "Choisis la boutique." };
     }
     shopId = [...ids][0] as string;
   }
@@ -145,16 +157,13 @@ export function ClientCatalog({
   const [shopId, setShopId] = useState(initialShopId);
   const [products, setProducts] = useState<CloudProduct[]>([]);
   const [orders, setOrders] = useState<PrepOrder[]>([]);
+  const [spending, setSpending] = useState<SpendingSummary | null>(null);
   const [q, setQ] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [msgs, setMsgs] = useState<Msg[]>([
-    {
-      id: "welcome",
-      role: "ai",
-      text: "Écris ta commande. Ex : 2 lait et 1 pain.",
-    },
+    { id: "welcome", role: "ai", text: "Dis-moi ce qu'il te faut." },
   ]);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -166,10 +175,11 @@ export function ClientCatalog({
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [s, p, o] = await Promise.all([
+      const [s, p, o, sp] = await Promise.all([
         listShops(),
         listPublicProducts(),
         listClientOrders(),
+        getClientSpending(),
       ]);
       if (!alive) return;
       if (s.ok) {
@@ -178,6 +188,7 @@ export function ClientCatalog({
       }
       if (p.ok) setProducts(p.data);
       if (o.ok) setOrders(o.data);
+      if (sp.ok) setSpending(sp.data);
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -204,8 +215,8 @@ export function ClientCatalog({
           void refreshOrders();
           if (payload.eventType === "UPDATE") {
             const status = (payload.new as { status?: string })?.status;
-            if (status === "confirmed") notify("Le commerçant a confirmé ta préparation.");
-            if (status === "ready") notify("Ta commande est prête !");
+            if (status === "confirmed") notify("En préparation.");
+            if (status === "ready") notify("Prêt.");
           }
         },
       )
@@ -239,6 +250,34 @@ export function ClientCatalog({
     setBusy(true);
     setMsgs((m) => [...m, { id: `${Date.now()}-u`, role: "user", text: value }]);
 
+    const lower = norm(value);
+
+    // Dépenses / portefeuille : on répond uniquement avec le ledger réel.
+    if (/(depense|depenses|portefeuille|budget|analyse)/.test(lower)) {
+      const amount = spending?.spentMonth ?? 0;
+      const local = `Tu as dépensé ${fmtDh(amount)} ce mois.`;
+      const reply = await shortReply(local, `Dépenses du mois : ${amount} DH.`);
+      setMsgs((m) => [...m, { id: `${Date.now()}-a`, role: "ai", text: reply }]);
+      setBusy(false);
+      return;
+    }
+
+    // Recherche d'une boutique qui vend un produit réellement enregistré.
+    if (/(qui vend|ou vend|cherche|trouve|vend|disponible)/.test(lower) && !/^\s*\d/.test(value)) {
+      let local = "Je ne vois pas ce produit.";
+      const hit = productFromText(value, products);
+      if (hit) {
+        const names = shops.filter((s) => s.id === hit.shop_id).map((s) => s.shop_name);
+        local = names.length
+          ? `${hit.name} : ${names.join(", ")}.`
+          : `${hit.name} : aucune boutique réelle référencée.`;
+      }
+      const reply = await shortReply(local, `Question : ${value}`);
+      setMsgs((m) => [...m, { id: `${Date.now()}-a`, role: "ai", text: reply }]);
+      setBusy(false);
+      return;
+    }
+
     const parsed = parseRequest(value, products, shops, shopId);
     if ("error" in parsed) {
       setMsgs((m) => [
@@ -253,23 +292,25 @@ export function ClientCatalog({
     if (!res.ok) {
       setMsgs((m) => [
         ...m,
-        { id: `${Date.now()}-a`, role: "ai", text: `Envoi impossible : ${res.error}`, kind: "error" },
+        { id: `${Date.now()}-a`, role: "ai", text: "Envoi impossible.", kind: "error" },
       ]);
       setBusy(false);
       return;
     }
 
     const recap = parsed.items.map((i) => `${i.qty} × ${i.name}`).join(" · ");
+    const local = `Envoyé à ${shopName(parsed.shopId)} · ${recap}.`;
+    const reply = await shortReply(local, `Commande envoyée : ${recap}`);
     setMsgs((m) => [
       ...m,
       {
         id: `${Date.now()}-a`,
         role: "ai",
-        text: `Envoyé à ${shopName(parsed.shopId)} · ${recap}. Statut en direct.`,
+        text: reply,
         kind: "success",
       },
     ]);
-    notify(`Commande envoyée à ${shopName(parsed.shopId)}.`);
+    notify("Commande envoyée.");
     await refreshOrders();
     setBusy(false);
   };
@@ -281,7 +322,7 @@ export function ClientCatalog({
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
             <Store size={16} />
           </span>
-          <h2 className="text-[13px] font-bold text-[#0F172A]">Catalogue réel</h2>
+          <h2 className="text-[13px] font-bold text-[#0F172A]">Boutiques</h2>
         </div>
         <select
           value={shopId}
@@ -304,10 +345,10 @@ export function ClientCatalog({
         </div>
 
         {loading ? (
-          <p className="mt-3 text-[11px] text-slate-400">Chargement du catalogue…</p>
+          <p className="mt-3 text-[11px] text-slate-400">Un instant…</p>
         ) : visible.length === 0 ? (
           <div className="mt-3 rounded-xl bg-[#FFF1EA] p-3 text-[11px] text-[#9A3412]">
-            Aucun produit réel dans cette boutique pour l’instant.
+            Aucun produit pour l’instant.
           </div>
         ) : (
           <div className="mt-2.5 max-h-40 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
@@ -345,7 +386,7 @@ export function ClientCatalog({
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF5200] text-white">
             <Bot size={14} />
           </span>
-          <p className="text-[12px] font-bold text-[#0F172A]">Assistant PAYZIK</p>
+          <p className="text-[12px] font-bold text-[#0F172A]">Message</p>
           <Sparkles size={13} className="ml-auto text-[#FF7A1A]" />
         </div>
         <div className="max-h-56 space-y-2 overflow-y-auto scrollbar-thin p-2.5">
@@ -370,7 +411,7 @@ export function ClientCatalog({
             </div>
           ))}
           {busy && (
-            <p className="text-[10.5px] font-semibold text-[#FF5200]">L’assistant prépare ta commande…</p>
+            <p className="text-[10.5px] font-semibold text-[#FF5200]">…</p>
           )}
           <div ref={endRef} />
         </div>
@@ -379,7 +420,7 @@ export function ClientCatalog({
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void send(); }}
-            placeholder="2 lait et 1 pain, j’arrive…"
+            placeholder="2 lait et 1 pain…"
             className="h-9 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 text-[11px] outline-none focus:border-[#FF5200]"
           />
           <button

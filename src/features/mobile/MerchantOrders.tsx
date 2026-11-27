@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, ClipboardList, Clock3, PackageCheck, X } from "lucide-react";
 import { getSupabaseClient } from "../../services/auth";
 import { fmtDh } from "../../lib/format";
-import { listMyShops } from "../../services/backend/payzikCards";
+import { listMyShops, payGeneralCard } from "../../services/backend/payzikCards";
 import {
   listShopOrders,
   setOrderStatus,
@@ -16,6 +16,15 @@ const LABEL: Record<PrepOrder["status"], { text: string; cls: string }> = {
   ready: { text: "Prête", cls: "bg-emerald-50 text-emerald-700" },
   cancelled: { text: "Annulée", cls: "bg-rose-50 text-rose-600" },
 };
+
+/** Demande de paiement par solde : montant + carte jointe par le client. */
+function cardPayment(note: string | null): { amount: number; cardId: string } | null {
+  const m = /^PAIEMENT-SOLDE:([0-9]+(?:[.,][0-9]{1,2})?)(?::([0-9a-fA-F-]{36}))?/.exec(note ?? "");
+  if (!m) return null;
+  const amount = Number(m[1].replace(",", "."));
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return { amount, cardId: m[2] ?? "" };
+}
 
 export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
   const [shopIds, setShopIds] = useState<string[]>([]);
@@ -61,9 +70,9 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
           const row = payload.new as { shop_id?: string; status?: string };
           if (row?.shop_id && shopIds.includes(row.shop_id)) {
             if (payload.eventType === "INSERT") {
-              notifyRef.current("Nouvelle commande de préparation reçue !");
+              notifyRef.current("Nouvelle commande.");
             } else if (payload.eventType === "UPDATE" && row.status === "ready") {
-              notifyRef.current("Commande marquée prête.");
+              notifyRef.current("Prête.");
             }
           }
           void refresh();
@@ -74,17 +83,49 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shopIds.join(",")]);
 
-  const act = async (id: string, status: "confirmed" | "ready" | "cancelled") => {
-    setBusyId(id);
-    const res = await setOrderStatus(id, status);
+  const act = async (
+    order: PrepOrder,
+    status: "confirmed" | "ready" | "cancelled",
+  ) => {
+    setBusyId(order.id);
+    let paid = false;
+
+    // Confirmer une demande « PAIEMENT-SOLDE » débite réellement la carte.
+    const payment = status === "confirmed" ? cardPayment(order.note) : null;
+    if (payment) {
+      if (!payment.cardId) {
+        setBusyId(null);
+        notify("Carte absente de la demande.");
+        return;
+      }
+      const pay = await payGeneralCard(
+        payment.cardId,
+        order.shop_id,
+        payment.amount,
+        `Commande ${order.id}`,
+        `prep-order-${order.id}`,
+      );
+      if (!pay.ok) {
+        setBusyId(null);
+        notify("Paiement impossible.");
+        return;
+      }
+      paid = true;
+    }
+
+    const res = await setOrderStatus(order.id, status);
     setBusyId(null);
-    if (!res.ok) { notify(`Action impossible : ${res.error}`); return; }
+    if (!res.ok) {
+      notify(paid ? "Paiement fait. Statut à vérifier." : "Action impossible.");
+      await refresh();
+      return;
+    }
     notify(
       status === "confirmed"
-        ? "Préparation confirmée — le client est prévenu."
+        ? "En préparation."
         : status === "ready"
-          ? "Commande prête — le client est prévenu."
-          : "Commande annulée.",
+          ? "Prête."
+          : "Annulée.",
     );
     await refresh();
   };
@@ -97,26 +138,24 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
         </span>
         <div>
           <h2 className="text-[14px] font-bold text-[#0F172A]">Commandes à préparer</h2>
-          <p className="text-[11px] text-[#64748B]">Envoyées par les clients via l’assistant IA.</p>
+          <p className="text-[11px] text-[#64748B]">Du côté client.</p>
         </div>
       </div>
 
       {loading ? (
-        <p className="text-[11px] text-slate-400">Chargement des commandes…</p>
+        <p className="text-[11px] text-slate-400">Un instant…</p>
       ) : orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#E2E8F0] bg-white p-6 text-center">
           <Clock3 size={22} className="mx-auto text-[#FF7A1A]" />
           <p className="mt-2 text-[12px] font-semibold text-[#0F172A]">Aucune commande pour l’instant</p>
-          <p className="mt-1 text-[11px] text-[#64748B]">
-            Les nouvelles demandes apparaîtront ici automatiquement.
-          </p>
         </div>
       ) : (
         <div className="space-y-2">
           {orders.map((o) => {
             const st = LABEL[o.status];
-            const isCardPayment = o.note?.startsWith("PAIEMENT-SOLDE:") ?? false;
-            const cardAmount = isCardPayment ? Number(o.note?.split(":")[1]) : NaN;
+            const payment = cardPayment(o.note);
+            const isCardPayment = !!payment;
+            const cardAmount = payment?.amount ?? NaN;
             return (
               <div key={o.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
@@ -156,14 +195,14 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
                   <div className="mt-2 flex gap-1.5">
                     <button
                       disabled={busyId === o.id}
-                      onClick={() => void act(o.id, "confirmed")}
+                      onClick={() => void act(o, "confirmed")}
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[#FF5200] py-2 text-[11px] font-bold text-white disabled:opacity-40"
                     >
                       <Check size={13} /> Confirmer
                     </button>
                     <button
                       disabled={busyId === o.id}
-                      onClick={() => void act(o.id, "cancelled")}
+                      onClick={() => void act(o, "cancelled")}
                       className="flex items-center justify-center gap-1 rounded-lg border border-[#E2E8F0] px-3 py-2 text-[11px] font-bold text-[#64748B] disabled:opacity-40"
                     >
                       <X size={13} /> Refuser
@@ -173,7 +212,7 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
                 {o.status === "confirmed" && (
                   <button
                     disabled={busyId === o.id}
-                    onClick={() => void act(o.id, "ready")}
+                    onClick={() => void act(o, "ready")}
                     className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-600 py-2 text-[11px] font-bold text-white disabled:opacity-40"
                   >
                     <PackageCheck size={13} /> Marquer prêt

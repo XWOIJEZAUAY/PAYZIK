@@ -34,6 +34,8 @@ export type Profile = {
   name: string;
   role: "merchant" | "customer";
   premium: boolean;
+  /** Compte Google sans profil : le type et les infos doivent encore être choisis. */
+  needsRole?: boolean;
   phone?: string | null;
   city?: string | null;
   address?: string | null;
@@ -103,13 +105,14 @@ export async function signIn(email: string, password: string): Promise<{ ok: boo
   }
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error || !data.user) return { ok: false, error: error?.message ?? "connexion échouée" };
-  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).single();
+  const { data: prof } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
   const u: Profile = {
     id: data.user.id,
     email: data.user.email ?? email,
     name: prof?.name ?? email.split("@")[0],
     role: (prof?.role as "merchant" | "customer") ?? "customer",
     premium: !!prof?.premium,
+    needsRole: !prof,
   };
   localStorage.setItem(LS_USER, JSON.stringify(u));
   localStorage.setItem(LS_ROLE, u.role);
@@ -162,18 +165,16 @@ export async function restoreSession(): Promise<Profile | null> {
       image: prof.image ?? null,
     };
   } else {
-    const name = nameFromUser(u);
-    profile = { id: u.id, email: u.email ?? "", name, role: "customer", premium: false };
-    const { error: iErr } = await sb.from("profiles").insert({
+    // Connexion Google sans profil : on n'invente ni le rôle ni les infos.
+    // L'utilisateur doit choisir Client ou Commerçant et compléter son dossier.
+    profile = {
       id: u.id,
       email: u.email ?? "",
-      name,
+      name: nameFromUser(u),
       role: "customer",
       premium: false,
-    });
-    if (iErr && iErr.code !== "23505") {
-      console.warn("profile insert:", iErr.message);
-    }
+      needsRole: true,
+    };
   }
   localStorage.setItem(LS_USER, JSON.stringify(profile));
   localStorage.setItem(LS_ROLE, profile.role);
@@ -321,9 +322,66 @@ export async function updateProfile(
   return profile ? { ok: true, profile } : { ok: false, error: "Profil introuvable" };
 }
 
+/** Finalise un compte Google : crée le profil avec le rôle et les infos choisis. */
+export async function completeGoogleSignup(input: {
+  role: "merchant" | "customer";
+  name?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  address?: string | null;
+  responsible?: string | null;
+}): Promise<{ ok: boolean; error?: string; user?: Profile }> {
+  const sb = getClient();
+  if (!sb) return { ok: false, error: "Supabase non configuré" };
+  const { data: authData } = await sb.auth.getUser();
+  if (!authData.user) return { ok: false, error: "Session expirée" };
+
+  const name = (input.name ?? "").trim() || nameFromUser(authData.user);
+  const { data: existing } = await sb.from("profiles").select("id").eq("id", authData.user.id).maybeSingle();
+  if (!existing) {
+    const { error } = await sb.from("profiles").insert({
+      id: authData.user.id,
+      email: authData.user.email ?? "",
+      name,
+      role: input.role,
+      premium: false,
+      phone: input.phone ?? null,
+      city: input.city ?? null,
+      address: input.address ?? null,
+      responsible_name: input.responsible ?? null,
+    });
+    if (error) return { ok: false, error: error.message };
+  }
+  const profile: Profile = {
+    id: authData.user.id,
+    email: authData.user.email ?? "",
+    name,
+    role: input.role,
+    premium: false,
+    phone: input.phone ?? null,
+    city: input.city ?? null,
+    address: input.address ?? null,
+    responsible: input.responsible ?? null,
+    needsRole: false,
+  };
+  localStorage.setItem(LS_USER, JSON.stringify(profile));
+  localStorage.setItem(LS_ROLE, profile.role);
+  return { ok: true, user: profile };
+}
+
+/** Efface les données locales isolées par utilisateur (kridi, ventes, cartes). */
+export function clearLocalUserData(userId?: string): void {
+  const prefix = userId ? `payzik.${userId}.` : "payzik.";
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith(prefix)) localStorage.removeItem(key);
+  }
+}
+
 export async function signOut(): Promise<void> {
   const sb = getClient();
   if (sb) await sb.auth.signOut();
+  // On efface tout, y compris le carnet de crédit et les cartes locales.
+  clearLocalUserData();
   localStorage.removeItem(LS_USER);
   localStorage.removeItem(LS_ROLE);
 }

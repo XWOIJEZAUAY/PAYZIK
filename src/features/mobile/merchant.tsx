@@ -50,6 +50,7 @@ import {
 } from "../../services/ai/live";
 import { createLiveToolHandlers } from "../../services/ai/liveTools";
 import { runAgentText } from "../../services/ai/agent";
+import { shortReply } from "../../services/ai/shortReply";
 import { parseUtterance } from "../voice/VoiceInput";
 import type { Store as StoreType } from "../../state/store";
 import type { CardTx, Category, Client, Product, WalletCard } from "../../types";
@@ -124,45 +125,11 @@ type VoiceMsg = {
 const asksTotal = (text: string) =>
   /majmou3|majmo3|lkhlas|khelles|total|ch7al\s+l/i.test(text);
 
-/** Carte produit animée : apparition élastique + image qui se révèle + badge qté. */
-function VoiceProductCard({ chip, index }: { chip: VoiceChip; index: number }) {
-  const delay = `${Math.min(index, 14) * 85}ms`;
-  return (
-    <div
-      className="animate-popIn relative flex items-center gap-2.5 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-2 shadow-sm"
-      style={{ animationDelay: delay, animationFillMode: "both" }}
-    >
-      <span className="absolute inset-y-0 left-0 w-0.5 bg-[#FF5200]" />
-      <span className="animate-scale-in flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#F1F5F9] text-xl">
-        {chip.image ? (
-          <img
-            src={chip.image}
-            alt={chip.name}
-            className="animate-scale-in h-full w-full object-cover"
-            style={{ animationDelay: `calc(${delay} + 120ms)`, animationFillMode: "both" }}
-          />
-        ) : (
-          chip.emoji
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-bold text-[#0F172A]">{chip.name}</p>
-        <p className="font-mono text-[10px] text-[#64748B]">
-          {fmtDh(chip.priceDh)} × {chip.qty}
-        </p>
-      </div>
-      <span
-        className="animate-popIn flex h-6 min-w-6 items-center justify-center rounded-full bg-[#FFF1EA] px-1.5 font-mono text-[11px] font-bold text-[#FF5200]"
-        style={{ animationDelay: `calc(${delay} + 160ms)`, animationFillMode: "both" }}
-      >
-        ×{chip.qty}
-      </span>
-      <span className="font-mono text-[12px] font-bold text-[#0F172A]">
-        {fmtDh(chip.priceDh * chip.qty)}
-      </span>
-    </div>
-  );
-}
+/** Garde une seule phrase courte, sans jamais couper un montant utile. */
+const brief = (s: string) => {
+  const first = s.split(/(?<=[.!?])\s/)[0]?.trim() ?? s;
+  return first.length > 120 ? `${first.slice(0, 117)}…` : first;
+};
 
 export function MerchantSpace({
   store,
@@ -279,7 +246,6 @@ function Caisse({
     cardId?: string;
   } | null>(null);
   const [cardScanOpen, setCardScanOpen] = useState(false);
-  const [editingLine, setEditingLine] = useState<string | null>(null);
   const [lastSale, setLastSale] = useState<{ id: string; label: string } | null>(null);
   const [celebrate, setCelebrate] = useState(false);
 
@@ -354,7 +320,7 @@ function Caisse({
       say({
         role: "ai",
         kind: "error",
-        text: "L'appel IA est momentanément indisponible — utilise la saisie texte.",
+        text: "Indisponible. Écris ta commande.",
       });
       return;
     }
@@ -389,7 +355,7 @@ function Caisse({
           })
           .filter(Boolean) as VoiceChip[];
         if (chips.length || outcome.message)
-          say({ role: "ai", text: outcome.message ?? "", products: chips.length ? chips : undefined });
+          say({ role: "ai", text: brief(outcome.message ?? ""), products: chips.length ? chips : undefined });
         if (call.name === "getCart" && outcome.products?.length) {
           setReceiptItems(outcome.products.map((p) => ({ productId: p.productId, qty: p.qty })));
           setReceiptOpen(true);
@@ -401,7 +367,7 @@ function Caisse({
         say({
           role: "ai",
           kind: "error",
-          text: "L'appel a été interrompu — réessaie ou écris ta commande.",
+          text: "Appel coupé. Réessaie.",
         });
       },
       onClose: () => setLive((s) => (s === "error" ? s : "idle")),
@@ -424,9 +390,7 @@ function Caisse({
       say({
         role: "ai",
         kind: "error",
-        text: cardId
-          ? "Cette carte n'est pas valide ou son solde est insuffisant — vérifie la carte."
-          : "Panier vide, rien à encaisser.",
+        text: cardId ? "Carte invalide." : "Panier vide.",
       });
       notify(cardId ? "Carte non valide ou solde insuffisant" : "Panier vide");
       return;
@@ -435,11 +399,10 @@ function Caisse({
     setCelebrate(true);
     window.setTimeout(() => setCelebrate(false), 1500);
     setTicketOpen(false);
-    const label = cardId ? "carte PAYZIK" : method === "kridi" ? "kridi" : "espèces";
     say({
       role: "ai",
       kind: "success",
-      text: `C'est encaissé : ${fmtDh(sale.totalDh)} · ticket #${sale.ticketNo} (${label}).`,
+      text: `Encaissé · ${fmtDh(sale.totalDh)} · ticket #${sale.ticketNo}.`,
     });
     notify(`Ticket #${sale.ticketNo} · ${fmtDh(sale.totalDh)} encaissé`);
   };
@@ -447,8 +410,8 @@ function Caisse({
   const undoLast = () => {
     if (!lastSale) return;
     if (store.voidSale(lastSale.id)) {
-      say({ role: "ai", text: "Vente annulée — stock et carnet remis comme avant." });
-      notify(`Vente ${lastSale.label} annulée — données restaurées`);
+      say({ role: "ai", text: "Vente annulée." });
+      notify("Vente annulée.");
     }
     setLastSale(null);
   };
@@ -473,10 +436,11 @@ function Caisse({
         const outcome = runAgentText(text, () => storeRef.current);
         if (outcome) {
           const needsInput = Object.keys(outcome.data).some((k) => k.startsWith("need"));
+          const reply = await shortReply(brief(outcome.message ?? "C'est noté."), `Caisse : ${text}`);
           say({
             role: "ai",
             kind: outcome.data.ok === false && !needsInput ? "error" : "info",
-            text: outcome.message ?? "C'est noté.",
+            text: reply,
           });
           return;
         }
@@ -504,28 +468,24 @@ function Caisse({
         );
         setReceiptOpen(true);
         const count = storeRef.current.cart.length;
-        const added = items.length
-          ? ` Zid ${items.map((i) => `${i.qty} × ${i.product.name}`).join(", ")}.`
-          : "";
+        const total = storeRef.current.cartTotal;
+        const local = count ? `Total : ${fmtDh(total)}.` : "Ticket vide.";
+        const reply = await shortReply(local, `Panier : ${count} article(s), ${total} DH`);
         say({
           role: "ai",
           kind: "info",
-          text: count
-            ? `Lhsab: ${fmtDh(storeRef.current.cartTotal)} derhem · ${count} article${count > 1 ? "s" : ""}.${added}`
-            : `T-ticket khawi — 0 DH.${added}`,
+          text: reply,
           products: chips.length ? chips : undefined,
         });
       } else {
-        const base =
-          result?.reply ||
-          (items.length
-            ? `C'est ajouté : ${items.map((i) => `${i.qty} × ${i.product.name}`).join(", ")}.`
-            : "Achno 3ndk tma ? (ex. jouj Sidi Ali, wa7ed atay)");
-        const itemsTotal = items.reduce((s, i) => s + i.product.priceDh * i.qty, 0);
+        const local = items.length
+          ? `Ajouté : ${items.map((i) => `${i.qty} × ${i.product.name}`).join(", ")}.`
+          : "Produit introuvé.";
+        const reply = await shortReply(local, `Commande : ${text}`);
         say({
           role: "ai",
           kind: items.length ? "info" : "error",
-          text: items.length ? `${base} Ça fait ${fmtDh(itemsTotal)}.` : base,
+          text: reply,
           products: chips.length ? chips : undefined,
         });
       }
@@ -533,7 +493,7 @@ function Caisse({
       say({
         role: "ai",
         kind: "error",
-        text: "L'assistant PAYZIK est momentanément indisponible — écris ta commande (ex. « jouj Sidi Ali ») ou réessaie.",
+        text: "Réessaie.",
       });
     } finally {
       setPhase("idle");
@@ -542,7 +502,7 @@ function Caisse({
 
   const clearAll = () => {
     store.clearCart();
-    say({ role: "ai", text: "Commande vidée. Je t'écoute à nouveau." });
+    say({ role: "ai", text: "Panier vidé." });
     setCancelOpen(false);
   };
 
@@ -555,19 +515,11 @@ function Caisse({
 
         {msgs.length === 0 && phase === "idle" && (
           <div className="animate-fade-up flex min-h-[32%] flex-col items-center justify-center py-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF1EA] text-[#FF5200]">
-              <Zap size={34} fill="currentColor" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF1EA] text-[#FF5200]">
+              <Zap size={30} fill="currentColor" />
             </div>
-            <p className="mt-5 max-w-[280px] text-[19px] font-bold leading-tight text-[#0F172A]">
-              Salam ! Ta caisse est prête.
-            </p>
-            <p className="mt-2 max-w-[300px] text-[11.5px] leading-relaxed text-[#64748B]">
-              Produits, stock, cartes, kridi, ventes : écris ou dicte en darija,
-              PAYZIK lit et modifie tes données.
-            </p>
-            <span className="mt-5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1 text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#FF5200]">
-              Texte · IA · PAYZIK
-            </span>
+            <p className="mt-4 text-[16px] font-bold text-[#0F172A]">Message</p>
+            <p className="mt-1 text-[11.5px] text-[#64748B]">Écris ta commande.</p>
           </div>
         )}
 
@@ -599,22 +551,9 @@ function Caisse({
                   </div>
                 )}
                 {m.products && m.products.length > 0 && (
-                  <div className="space-y-1.5">
-                    {m.products.map((chip, i) => {
-                      const product = store.products.find((p) => p.name === chip.name);
-                      return product ? (
-                        <ChatProductCard
-                          key={`${m.id}-${product.id}`}
-                          product={product}
-                          store={store}
-                          index={i}
-                          onEdit={() => setEditingLine(product.id)}
-                        />
-                      ) : (
-                        <VoiceProductCard key={`${m.id}-${i}`} chip={chip} index={i} />
-                      );
-                    })}
-                  </div>
+                  <p className="px-1 text-[10.5px] text-[#64748B]">
+                    {m.products.map((c) => `${c.qty}× ${c.name}`).join(" · ")}
+                  </p>
                 )}
               </div>
             </div>
@@ -624,7 +563,7 @@ function Caisse({
         {phase === "thinking" && (
           <div className="flex items-center gap-2 text-[11.5px] font-medium text-[#64748B]">
             <Loader2 size={16} className="animate-spin text-[#FF5200]" />
-            L'IA prépare ta commande…
+            …
           </div>
         )}
       </div>
@@ -677,7 +616,7 @@ function Caisse({
         {lastSale && (
           <div className="animate-fade-up mt-2 flex items-center justify-between rounded-lg bg-[#F8FAFC] px-2.5 py-1.5">
             <span className="truncate text-[10.5px] text-[#64748B]">
-              Dernière vente : {lastSale.label}
+              Dernière : {lastSale.label}
             </span>
             <button
               onClick={undoLast}
@@ -729,7 +668,7 @@ function Caisse({
               ref={inputRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Écris ta commande…"
+              placeholder="2 lait, 1 pain…"
               className="h-11 min-w-0 flex-1 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
             />
             <button
@@ -792,10 +731,7 @@ function Caisse({
       />
 
       <Sheet open={cancelOpen} onClose={() => setCancelOpen(false)} title="Annuler la commande ?">
-        <p className="text-[12px] leading-relaxed text-[#64748B]">
-          Les {store.cart.length} article(s) du ticket en cours seront supprimés. Aucune vente ne
-          sera enregistrée.
-        </p>
+        <p className="text-[12px] text-[#64748B]">Vider le panier ?</p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Btn variant="soft" onClick={() => setCancelOpen(false)}>
             Garder le ticket
@@ -839,9 +775,6 @@ function Caisse({
             )}
           </p>
         )}
-        <p className="mt-2 text-[10.5px] text-[#64748B]">
-          Tu pourras modifier la vente ou l'annuler juste après confirmation.
-        </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Btn variant="soft" onClick={() => setConfirmOpen(false)}>
             <Pencil size={14} /> Modifier
@@ -923,167 +856,7 @@ function Caisse({
         </div>
       )}
 
-      <LineEditorSheet
-        line={store.cart.find((l) => l.productId === editingLine) ?? null}
-        store={store}
-        onClose={() => setEditingLine(null)}
-      />
     </div>
-  );
-}
-
-/** Carte produit dans la discussion : image animée + quantité modifiable en direct. */
-function ChatProductCard({
-  product,
-  store,
-  index,
-  onEdit,
-}: {
-  product: Product;
-  store: StoreType;
-  index: number;
-  onEdit: () => void;
-}) {
-  const line = store.cart.find((l) => l.productId === product.id);
-  const qty = line?.qty ?? 0;
-  const delay = `${Math.min(index, 14) * 85}ms`;
-  return (
-    <div
-      className="animate-popIn relative flex items-center gap-2.5 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-2 shadow-sm"
-      style={{ animationDelay: delay, animationFillMode: "both" }}
-    >
-      <span className="absolute inset-y-0 left-0 w-0.5 bg-[#FF5200]" />
-      <span className="animate-scale-in flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#F1F5F9] text-xl">
-        <img
-          src={productArt(product)}
-          alt={product.name}
-          className="animate-scale-in h-full w-full object-cover"
-          style={{ animationDelay: `calc(${delay} + 120ms)`, animationFillMode: "both" }}
-        />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-bold text-[#0F172A]">{product.name}</p>
-        <p className="font-mono text-[10px] text-[#64748B]">
-          {fmtDh(product.priceDh)} / u · {qty} dans le ticket
-        </p>
-      </div>
-      {qty > 0 ? (
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            onClick={() => store.setQty(product.id, qty - 1)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#0F172A] active:scale-90"
-            aria-label="Retirer une unité"
-          >
-            <Minus size={12} />
-          </button>
-          <span className="animate-popIn w-4 text-center font-mono text-[11px] font-bold text-[#FF5200]">
-            {qty}
-          </span>
-          <button
-            onClick={() => store.setQty(product.id, qty + 1)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#0F172A] active:scale-90"
-            aria-label="Ajouter une unité"
-          >
-            <Plus size={12} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => store.addToCart(product.id)}
-          className="shrink-0 rounded-lg border border-[#FF5200]/30 px-2 py-1.5 text-[10px] font-bold text-[#FF5200]"
-        >
-          Ajouter
-        </button>
-      )}
-      <button
-        onClick={onEdit}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] active:scale-90"
-        aria-label="Modifier l'article"
-        title="Modifier l'article"
-      >
-        <Pencil size={12} />
-      </button>
-    </div>
-  );
-}
-
-/** Modification d'une ligne déjà dans le ticket (quantité + prix). */
-function LineEditorSheet({
-  line,
-  store,
-  onClose,
-}: {
-  line: { productId: string; qty: number } | null;
-  store: StoreType;
-  onClose: () => void;
-}) {
-  const [qty, setQty] = useState("");
-  const [price, setPrice] = useState("");
-  const product = line ? store.productById(line.productId) : null;
-
-  useEffect(() => {
-    if (!line || !product) return;
-    setQty(String(line.qty));
-    setPrice(String(product.priceDh));
-  }, [line, product]);
-
-  if (!line || !product) return null;
-
-  return (
-    <Sheet open onClose={onClose} title="Modifier l'article">
-      <div className="flex items-center gap-2 rounded-xl bg-[#F8FAFC] p-2.5">
-        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-white text-lg">
-          {product.image ? (
-            <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-          ) : (
-            product.emoji
-          )}
-        </span>
-        <p className="truncate text-[12px] font-bold text-[#0F172A]">{product.name}</p>
-      </div>
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold text-[#64748B]">Quantité</span>
-          <input
-            inputMode="numeric"
-            value={qty}
-            onChange={(e) => setQty(e.target.value.replace(/\D/g, ""))}
-            className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold text-[#64748B]">Prix unitaire (DH)</span>
-          <input
-            inputMode="decimal"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
-          />
-        </label>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <Btn
-          variant="danger"
-          onClick={() => {
-            store.setQty(line.productId, 0);
-            onClose();
-          }}
-        >
-          <Trash2 size={14} /> Retirer
-        </Btn>
-        <Btn
-          onClick={() => {
-            const nextQty = Number(qty) || 1;
-            const nextPrice = Number(price) || 0;
-            store.updateProduct(line.productId, { priceDh: nextPrice });
-            store.setQty(line.productId, nextQty);
-            onClose();
-          }}
-        >
-          <Save size={14} /> Appliquer
-        </Btn>
-      </div>
-    </Sheet>
   );
 }
 
