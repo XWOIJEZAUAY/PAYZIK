@@ -12,7 +12,7 @@ import {
 
 const LABEL: Record<PrepOrder["status"], { text: string; cls: string }> = {
   pending: { text: "Nouvelle", cls: "bg-amber-50 text-amber-700" },
-  confirmed: { text: "En préparation", cls: "bg-[#FFF1EA] text-[#FF5200]" },
+  confirmed: { text: "En préparation", cls: "bg-[#E9E6F5] text-[#433874]" },
   ready: { text: "Prête", cls: "bg-emerald-50 text-emerald-700" },
   cancelled: { text: "Annulée", cls: "bg-rose-50 text-rose-600" },
 };
@@ -133,21 +133,21 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
   return (
     <div className="animate-fade-up space-y-3">
       <div className="flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF1EA] text-[#FF5200]">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E9E6F5] text-[#433874]">
           <ClipboardList size={18} />
         </span>
         <div>
-          <h2 className="text-[14px] font-bold text-[#0F172A]">Commandes à préparer</h2>
-          <p className="text-[11px] text-[#64748B]">Du côté client.</p>
+          <h2 className="text-[14px] font-bold text-[#2E2659]">Commandes à préparer</h2>
+          <p className="text-[11px] text-[#6B6389]">Du côté client.</p>
         </div>
       </div>
 
       {loading ? (
         <p className="text-[11px] text-slate-400">Un instant…</p>
       ) : orders.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#E2E8F0] bg-white p-6 text-center">
-          <Clock3 size={22} className="mx-auto text-[#FF7A1A]" />
-          <p className="mt-2 text-[12px] font-semibold text-[#0F172A]">Aucune commande pour l’instant</p>
+        <div className="rounded-2xl border border-dashed border-[#DFD9EF] bg-white p-6 text-center">
+          <Clock3 size={22} className="mx-auto text-[#8A6EDD]" />
+          <p className="mt-2 text-[12px] font-semibold text-[#2E2659]">Aucune commande pour l’instant</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -157,14 +157,14 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
             const isCardPayment = !!payment;
             const cardAmount = payment?.amount ?? NaN;
             return (
-              <div key={o.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
+              <div key={o.id} className="rounded-2xl border border-[#DFD9EF] bg-white p-3 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-[12px] font-bold text-[#0F172A]">
+                  <span className="truncate text-[12px] font-bold text-[#2E2659]">
                     {shopNames[o.shop_id] ?? "Ma boutique"}
                   </span>
                   <span className="flex shrink-0 items-center gap-1">
                     {isCardPayment && (
-                      <span className="rounded-full bg-[#FFF1EA] px-2 py-0.5 text-[9.5px] font-bold text-[#FF5200]">
+                      <span className="rounded-full bg-[#E9E6F5] px-2 py-0.5 text-[9.5px] font-bold text-[#433874]">
                         Paiement solde
                       </span>
                     )}
@@ -173,21 +173,21 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
                     </span>
                   </span>
                 </div>
-                <p className="mt-1.5 text-[11.5px] font-semibold text-[#0F172A]">
+                <p className="mt-1.5 text-[11.5px] font-semibold text-[#2E2659]">
                   {o.items.map((i) => `${i.qty}× ${i.name}`).join(" · ")}
                 </p>
                 {isCardPayment && Number.isFinite(cardAmount) ? (
-                  <p className="mt-1 rounded-lg bg-[#FFF1EA] px-2 py-1 text-[10.5px] font-semibold text-[#9A3412]">
+                  <p className="mt-1 rounded-lg bg-[#E9E6F5] px-2 py-1 text-[10.5px] font-semibold text-[#433874]">
                     À débiter : {fmtDh(cardAmount)}
                   </p>
                 ) : (
                   o.note && (
-                    <p className="mt-1 rounded-lg bg-[#F8FAFC] px-2 py-1 text-[10.5px] italic text-[#64748B]">
+                    <p className="mt-1 rounded-lg bg-[#F7F5FC] px-2 py-1 text-[10.5px] italic text-[#6B6389]">
                       « {o.note} »
                     </p>
                   )
                 )}
-                <p className="mt-1 text-[9.5px] text-[#94A3B8]">
+                <p className="mt-1 text-[9.5px] text-[#8A7DB0]">
                   {new Date(o.created_at).toLocaleString("fr-MA")}
                 </p>
 
@@ -196,14 +196,14 @@ export function MerchantOrders({ notify }: { notify: (m: string) => void }) {
                     <button
                       disabled={busyId === o.id}
                       onClick={() => void act(o, "confirmed")}
-                      className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[#FF5200] py-2 text-[11px] font-bold text-white disabled:opacity-40"
+                      className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[#433874] py-2 text-[11px] font-bold text-white disabled:opacity-40"
                     >
                       <Check size={13} /> Confirmer
                     </button>
                     <button
                       disabled={busyId === o.id}
                       onClick={() => void act(o, "cancelled")}
-                      className="flex items-center justify-center gap-1 rounded-lg border border-[#E2E8F0] px-3 py-2 text-[11px] font-bold text-[#64748B] disabled:opacity-40"
+                      className="flex items-center justify-center gap-1 rounded-lg border border-[#DFD9EF] px-3 py-2 text-[11px] font-bold text-[#6B6389] disabled:opacity-40"
                     >
                       <X size={13} /> Refuser
                     </button>

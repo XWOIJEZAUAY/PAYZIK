@@ -1,6 +1,6 @@
 /* Service worker PAYZIK — app shell + cache des assets.
  * Version à incrémenter quand on veut forcer le renouvellement du cache. */
-const CACHE = "payzik-shell-v3";
+const CACHE = "payzik-shell-v4";
 const SHELL = [
   "./",
   "./index.html",

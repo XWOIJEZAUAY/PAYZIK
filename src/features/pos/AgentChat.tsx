@@ -414,7 +414,7 @@ export function AgentChat({
               "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-all duration-200",
               phase === "recording"
                 ? "bg-orange text-night shadow-glow"
-                : "bg-navy text-white shadow-[0_6px_20px_rgba(255,122,26,0.3)] hover:bg-navy-soft",
+                : "bg-navy text-white shadow-[0_6px_20px_rgba(138,110,221,0.3)] hover:bg-navy-soft",
               phase === "thinking" && "opacity-70",
             )}
             title="Dicte la commande"
@@ -484,10 +484,10 @@ export function AgentChat({
             onClick={() => setReceiptOpen(false)}
           />
           <div
-            className="relative w-full max-w-sm origin-top animate-[paperUnfold_.55s_cubic-bezier(.2,.8,.2,1)_both] rounded-sm bg-cream p-5 text-ink shadow-[0_20px_60px_rgba(58,42,31,0.35)]"
+            className="relative w-full max-w-sm origin-top animate-[paperUnfold_.55s_cubic-bezier(.2,.8,.2,1)_both] rounded-sm bg-cream p-5 text-ink shadow-[0_20px_60px_rgba(46,38,89,0.35)]"
             style={{
               backgroundImage:
-                "repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(58,42,31,0.06) 23px, rgba(58,42,31,0.06) 24px)",
+                "repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(46,38,89,0.06) 23px, rgba(46,38,89,0.06) 24px)",
             }}
           >
             <button
@@ -648,7 +648,7 @@ function ProductRow({ productId, store }: { productId: string; store: Store }) {
         className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(60% 60% at 50% 0%, rgba(255,122,26,0.25), transparent 70%)",
+            "radial-gradient(60% 60% at 50% 0%, rgba(138,110,221,0.25), transparent 70%)",
         }}
       />
       <div className="relative flex flex-col items-center gap-2">

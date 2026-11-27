@@ -42,7 +42,7 @@ const STATUS: Record<
   { label: string; cls: string; icon: LucideIcon }
 > = {
   pending: { label: "En cours", cls: "bg-amber-50 text-amber-700", icon: Clock3 },
-  confirmed: { label: "En préparation", cls: "bg-[#FFF1EA] text-[#FF5200]", icon: CheckCircle2 },
+  confirmed: { label: "En préparation", cls: "bg-[#E9E6F5] text-[#433874]", icon: CheckCircle2 },
   ready: { label: "Prêt", cls: "bg-emerald-50 text-emerald-700", icon: CheckCircle2 },
   cancelled: { label: "Annulée", cls: "bg-rose-50 text-rose-600", icon: XCircle },
 };
@@ -317,17 +317,17 @@ export function ClientCatalog({
 
   return (
     <div className="animate-fade-up space-y-2.5">
-      <section className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
+      <section className="rounded-xl border border-[#DFD9EF] bg-white p-3.5">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
             <Store size={16} />
           </span>
-          <h2 className="text-[13px] font-bold text-[#0F172A]">Boutiques</h2>
+          <h2 className="text-[13px] font-bold text-[#2E2659]">Boutiques</h2>
         </div>
         <select
           value={shopId}
           onChange={(e) => setShopId(e.target.value)}
-          className="mt-2.5 h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 text-[11px] font-semibold text-[#0F172A] outline-none focus:border-[#FF5200]"
+          className="mt-2.5 h-9 w-full rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-2.5 text-[11px] font-semibold text-[#2E2659] outline-none focus:border-[#433874]"
         >
           <option value="">Toutes les boutiques</option>
           {shops.map((s) => (
@@ -335,19 +335,19 @@ export function ClientCatalog({
           ))}
         </select>
         <div className="relative mt-2">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A7DB0]" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Chercher un produit (lait, pain…)"
-            className="h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] pl-8 pr-2.5 text-[11px] outline-none focus:border-[#FF5200]"
+            className="h-9 w-full rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] pl-8 pr-2.5 text-[11px] outline-none focus:border-[#433874]"
           />
         </div>
 
         {loading ? (
           <p className="mt-3 text-[11px] text-slate-400">Un instant…</p>
         ) : visible.length === 0 ? (
-          <div className="mt-3 rounded-xl bg-[#FFF1EA] p-3 text-[11px] text-[#9A3412]">
+          <div className="mt-3 rounded-xl bg-[#E9E6F5] p-3 text-[11px] text-[#433874]">
             Aucun produit pour l’instant.
           </div>
         ) : (
@@ -359,35 +359,35 @@ export function ClientCatalog({
                   setShopId(p.shop_id ?? shopId);
                   setText((t) => `${t}${t ? " " : ""}1 ${p.name}`);
                 }}
-                className="flex w-full items-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-white p-2 text-left transition active:scale-[.99]"
+                className="flex w-full items-center gap-2.5 rounded-xl border border-[#DFD9EF] bg-white p-2 text-left transition active:scale-[.99]"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#FFF1EA] text-lg">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#E9E6F5] text-lg">
                   {p.image ? (
                     <img src={p.image} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    p.emoji ?? <Package size={16} className="text-[#FF5200]" />
+                    p.emoji ?? <Package size={16} className="text-[#433874]" />
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[12px] font-bold text-[#0F172A]">{p.name}</span>
-                  <span className="block truncate text-[10px] text-[#64748B]">
+                  <span className="block truncate text-[12px] font-bold text-[#2E2659]">{p.name}</span>
+                  <span className="block truncate text-[10px] text-[#6B6389]">
                     {shopName(p.shop_id ?? "")} · stock {p.stock}
                   </span>
                 </span>
-                <span className="font-mono text-[11px] font-bold text-[#FF5200]">{fmtDh(p.price_dh)}</span>
+                <span className="font-mono text-[11px] font-bold text-[#433874]">{fmtDh(p.price_dh)}</span>
               </button>
             ))}
           </div>
         )}
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="flex items-center gap-2 border-b border-[#E2E8F0] bg-[#FFF7F2] px-3 py-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF5200] text-white">
+      <section className="overflow-hidden rounded-xl border border-[#DFD9EF] bg-white">
+        <div className="flex items-center gap-2 border-b border-[#DFD9EF] bg-[#FFF7F2] px-3 py-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#433874] text-white">
             <Bot size={14} />
           </span>
-          <p className="text-[12px] font-bold text-[#0F172A]">Message</p>
-          <Sparkles size={13} className="ml-auto text-[#FF7A1A]" />
+          <p className="text-[12px] font-bold text-[#2E2659]">Message</p>
+          <Sparkles size={13} className="ml-auto text-[#8A6EDD]" />
         </div>
         <div className="max-h-56 space-y-2 overflow-y-auto scrollbar-thin p-2.5">
           {msgs.map((m) => (
@@ -398,12 +398,12 @@ export function ClientCatalog({
               <div
                 className={`max-w-[88%] rounded-xl px-2.5 py-1.5 text-[11.5px] leading-snug ${
                   m.role === "user"
-                    ? "rounded-br-md bg-[#FF5200] text-white"
+                    ? "rounded-br-md bg-[#433874] text-white"
                     : m.kind === "error"
                       ? "rounded-bl-md bg-rose-50 text-rose-700"
                       : m.kind === "success"
                         ? "rounded-bl-md bg-emerald-50 text-emerald-800"
-                        : "rounded-bl-md bg-[#F1F5F9] text-[#0F172A]"
+                        : "rounded-bl-md bg-[#F1F5F9] text-[#2E2659]"
                 }`}
               >
                 {m.text}
@@ -411,30 +411,30 @@ export function ClientCatalog({
             </div>
           ))}
           {busy && (
-            <p className="text-[10.5px] font-semibold text-[#FF5200]">…</p>
+            <p className="text-[10.5px] font-semibold text-[#433874]">…</p>
           )}
           <div ref={endRef} />
         </div>
-        <div className="flex items-center gap-1.5 border-t border-[#E2E8F0] p-2">
+        <div className="flex items-center gap-1.5 border-t border-[#DFD9EF] p-2">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void send(); }}
             placeholder="2 lait et 1 pain…"
-            className="h-9 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 text-[11px] outline-none focus:border-[#FF5200]"
+            className="h-9 min-w-0 flex-1 rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-2.5 text-[11px] outline-none focus:border-[#433874]"
           />
           <button
             onClick={() => void send()}
             disabled={!text.trim() || busy}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FF5200] text-white disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#433874] text-white disabled:opacity-40"
           >
             <Send size={14} />
           </button>
         </div>
       </section>
 
-      <section className="rounded-xl border border-[#E2E8F0] bg-white p-3.5">
-        <h2 className="text-[12px] font-bold text-[#0F172A]">Suivi des commandes</h2>
+      <section className="rounded-xl border border-[#DFD9EF] bg-white p-3.5">
+        <h2 className="text-[12px] font-bold text-[#2E2659]">Suivi des commandes</h2>
         {orders.length === 0 ? (
           <p className="mt-1.5 text-[10.5px] text-slate-500">Aucune commande.</p>
         ) : (
@@ -443,19 +443,19 @@ export function ClientCatalog({
               const s = STATUS[o.status];
               const Icon = s.icon;
               return (
-                <div key={o.id} className="rounded-xl border border-[#E2E8F0] p-2.5">
+                <div key={o.id} className="rounded-xl border border-[#DFD9EF] p-2.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-[11.5px] font-bold text-[#0F172A]">
+                    <span className="truncate text-[11.5px] font-bold text-[#2E2659]">
                       {shopName(o.shop_id)}
                     </span>
                     <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold ${s.cls}`}>
                       <Icon size={11} /> {s.label}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-[#64748B]">
+                  <p className="mt-1 text-[11px] text-[#6B6389]">
                     {o.items.map((i) => `${i.qty}× ${i.name}`).join(" · ")}
                   </p>
-                  <p className="mt-1 text-[9.5px] text-[#94A3B8]">
+                  <p className="mt-1 text-[9.5px] text-[#8A7DB0]">
                     {new Date(o.created_at).toLocaleString("fr-MA")}
                   </p>
                 </div>

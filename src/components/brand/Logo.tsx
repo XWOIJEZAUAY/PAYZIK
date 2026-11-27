@@ -1,5 +1,5 @@
 /** Identité visuelle PAYZIK — wordmark + éclair (icône seule).
- *  Encre nuit #3A2A1F · Éclair orange #FF7A1A. Vectoriel, sans emoji. */
+ *  Encre nuit #2E2659 · Éclair orange #8A6EDD. Vectoriel, sans emoji. */
 
 /** Éclair seul, NU (aucun cadre, aucun fond) — pour bandes sombres. */
 export function BoltIcon({ size = 22, className }: { size?: number; className?: string }) {
@@ -12,7 +12,7 @@ export function BoltIcon({ size = 22, className }: { size?: number; className?: 
       className={`shrink-0 ${className ?? ""}`}
       aria-hidden
     >
-      <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
+      <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#8A6EDD" />
     </svg>
   );
 }
@@ -30,11 +30,11 @@ export function BoltMark({
   return (
     <span
       className={`flex shrink-0 items-center justify-center ${rounded} ${className ?? ""}`}
-      style={{ width: size, height: size, backgroundColor: "#3A2A1F" }}
+      style={{ width: size, height: size, backgroundColor: "#2E2659" }}
       aria-hidden
     >
       <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} fill="none">
-        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
+        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#8A6EDD" />
       </svg>
     </span>
   );
@@ -51,7 +51,7 @@ export function PayzikWordmark({
   /** variante claire pour fonds sombres */
   light?: boolean;
 }) {
-  const color = light ? "#FFF8EA" : "#3A2A1F";
+  const color = light ? "#FFFFFF" : "#2E2659";
   return (
     <span
       className={`inline-flex select-none items-center font-black tracking-tight ${className ?? ""}`}
@@ -67,7 +67,7 @@ export function PayzikWordmark({
         className="mx-[0.02em]"
         aria-hidden
       >
-        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#FF7A1A" />
+        <path d="M13.5 2 L5 13.5 h5.5 L9.5 22 L19 10.5 h-5.5 z" fill="#8A6EDD" />
       </svg>
       IK
     </span>

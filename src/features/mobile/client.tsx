@@ -261,12 +261,12 @@ function ClientHeader({
   image?: string | null;
 }) {
   return (
-    <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
+    <header className="shrink-0 border-b border-[#DFD9EF] bg-white px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
       <div className="flex items-center gap-2.5">
         <Avatar name={name} image={image} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[14px] font-bold text-[#0F172A]">Salut, {name}</p>
-          <p className="text-[9.5px] font-semibold uppercase tracking-wider text-[#FF5200]">Espace client</p>
+          <p className="truncate text-[14px] font-bold text-[#2E2659]">Salut, {name}</p>
+          <p className="text-[9.5px] font-semibold uppercase tracking-wider text-[#433874]">Espace client</p>
         </div>
         <IconBtn onClick={onBell} label="Notifications">
           <Bell size={17} />
@@ -274,13 +274,13 @@ function ClientHeader({
         <button
           onClick={onProfile}
           aria-label="Mon profil"
-          className="rounded-full bg-[#FF7A1A] px-2.5 py-1.5 text-[11px] font-bold text-white"
+          className="rounded-full bg-[#8A6EDD] px-2.5 py-1.5 text-[11px] font-bold text-white"
         >
           Profil
         </button>
       </div>
-      <button className="mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[#FFF1EA] px-2.5 py-1 text-[10.5px] font-semibold text-[#9A3412]">
-        <MapPin size={11} className="shrink-0 text-[#FF5200]" />
+      <button className="mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[#E9E6F5] px-2.5 py-1 text-[10.5px] font-semibold text-[#433874]">
+        <MapPin size={11} className="shrink-0 text-[#433874]" />
         <span className="truncate">{location || "Ville non renseignée"}</span>
       </button>
     </header>
@@ -336,23 +336,23 @@ function ClientHome({
       <Pane className="p-3.5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="flex items-center gap-1 text-[10px] font-medium text-[#64748B]">
+            <p className="flex items-center gap-1 text-[10px] font-medium text-[#6B6389]">
               Solde PAYZIK
               <button onClick={() => setHidden((h) => !h)} aria-label="Masquer le solde">
                 {hidden ? <EyeOff size={12} /> : <Eye size={12} />}
               </button>
             </p>
-            <p className="mt-0.5 font-mono text-[24px] font-bold leading-none text-[#0F172A]">
+            <p className="mt-0.5 font-mono text-[24px] font-bold leading-none text-[#2E2659]">
               {hidden ? "•••• DH" : fmtDh(card?.balance_dh ?? 0)}
             </p>
-            <button onClick={onQr} className="mt-1 font-mono text-[10px] text-[#FF5200]">
+            <button onClick={onQr} className="mt-1 font-mono text-[10px] text-[#433874]">
               {card?.code ?? "Carte PAYZIK"} · voir le QR
             </button>
-            <p className="mt-1 text-[10px] font-semibold text-[#64748B]">
+            <p className="mt-1 text-[10px] font-semibold text-[#6B6389]">
               Dépensé ce mois · {fmtDh(spending.spentMonth)}
             </p>
           </div>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
             <Wallet size={16} />
           </span>
         </div>
@@ -387,7 +387,7 @@ function ClientHome({
       </div>
       <button
         onClick={onRecharge}
-        className="w-full rounded-lg border border-[#E2E8F0] bg-white py-2 text-[10.5px] font-semibold text-[#64748B]"
+        className="w-full rounded-lg border border-[#DFD9EF] bg-white py-2 text-[10.5px] font-semibold text-[#6B6389]"
       >
         Recharger ma carte
       </button>
@@ -409,14 +409,14 @@ function Quick({
   return (
     <button
       onClick={onClick}
-      className="relative flex flex-col items-center gap-1 rounded-xl border border-[#E2E8F0] bg-white py-2.5 shadow-sm transition active:scale-[.98]"
+      className="relative flex flex-col items-center gap-1 rounded-xl border border-[#DFD9EF] bg-white py-2.5 shadow-sm transition active:scale-[.98]"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
         <Icon size={16} />
       </span>
-      <span className="text-[9.5px] font-semibold text-[#0F172A]">{label}</span>
+      <span className="text-[9.5px] font-semibold text-[#2E2659]">{label}</span>
       {badge ? (
-        <span className="absolute right-2 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF5200] px-1 text-[9px] font-bold text-white">
+        <span className="absolute right-2 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#433874] px-1 text-[9px] font-bold text-white">
           {badge}
         </span>
       ) : null}
@@ -427,19 +427,19 @@ function Quick({
 function ShopRow({ e, onPay }: { e: Establishment; onPay: () => void }) {
   const Icon = KIND_ICON[e.kind];
   return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-white p-2.5 shadow-sm">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+    <div className="flex items-center gap-2.5 rounded-xl border border-[#DFD9EF] bg-white p-2.5 shadow-sm">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
         <Icon size={17} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[12.5px] font-bold text-[#0F172A]">{e.name}</p>
-        <p className="flex items-center gap-1 text-[10px] text-[#64748B]">
+        <p className="truncate text-[12.5px] font-bold text-[#2E2659]">{e.name}</p>
+        <p className="flex items-center gap-1 text-[10px] text-[#6B6389]">
           <MapPin size={10} /> {e.district}
         </p>
       </div>
       <button
         onClick={onPay}
-        className="shrink-0 rounded-lg bg-[#FF5200] px-3 py-2 text-[11px] font-bold text-white active:scale-95"
+        className="shrink-0 rounded-lg bg-[#433874] px-3 py-2 text-[11px] font-bold text-white active:scale-95"
       >
         Payer
       </button>
@@ -451,7 +451,7 @@ function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#FF7A1A] via-[#FF5200] to-[#C2410C] p-3 text-left text-white shadow-sm active:scale-[.99]"
+      className="w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#8A6EDD] via-[#433874] to-[#2E2659] p-3 text-left text-white shadow-sm active:scale-[.99]"
     >
       <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/75">{ad.eyebrow}</p>
       <p className="mt-0.5 text-[13px] font-bold leading-tight">{ad.title}</p>
@@ -484,7 +484,7 @@ function ClientCard({
 }) {
   return (
     <div className="animate-fade-up space-y-2.5">
-      <div className="rounded-2xl bg-gradient-to-br from-[#FF5200] to-[#FF8A3D] p-4 text-white shadow-md">
+      <div className="rounded-2xl bg-gradient-to-br from-[#433874] to-[#A78BFA] p-4 text-white shadow-md">
         <div className="flex items-start justify-between">
           <CreditCard size={20} className="text-white/90" />
           <span className="rounded-full border border-white/25 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/85">
@@ -504,29 +504,29 @@ function ClientCard({
 
       <button
         onClick={onQr}
-        className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-[#FF5200] bg-[#FFF1EA] text-[11px] font-bold text-[#FF5200]"
+        className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-[#433874] bg-[#E9E6F5] text-[11px] font-bold text-[#433874]"
       >
         <QrCode size={14} /> Afficher mon QR
       </button>
 
       <Pane className="p-3.5">
-        <h2 className="text-[12px] font-bold text-[#0F172A]">Portefeuille</h2>
+        <h2 className="text-[12px] font-bold text-[#2E2659]">Portefeuille</h2>
         <div className="mt-2 grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-[#F8FAFC] p-2 text-center">
-            <p className="text-[9px] text-[#64748B]">Solde</p>
-            <p className="font-mono text-[12px] font-bold text-[#0F172A]">
+          <div className="rounded-xl bg-[#F7F5FC] p-2 text-center">
+            <p className="text-[9px] text-[#6B6389]">Solde</p>
+            <p className="font-mono text-[12px] font-bold text-[#2E2659]">
               {fmtDh(card?.balance_dh ?? 0)}
             </p>
           </div>
-          <div className="rounded-xl bg-[#FFF1EA] p-2 text-center">
-            <p className="text-[9px] text-[#9A3412]">Dépensé</p>
-            <p className="font-mono text-[12px] font-bold text-[#FF5200]">
+          <div className="rounded-xl bg-[#E9E6F5] p-2 text-center">
+            <p className="text-[9px] text-[#433874]">Dépensé</p>
+            <p className="font-mono text-[12px] font-bold text-[#433874]">
               {fmtDh(spending.spentMonth)}
             </p>
           </div>
-          <div className="rounded-xl bg-[#F8FAFC] p-2 text-center">
-            <p className="text-[9px] text-[#64748B]">Rechargé</p>
-            <p className="font-mono text-[12px] font-bold text-[#0F172A]">
+          <div className="rounded-xl bg-[#F7F5FC] p-2 text-center">
+            <p className="text-[9px] text-[#6B6389]">Rechargé</p>
+            <p className="font-mono text-[12px] font-bold text-[#2E2659]">
               {fmtDh(spending.toppedAll)}
             </p>
           </div>
@@ -535,10 +535,10 @@ function ClientCard({
           <div className="mt-2 space-y-1 border-t border-[#F1F5F9] pt-2">
             {spending.recent.slice(0, 3).map((t) => (
               <div key={t.id} className="flex items-center justify-between text-[10.5px]">
-                <span className="truncate text-[#64748B]">
+                <span className="truncate text-[#6B6389]">
                   {t.description || "Paiement"} · {new Date(t.createdAt).toLocaleDateString("fr-MA")}
                 </span>
-                <span className="font-mono font-bold text-[#0F172A]">-{fmtDh(t.amount)}</span>
+                <span className="font-mono font-bold text-[#2E2659]">-{fmtDh(t.amount)}</span>
               </div>
             ))}
           </div>
@@ -601,13 +601,13 @@ function ClientShops({
       <div className="relative">
         <Search
           size={15}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8A7DB0]"
         />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Rechercher un commerce…"
-          className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white pl-9 pr-3 text-[13px] text-[#0F172A] shadow-sm outline-none placeholder:text-[#94A3B8] focus:border-[#FF5200]"
+          className="h-11 w-full rounded-xl border border-[#DFD9EF] bg-white pl-9 pr-3 text-[13px] text-[#2E2659] shadow-sm outline-none placeholder:text-[#8A7DB0] focus:border-[#433874]"
         />
       </div>
 
@@ -619,8 +619,8 @@ function ClientShops({
             className={cx(
               "shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition",
               filter === f.id
-                ? "border-transparent bg-[#FF5200] text-white"
-                : "border-[#E2E8F0] bg-white text-[#64748B]",
+                ? "border-transparent bg-[#433874] text-white"
+                : "border-[#DFD9EF] bg-white text-[#6B6389]",
             )}
           >
             {f.label}
@@ -663,16 +663,16 @@ function ShopCard({
 }) {
   const Icon = KIND_ICON[e.kind];
   return (
-    <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-[#DFD9EF] bg-white shadow-sm">
       <div className="flex items-start gap-2.5 p-2.5">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
           <Icon size={17} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-[12.5px] font-bold text-[#0F172A]">{e.name}</p>
-              <p className="flex items-center gap-1 text-[10px] text-[#64748B]">
+              <p className="truncate text-[12.5px] font-bold text-[#2E2659]">{e.name}</p>
+              <p className="flex items-center gap-1 text-[10px] text-[#6B6389]">
                 <MapPin size={10} /> {e.district}, {e.city}
               </p>
             </div>
@@ -682,13 +682,13 @@ function ShopCard({
       <div className="flex items-center gap-1.5 border-t border-[#F1F5F9] px-2.5 py-1.5">
         <button
           onClick={onCatalog}
-          className="flex-1 rounded-md border border-[#E2E8F0] py-1 text-[10px] font-bold text-[#64748B]"
+          className="flex-1 rounded-md border border-[#DFD9EF] py-1 text-[10px] font-bold text-[#6B6389]"
         >
           Produits
         </button>
         <button
           onClick={onPay}
-          className="flex-1 rounded-md bg-[#FF5200] py-1 text-[10px] font-bold text-white active:scale-95"
+          className="flex-1 rounded-md bg-[#433874] py-1 text-[10px] font-bold text-white active:scale-95"
         >
           Payer
         </button>
@@ -743,31 +743,31 @@ function ScanModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-[15px] font-bold text-[#0F172A]">Scanner pour payer</h3>
+          <h3 className="text-[15px] font-bold text-[#2E2659]">Scanner pour payer</h3>
           <button
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-[#64748B]"
+            className="rounded-lg p-1.5 text-[#6B6389]"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="relative mx-auto mt-4 aspect-square w-full max-w-[240px] overflow-hidden rounded-2xl bg-[#0F172A]">
-          <span className="absolute left-3 top-3 h-7 w-7 rounded-tl-lg border-l-2 border-t-2 border-[#FF5200]" />
-          <span className="absolute right-3 top-3 h-7 w-7 rounded-tr-lg border-r-2 border-t-2 border-[#FF5200]" />
-          <span className="absolute bottom-3 left-3 h-7 w-7 rounded-bl-lg border-b-2 border-l-2 border-[#FF5200]" />
-          <span className="absolute bottom-3 right-3 h-7 w-7 rounded-br-lg border-b-2 border-r-2 border-[#FF5200]" />
-          <div className="absolute inset-x-8 top-1/2 h-0.5 animate-scan-line bg-[#FF5200]" />
+        <div className="relative mx-auto mt-4 aspect-square w-full max-w-[240px] overflow-hidden rounded-2xl bg-[#2E2659]">
+          <span className="absolute left-3 top-3 h-7 w-7 rounded-tl-lg border-l-2 border-t-2 border-[#433874]" />
+          <span className="absolute right-3 top-3 h-7 w-7 rounded-tr-lg border-r-2 border-t-2 border-[#433874]" />
+          <span className="absolute bottom-3 left-3 h-7 w-7 rounded-bl-lg border-b-2 border-l-2 border-[#433874]" />
+          <span className="absolute bottom-3 right-3 h-7 w-7 rounded-br-lg border-b-2 border-r-2 border-[#433874]" />
+          <div className="absolute inset-x-8 top-1/2 h-0.5 animate-scan-line bg-[#433874]" />
           <div className="absolute inset-0 flex items-center justify-center">
             <QrCode size={64} className="text-white/15" />
           </div>
         </div>
 
-        <p className="mt-3 text-center text-[12px] text-[#64748B]">
+        <p className="mt-3 text-center text-[12px] text-[#6B6389]">
           Présentez le QR du commerçant · {left}s
         </p>
-        <p className="mt-2 text-center text-[11px] font-semibold text-[#0F172A]">
+        <p className="mt-2 text-center text-[11px] font-semibold text-[#2E2659]">
           Ou choisissez un commerçant
         </p>
         <div className="mt-2 max-h-[170px] space-y-1.5 overflow-y-auto">
@@ -780,15 +780,15 @@ function ScanModal({
                   onClose();
                   onPick(e);
                 }}
-                className="flex w-full items-center gap-2 rounded-xl border border-[#E2E8F0] p-2 text-left active:bg-[#F8FAFC]"
+                className="flex w-full items-center gap-2 rounded-xl border border-[#DFD9EF] p-2 text-left active:bg-[#F7F5FC]"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
                   <Icon size={15} />
                 </span>
-                <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#0F172A]">
+                <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#2E2659]">
                   {e.name}
                 </span>
-                <ChevronRight size={14} className="text-[#94A3B8]" />
+                <ChevronRight size={14} className="text-[#8A7DB0]" />
               </button>
             );
           })}
@@ -834,16 +834,16 @@ function PayModal({
 
   return (
     <Sheet open onClose={onClose} title="Payer">
-      <div className="rounded-xl bg-gradient-to-br from-[#FF7A1A] to-[#FF5200] p-3 text-white">
+      <div className="rounded-xl bg-gradient-to-br from-[#8A6EDD] to-[#433874] p-3 text-white">
         <p className="text-[9px] uppercase tracking-wider text-white/70">Paiement chez</p>
         <p className="text-[14px] font-bold">{target.name}</p>
       </div>
 
-      <div className="mt-2.5 flex items-center justify-between rounded-lg border border-[#E2E8F0] px-2.5 py-2">
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#64748B]">
+      <div className="mt-2.5 flex items-center justify-between rounded-lg border border-[#DFD9EF] px-2.5 py-2">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6B6389]">
           <CreditCard size={13} /> {card?.code ?? "—"}
         </span>
-        <span className="font-mono text-[11px] font-bold text-[#0F172A]">
+        <span className="font-mono text-[11px] font-bold text-[#2E2659]">
           {fmtDh(card?.balance_dh ?? 0)}
         </span>
       </div>
@@ -856,8 +856,8 @@ function PayModal({
             className={cx(
               "rounded-lg border py-1.5 font-mono text-[11px] font-bold transition",
               amount === v
-                ? "border-[#FF5200] bg-[#FFF1EA] text-[#FF5200]"
-                : "border-[#E2E8F0] text-[#0F172A]",
+                ? "border-[#433874] bg-[#E9E6F5] text-[#433874]"
+                : "border-[#DFD9EF] text-[#2E2659]",
             )}
           >
             {v}
@@ -870,7 +870,7 @@ function PayModal({
         value={amount}
         onChange={(e) => { setAmount(e.target.value ? Number(e.target.value) : ""); setError(""); }}
         placeholder="Autre montant"
-        className="mt-2 h-9 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 font-mono text-[12px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-9 w-full rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-2.5 font-mono text-[12px] outline-none focus:border-[#433874]"
       />
 
       {error && <p className="mt-2 text-[10.5px] font-semibold text-rose-600">{error}</p>}
@@ -885,7 +885,7 @@ function PayModal({
 
       <button
         onClick={onShowQr}
-        className="mt-2 w-full rounded-lg border border-[#E2E8F0] py-2 text-[10.5px] font-bold text-[#64748B]"
+        className="mt-2 w-full rounded-lg border border-[#DFD9EF] py-2 text-[10.5px] font-bold text-[#6B6389]"
       >
         Ou présenter mon code / QR au commerçant
       </button>

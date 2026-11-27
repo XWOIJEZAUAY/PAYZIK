@@ -38,8 +38,8 @@ export function GoogleAdBanner() {
   if (!CLIENT || !SLOT) return null;
 
   return (
-    <div className="rounded-xl border border-[#E2E8F0] bg-white p-2">
-      <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.16em] text-[#94A3B8]">
+    <div className="rounded-xl border border-[#DFD9EF] bg-white p-2">
+      <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.16em] text-[#8A7DB0]">
         Publicité
       </p>
       <ins

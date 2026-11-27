@@ -1,4 +1,4 @@
-﻿/** Espace COMMERÇANT — caisse vocale, kridi, stock et bilan. */
+/** Espace COMMERÇANT — caisse vocale, kridi, stock et bilan. */
 import {
   AlertTriangle,
   Banknote,
@@ -91,14 +91,14 @@ const MERCHANT_TABS: { id: MerchantTab; label: string; icon: typeof Wallet }[] =
 /** Illustration locale quand Open Food Facts n'a pas de photo (cas fréquent au Maroc). */
 function productArt(p: Product): string {
   if (p.image) return p.image;
-  const bg = "#F8FAFC";
+  const bg = "#F7F5FC";
   const em = (body: string) =>
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="16" fill="${bg}"/>${body}</svg>`;
   const shapes: Record<string, string> = {
-    "p-lait": `<path d="M34 24h32l8 12v48H26V36z" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2"/><path d="M34 24l10-8h22l-6 8z" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2"/><rect x="30" y="52" width="40" height="18" rx="3" fill="#0EA5E9"/>`,
+    "p-lait": `<path d="M34 24h32l8 12v48H26V36z" fill="#FFFFFF" stroke="#8A7DB0" stroke-width="2"/><path d="M34 24l10-8h22l-6 8z" fill="#FFFFFF" stroke="#8A7DB0" stroke-width="2"/><rect x="30" y="52" width="40" height="18" rx="3" fill="#0EA5E9"/>`,
     "p-sidiali": `<rect x="43" y="10" width="14" height="8" rx="2" fill="#0284C7"/><path d="M41 18h18v10l7 14v42a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6V42l7-14z" fill="#7DD3FC" stroke="#0284C7" stroke-width="2"/><rect x="35" y="54" width="30" height="18" rx="2" fill="#FFFFFF"/>`,
     "p-pain": `<ellipse cx="50" cy="55" rx="32" ry="22" fill="#B45309"/><path d="M24 50q12-14 28-14t24 14" fill="#D97706"/><path d="M34 46l4-8M50 42l4-8M66 46l4-8" stroke="#FCD34D" stroke-width="3" stroke-linecap="round"/>`,
-    "p-sukkar": `<path d="M30 22h40l4 62H26z" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2"/><rect x="29" y="44" width="42" height="18" fill="#DC2626"/><path d="M38 34h24" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>`,
+    "p-sukkar": `<path d="M30 22h40l4 62H26z" fill="#FFFFFF" stroke="#8A7DB0" stroke-width="2"/><rect x="29" y="44" width="42" height="18" fill="#DC2626"/><path d="M38 34h24" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>`,
     "p-coca": `<rect x="34" y="16" width="32" height="70" rx="8" fill="#DC2626" stroke="#991B1B" stroke-width="2"/><rect x="34" y="44" width="32" height="12" fill="#FFFFFF"/><ellipse cx="50" cy="16" rx="16" ry="5" fill="#B91C1C"/>`,
     "p-the": `<rect x="30" y="22" width="40" height="60" rx="3" fill="#15803D" stroke="#166534" stroke-width="2"/><rect x="36" y="38" width="28" height="26" rx="2" fill="#FEF3C7"/><path d="M44 51q6-10 12 0-6 8-12 0z" fill="#16A34A"/>`,
   };
@@ -180,7 +180,7 @@ export function MerchantSpace({
           merchantName={storeName}
           shopName={shopName}
           shopBadge={
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-[#FF7A1A] to-[#FF5200] text-white font-bold text-[10px]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-[#8A6EDD] to-[#433874] text-white font-bold text-[10px]">
               {shopName.split(" ")[0]?.[0] ?? "M"}
             </div>
           }
@@ -209,19 +209,19 @@ function MerchantHeader({
   image?: string | null;
 }) {
   return (
-    <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+14px)]">
+    <header className="shrink-0 border-b border-[#DFD9EF] bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+14px)]">
       <div className="flex items-center gap-3">
         <Avatar name={name} image={image} square />
         <div className="min-w-0 flex-1">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[#64748B]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[#6B6389]">
             Espace commerçant
           </p>
-          <p className="truncate text-[15px] font-bold text-[#0F172A]">{name}</p>
+          <p className="truncate text-[15px] font-bold text-[#2E2659]">{name}</p>
         </div>
         <button
           onClick={onProfile}
           aria-label="Mon profil"
-          className="rounded-full bg-[#FF7A1A] px-2.5 py-1.5 text-[11px] font-bold text-white"
+          className="rounded-full bg-[#8A6EDD] px-2.5 py-1.5 text-[11px] font-bold text-white"
         >
           Profil
         </button>
@@ -531,12 +531,12 @@ function Caisse({
   // (Produits fréquents supprimés de l'affichage pour alléger la caisse.)
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col bg-[#F8FAFC]">
+    <div className="relative flex h-full min-h-0 flex-col bg-[#F7F5FC]">
       {/* ---------------- en-tête boutique ---------------- */}
       {shopBadge && (
-        <div className="p-3 border-b border-[#E2E8F0] bg-white">
+        <div className="p-3 border-b border-[#DFD9EF] bg-white">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#0F172A]">{shopName ?? "Ma boutique"}</span>
+            <span className="text-[11px] font-semibold text-[#2E2659]">{shopName ?? "Ma boutique"}</span>
             {shopBadge}
           </div>
         </div>
@@ -546,24 +546,24 @@ function Caisse({
 
         {msgs.length === 0 && phase === "idle" && (
           <div className="animate-fade-up flex min-h-[32%] flex-col items-center justify-center py-6 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF1EA] text-[#FF5200]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E9E6F5] text-[#433874]">
               <Zap size={30} fill="currentColor" />
             </div>
-            <p className="mt-4 text-[16px] font-bold text-[#0F172A]">Message</p>
-            <p className="mt-1 text-[11.5px] text-[#64748B]">Écris ta commande.</p>
+            <p className="mt-4 text-[16px] font-bold text-[#2E2659]">Message</p>
+            <p className="mt-1 text-[11.5px] text-[#6B6389]">Écris ta commande.</p>
           </div>
         )}
 
         {msgs.map((m) =>
           m.role === "user" ? (
             <div key={m.id} className="animate-fade-up flex justify-end">
-              <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#FF5200] px-3.5 py-2.5 text-[12.5px] font-medium leading-snug text-white shadow-sm">
+              <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#433874] px-3.5 py-2.5 text-[12.5px] font-medium leading-snug text-white shadow-sm">
                 {m.text}
               </div>
             </div>
           ) : (
             <div key={m.id} className="flex items-start gap-2">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#FFF1EA] text-[#FF5200]">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#E9E6F5] text-[#433874]">
                 <Zap size={13} fill="currentColor" />
               </span>
               <div className="min-w-0 max-w-[86%] flex-1 space-y-2">
@@ -572,17 +572,17 @@ function Caisse({
                     className={cx(
                       "animate-fade-up rounded-2xl rounded-tl-md border px-3.5 py-2.5 text-[12px] font-medium leading-snug shadow-sm",
                       m.kind === "error"
-                        ? "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]"
+                        ? "border-[#FECACA] bg-[#FCE4EE] text-[#DC2626]"
                         : m.kind === "success"
                           ? "border-[#A7F3D0] bg-[#ECFDF5] text-[#059669]"
-                          : "border-[#E2E8F0] bg-white text-[#0F172A]",
+                          : "border-[#DFD9EF] bg-white text-[#2E2659]",
                     )}
                   >
                     {m.text}
                   </div>
                 )}
                 {m.products && m.products.length > 0 && (
-                  <p className="px-1 text-[10.5px] text-[#64748B]">
+                  <p className="px-1 text-[10.5px] text-[#6B6389]">
                     {m.products.map((c) => `${c.qty}× ${c.name}`).join(" · ")}
                   </p>
                 )}
@@ -592,21 +592,21 @@ function Caisse({
         )}
 
         {phase === "thinking" && (
-          <div className="flex items-center gap-2 text-[11.5px] font-medium text-[#64748B]">
-            <Loader2 size={16} className="animate-spin text-[#FF5200]" />
+          <div className="flex items-center gap-2 text-[11.5px] font-medium text-[#6B6389]">
+            <Loader2 size={16} className="animate-spin text-[#433874]" />
             …
           </div>
         )}
       </div>
 
       {/* ---------------- barre ticket (haute, comme AgentChat) ---------------- */}
-      <div className="relative border-t border-[#E2E8F0] bg-white px-4 py-3">
+      <div className="relative border-t border-[#DFD9EF] bg-white px-4 py-3">
         {celebrate && (
           <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
             {Array.from({ length: 14 }).map((_, i) => (
               <span
                 key={i}
-                className="animate-popIn absolute h-1.5 w-1.5 rounded-full bg-[#FF5200]"
+                className="animate-popIn absolute h-1.5 w-1.5 rounded-full bg-[#433874]"
                 style={{
                   left: `${8 + ((i * 37) % 84)}%`,
                   top: `${10 + ((i * 23) % 70)}%`,
@@ -619,11 +619,11 @@ function Caisse({
         )}
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#64748B]">
+            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#6B6389]">
               Ticket #{store.ticketNo} · {store.cart.length} article
               {store.cart.length > 1 ? "s" : ""}
             </p>
-            <p key={store.cartTotal} className="animate-popIn font-mono text-[25px] font-bold leading-tight text-[#0F172A]">
+            <p key={store.cartTotal} className="animate-popIn font-mono text-[25px] font-bold leading-tight text-[#2E2659]">
               {fmtDh(store.cartTotal)}
             </p>
           </div>
@@ -631,22 +631,22 @@ function Caisse({
             <button
               onClick={() => setCancelOpen(true)}
               disabled={store.cart.length === 0}
-              className="rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-[10.5px] font-semibold text-[#DC2626] disabled:opacity-30"
+              className="rounded-lg border border-[#DFD9EF] px-2.5 py-2 text-[10.5px] font-semibold text-[#DC2626] disabled:opacity-30"
             >
               Vider
             </button>
             <button
               onClick={() => setTicketOpen(true)}
               disabled={store.cart.length === 0}
-              className="flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-[10.5px] font-semibold text-[#0F172A] disabled:opacity-30"
+              className="flex items-center gap-1 rounded-lg border border-[#DFD9EF] px-2.5 py-2 text-[10.5px] font-semibold text-[#2E2659] disabled:opacity-30"
             >
               <Receipt size={13} /> Ticket · Payer
             </button>
           </div>
         </div>
         {lastSale && (
-          <div className="animate-fade-up mt-2 flex items-center justify-between rounded-lg bg-[#F8FAFC] px-2.5 py-1.5">
-            <span className="truncate text-[10.5px] text-[#64748B]">
+          <div className="animate-fade-up mt-2 flex items-center justify-between rounded-lg bg-[#F7F5FC] px-2.5 py-1.5">
+            <span className="truncate text-[10.5px] text-[#6B6389]">
               Dernière : {lastSale.label}
             </span>
             <button
@@ -660,14 +660,14 @@ function Caisse({
       </div>
 
       {/* ---------------- composeur : gros bouton IA + texte + envoi ---------------- */}
-      <div className="border-t border-[#E2E8F0] bg-white px-3 pb-[calc(58px+env(safe-area-inset-bottom))] pt-2.5">
+      <div className="border-t border-[#DFD9EF] bg-white px-3 pb-[calc(58px+env(safe-area-inset-bottom))] pt-2.5">
         <div className="flex items-center gap-2">
           <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
             {(live === "listening" || live === "speaking" || live === "connecting") && (
               <>
-                <span className="absolute h-11 w-11 animate-ping rounded-full border border-[#FF5200]/40" />
+                <span className="absolute h-11 w-11 animate-ping rounded-full border border-[#433874]/40" />
                 <span
-                  className="absolute h-11 w-11 animate-ping rounded-full border border-[#FF5200]/20"
+                  className="absolute h-11 w-11 animate-ping rounded-full border border-[#433874]/20"
                   style={{ animationDelay: "0.45s" }}
                 />
               </>
@@ -676,7 +676,7 @@ function Caisse({
               onClick={toggleLive}
               className={cx(
                 "relative flex h-12 w-12 items-center justify-center rounded-full text-white shadow-sm transition active:scale-90",
-                live === "error" ? "bg-[#DC2626]" : "bg-[#FF5200]",
+                live === "error" ? "bg-[#DC2626]" : "bg-[#433874]",
               )}
               aria-label={live === "idle" ? "Appeler l'IA Gemini" : "Raccrocher l'appel IA"}
               title={live === "idle" ? "Appeler l'IA Gemini" : "Raccrocher l'appel IA"}
@@ -700,12 +700,12 @@ function Caisse({
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="2 lait, 1 pain…"
-              className="h-11 min-w-0 flex-1 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+              className="h-11 min-w-0 flex-1 rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
             />
             <button
               type="submit"
               disabled={!draft.trim() || phase === "thinking"}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF5200] text-white shadow-sm disabled:opacity-40"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#433874] text-white shadow-sm disabled:opacity-40"
               aria-label="Envoyer la commande"
               title="Envoyer"
             >
@@ -720,7 +720,7 @@ function Caisse({
                 return next;
               })
             }
-            className="h-9 shrink-0 rounded-lg border border-[#E2E8F0] bg-white px-2 text-[9.5px] font-bold text-[#64748B]"
+            className="h-9 shrink-0 rounded-lg border border-[#DFD9EF] bg-white px-2 text-[9.5px] font-bold text-[#6B6389]"
             title="Langue de l'assistant"
           >
             {lang === "darija" ? "Darija" : "Tachelhit"}
@@ -762,7 +762,7 @@ function Caisse({
       />
 
       <Sheet open={cancelOpen} onClose={() => setCancelOpen(false)} title="Annuler la commande ?">
-        <p className="text-[12px] text-[#64748B]">Vider le panier ?</p>
+        <p className="text-[12px] text-[#6B6389]">Vider le panier ?</p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Btn variant="soft" onClick={() => setCancelOpen(false)}>
             Garder le ticket
@@ -774,27 +774,27 @@ function Caisse({
       </Sheet>
 
       <Sheet open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmer l'encaissement">
-        <div className="space-y-1.5 rounded-xl bg-[#F8FAFC] p-3">
+        <div className="space-y-1.5 rounded-xl bg-[#F7F5FC] p-3">
           {store.cart.map((l) => {
             const p = store.productById(l.productId);
             return (
               <div key={l.productId} className="flex justify-between text-[11.5px]">
-                <span className="text-[#64748B]">
+                <span className="text-[#6B6389]">
                   {l.qty} × {p?.name ?? l.productId}
                 </span>
-                <span className="font-mono font-semibold text-[#0F172A]">
+                <span className="font-mono font-semibold text-[#2E2659]">
                   {fmtDh((p?.priceDh ?? 0) * l.qty)}
                 </span>
               </div>
             );
           })}
-          <div className="flex justify-between border-t border-[#E2E8F0] pt-2 text-[14px] font-bold text-[#0F172A]">
+          <div className="flex justify-between border-t border-[#DFD9EF] pt-2 text-[14px] font-bold text-[#2E2659]">
             <span>Total</span>
             <span className="font-mono">{fmtDh(store.cartTotal)}</span>
           </div>
         </div>
         {pendingPay?.cardId && (
-          <p className="mt-2 text-[11px] font-semibold text-[#0F172A]">
+          <p className="mt-2 text-[11px] font-semibold text-[#2E2659]">
             Carte {store.cards.find((c) => c.id === pendingPay.cardId)?.name ?? ""} · solde après
             paiement{" "}
             {fmtDh(
@@ -827,22 +827,22 @@ function Caisse({
       {receiptOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-[#0F172A]/50"
+            className="absolute inset-0 bg-[#2E2659]/50"
             onClick={() => setReceiptOpen(false)}
           />
           <div className="animate-paperUnfold relative w-full max-w-[360px] rounded-sm bg-white p-5 shadow-sm">
             <button
               onClick={() => setReceiptOpen(false)}
-              className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#0F172A] text-white shadow-sm"
+              className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#2E2659] text-white shadow-sm"
               aria-label="Fermer le ticket"
             >
               <X size={14} />
             </button>
             <div className="text-center">
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#64748B]">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#6B6389]">
                 PAYZIK · Ticket
               </p>
-              <p className="mt-1 text-[16px] font-bold text-[#0F172A]">
+              <p className="mt-1 text-[16px] font-bold text-[#2E2659]">
                 Ticket #{store.ticketNo}
               </p>
             </div>
@@ -857,11 +857,11 @@ function Caisse({
                     style={{ animationDelay: `${i * 85}ms`, animationFillMode: "both" }}
                   >
                     <img src={productArt(p)} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
-                    <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#0F172A]">
+                    <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#2E2659]">
                       {p.name}
                     </span>
-                    <span className="font-mono text-[11px] text-[#64748B]">×{l.qty}</span>
-                    <span className="font-mono text-[12px] font-bold text-[#0F172A]">
+                    <span className="font-mono text-[11px] text-[#6B6389]">×{l.qty}</span>
+                    <span className="font-mono text-[12px] font-bold text-[#2E2659]">
                       {fmtDh(p.priceDh * l.qty)}
                     </span>
                   </div>
@@ -869,11 +869,11 @@ function Caisse({
               })}
             </div>
             <div
-              className="animate-fade-up mt-3 flex items-end justify-between border-t-2 border-dashed border-[#E2E8F0] pt-2"
+              className="animate-fade-up mt-3 flex items-end justify-between border-t-2 border-dashed border-[#DFD9EF] pt-2"
               style={{ animationDelay: `${receiptItems.length * 85 + 80}ms`, animationFillMode: "both" }}
             >
-              <span className="text-[13px] font-bold text-[#0F172A]">Total</span>
-              <span className="animate-popIn font-mono text-[20px] font-bold text-[#0F172A]">
+              <span className="text-[13px] font-bold text-[#2E2659]">Total</span>
+              <span className="animate-popIn font-mono text-[20px] font-bold text-[#2E2659]">
                 {fmtDh(
                   receiptItems.reduce((s, l) => {
                     const p = store.productById(l.productId);
@@ -882,7 +882,7 @@ function Caisse({
                 )}
               </span>
             </div>
-            <p className="mt-2 text-center text-[9px] text-[#64748B]">✂ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
+            <p className="mt-2 text-center text-[9px] text-[#6B6389]">✂ ─ ─ ─ ─ ─ ─ ─ ─ ─</p>
           </div>
         </div>
       )}
@@ -949,11 +949,11 @@ function TicketSheet({
       >
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#64748B]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6B6389]">
               Ticket de caisse
             </p>
-            <p className="text-[15px] font-bold text-[#0F172A]">Hanout Al Baraka</p>
-            <p className="text-[10.5px] text-[#64748B]">
+            <p className="text-[15px] font-bold text-[#2E2659]">Hanout Al Baraka</p>
+            <p className="text-[10.5px] text-[#6B6389]">
               {new Date().toLocaleString("fr-FR", {
                 day: "2-digit",
                 month: "short",
@@ -965,15 +965,15 @@ function TicketSheet({
           <button
             onClick={onClose}
             aria-label="Fermer le ticket"
-            className="rounded-lg p-1.5 text-[#64748B] transition hover:bg-[#F1F5F9]"
+            className="rounded-lg p-1.5 text-[#6B6389] transition hover:bg-[#F1F5F9]"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-4 space-y-2 border-b border-dashed border-[#E2E8F0] pb-3">
+        <div className="mt-4 space-y-2 border-b border-dashed border-[#DFD9EF] pb-3">
           {lines.length === 0 && (
-            <p className="py-4 text-center text-[12px] text-[#64748B]">Panier vide</p>
+            <p className="py-4 text-center text-[12px] text-[#6B6389]">Panier vide</p>
           )}
           {lines.map((l, i) => (
             <div
@@ -988,31 +988,31 @@ function TicketSheet({
                   l.emoji
                 )}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#0F172A]">
+              <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#2E2659]">
                 {l.qty} × {l.name}
               </span>
-              <span className="font-mono text-[12px] font-bold text-[#0F172A]">
+              <span className="font-mono text-[12px] font-bold text-[#2E2659]">
                 {fmtDh(l.priceDh * l.qty)}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="animate-fade-up relative mt-3 flex items-end justify-between overflow-hidden rounded-xl bg-[#FFF1EA] px-3 py-2.5"
+        <div className="animate-fade-up relative mt-3 flex items-end justify-between overflow-hidden rounded-xl bg-[#E9E6F5] px-3 py-2.5"
           style={{ animationDelay: `${lines.length * 85 + 80}ms`, animationFillMode: "both" }}
         >
-          <span className="pointer-events-none absolute inset-y-0 w-1/3 animate-shimmer bg-[#FF5200]/10" />
-          <span className="text-[11px] font-bold uppercase tracking-wide text-[#64748B]">
+          <span className="pointer-events-none absolute inset-y-0 w-1/3 animate-shimmer bg-[#433874]/10" />
+          <span className="text-[11px] font-bold uppercase tracking-wide text-[#6B6389]">
             Total
           </span>
-          <span className="animate-popIn font-mono text-[26px] font-bold leading-none text-[#0F172A]">
+          <span className="animate-popIn font-mono text-[26px] font-bold leading-none text-[#2E2659]">
             {fmtDh(store.cartTotal)}
           </span>
         </div>
 
         {creditOpen ? (
           <div className="mt-4 space-y-2">
-            <p className="text-[11px] font-semibold text-[#64748B]">
+            <p className="text-[11px] font-semibold text-[#6B6389]">
               Sur quel carnet Kridi ?
             </p>
             <div className="scrollbar-thin flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
@@ -1020,7 +1020,7 @@ function TicketSheet({
                 <button
                   key={c.id}
                   onClick={() => pay("kridi", c.id)}
-                  className="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#0F172A] active:bg-[#F1F5F9]"
+                  className="rounded-full border border-[#DFD9EF] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#2E2659] active:bg-[#F1F5F9]"
                 >
                   {c.name}
                 </button>
@@ -1039,7 +1039,7 @@ function TicketSheet({
                 value={newClient}
                 onChange={(e) => setNewClient(e.target.value)}
                 placeholder="Nouveau client…"
-                className="h-9 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[11px] outline-none focus:border-[#FF5200]"
+                className="h-9 min-w-0 flex-1 rounded-lg border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[11px] outline-none focus:border-[#433874]"
               />
               <Btn type="submit" variant="dark" disabled={!newClient.trim()}>
                 Créer
@@ -1047,7 +1047,7 @@ function TicketSheet({
             </form>
             <button
               onClick={() => setCreditOpen(false)}
-              className="text-[11px] font-semibold text-[#64748B]"
+              className="text-[11px] font-semibold text-[#6B6389]"
             >
               Annuler
             </button>
@@ -1057,21 +1057,21 @@ function TicketSheet({
             <button
               disabled={lines.length === 0}
               onClick={() => pay("cash")}
-              className="flex flex-col items-center gap-1 rounded-xl border border-[#E2E8F0] bg-white py-2.5 text-[11px] font-bold text-[#059669] active:bg-[#ECFDF5] disabled:opacity-40"
+              className="flex flex-col items-center gap-1 rounded-xl border border-[#DFD9EF] bg-white py-2.5 text-[11px] font-bold text-[#059669] active:bg-[#ECFDF5] disabled:opacity-40"
             >
               <Banknote size={17} /> Espèces
             </button>
             <button
               disabled={lines.length === 0}
               onClick={() => setCreditOpen(true)}
-              className="flex flex-col items-center gap-1 rounded-xl border border-[#E2E8F0] bg-white py-2.5 text-[11px] font-bold text-[#FF5200] active:bg-[#FFF1EA] disabled:opacity-40"
+              className="flex flex-col items-center gap-1 rounded-xl border border-[#DFD9EF] bg-white py-2.5 text-[11px] font-bold text-[#433874] active:bg-[#E9E6F5] disabled:opacity-40"
             >
               <BookOpen size={17} /> Kridi
             </button>
             <button
               disabled={lines.length === 0}
               onClick={onCardScan}
-              className="flex flex-col items-center gap-1 rounded-xl border border-[#E2E8F0] bg-white py-2.5 text-[11px] font-bold text-[#0F172A] active:bg-[#F1F5F9] disabled:opacity-40"
+              className="flex flex-col items-center gap-1 rounded-xl border border-[#DFD9EF] bg-white py-2.5 text-[11px] font-bold text-[#2E2659] active:bg-[#F1F5F9] disabled:opacity-40"
             >
               <CreditCard size={17} /> Carte QR
             </button>
@@ -1114,9 +1114,9 @@ function MerchantKridi({
   return (
     <div className="animate-fade-up space-y-3">
       <Pane className="p-4">
-        <p className="text-[11px] text-[#64748B]">Créances Kridi en cours</p>
+        <p className="text-[11px] text-[#6B6389]">Créances Kridi en cours</p>
         <p className="mt-1 font-mono text-[26px] font-bold text-[#DC2626]">{fmtDh(total)}</p>
-        <p className="text-[11px] text-[#64748B]">
+        <p className="text-[11px] text-[#6B6389]">
           {debtors.length} client(s) à relancer
         </p>
       </Pane>
@@ -1126,8 +1126,8 @@ function MerchantKridi({
           <div className="flex items-center gap-3">
             <Avatar name={c.name} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-bold text-[#0F172A]">{c.name}</p>
-              <p className="truncate text-[10.5px] text-[#64748B]">
+              <p className="truncate text-[13px] font-bold text-[#2E2659]">{c.name}</p>
+              <p className="truncate text-[10.5px] text-[#6B6389]">
                 {c.history[0]
                   ? `Dernier achat il y a ${daysSince(c.history[0].date)}j`
                   : "Aucun achat"}
@@ -1138,7 +1138,7 @@ function MerchantKridi({
               <p className="font-mono text-[14px] font-bold text-[#DC2626]">
                 {fmtDh(c.debtDh)}
               </p>
-              <p className="text-[9.5px] text-[#64748B]">{c.phone ?? "—"}</p>
+              <p className="text-[9.5px] text-[#6B6389]">{c.phone ?? "—"}</p>
             </div>
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
@@ -1150,7 +1150,7 @@ function MerchantKridi({
             </button>
             <button
               onClick={() => setTarget(c)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white py-2 text-[11px] font-bold text-[#0F172A] active:scale-95"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#DFD9EF] bg-white py-2 text-[11px] font-bold text-[#2E2659] active:scale-95"
             >
               <Banknote size={13} /> Encaisser acompte
             </button>
@@ -1276,8 +1276,8 @@ function MerchantStock({
     <div className="animate-fade-up space-y-3">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-[15px] font-bold text-[#0F172A]">Catalogue de référence</h2>
-          <p className="text-[10.5px] text-[#64748B]">
+          <h2 className="text-[15px] font-bold text-[#2E2659]">Catalogue de référence</h2>
+          <p className="text-[10.5px] text-[#6B6389]">
             {store.products.length} produits · utilisé par la caisse vocale
           </p>
         </div>
@@ -1289,13 +1289,13 @@ function MerchantStock({
       <div className="relative">
         <Search
           size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8A7DB0]"
         />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un produit…"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white pl-9 pr-3 text-[12px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-white pl-9 pr-3 text-[12px] outline-none focus:border-[#433874]"
         />
       </div>
 
@@ -1307,8 +1307,8 @@ function MerchantStock({
             className={cx(
               "shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition",
               cat === c.id
-                ? "border-transparent bg-[#0F172A] text-white"
-                : "border-[#E2E8F0] bg-white text-[#64748B]",
+                ? "border-transparent bg-[#2E2659] text-white"
+                : "border-[#DFD9EF] bg-white text-[#6B6389]",
             )}
           >
             {c.label}
@@ -1320,7 +1320,7 @@ function MerchantStock({
         {list.map((p, i) => (
           <div
             key={p.id}
-            className="animate-fade-up overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm"
+            className="animate-fade-up overflow-hidden rounded-xl border border-[#DFD9EF] bg-white shadow-sm"
             style={{ animationDelay: `${Math.min(i, 14) * 40}ms`, animationFillMode: "both" }}
           >
             <button
@@ -1340,29 +1340,29 @@ function MerchantStock({
               </span>
             </button>
             <div className="p-2">
-              <p className="truncate text-[11.5px] font-semibold text-[#0F172A]">{p.name}</p>
+              <p className="truncate text-[11.5px] font-semibold text-[#2E2659]">{p.name}</p>
               <div className="mt-1 flex items-center justify-between gap-1">
-                <span className="font-mono text-[11px] font-bold text-[#FF5200]">
+                <span className="font-mono text-[11px] font-bold text-[#433874]">
                   {fmtDh(p.priceDh)}
                 </span>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => store.adjustStock(p.id, -1)}
-                    className="flex h-6 w-6 items-center justify-center rounded-md border border-[#E2E8F0] active:scale-90"
+                    className="flex h-6 w-6 items-center justify-center rounded-md border border-[#DFD9EF] active:scale-90"
                     aria-label="Retirer un"
                   >
                     <Minus size={11} />
                   </button>
                   <button
                     onClick={() => store.adjustStock(p.id, 1)}
-                    className="flex h-6 w-6 items-center justify-center rounded-md border border-[#E2E8F0] active:scale-90"
+                    className="flex h-6 w-6 items-center justify-center rounded-md border border-[#DFD9EF] active:scale-90"
                     aria-label="Ajouter un"
                   >
                     <Plus size={11} />
                   </button>
                   <button
                     onClick={() => store.adjustStock(p.id, 12)}
-                    className="rounded-md border border-[#E2E8F0] px-1.5 py-0.5 text-[9.5px] font-bold text-[#0F172A] active:scale-90"
+                    className="rounded-md border border-[#DFD9EF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#2E2659] active:scale-90"
                   >
                     +12
                   </button>
@@ -1379,7 +1379,7 @@ function MerchantStock({
 
       <button
         onClick={() => setAdding(true)}
-        className="fixed bottom-[88px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#FF5200] px-4 py-3 text-[12px] font-bold text-white shadow-lg active:scale-95"
+        className="fixed bottom-[88px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#433874] px-4 py-3 text-[12px] font-bold text-white shadow-lg active:scale-95"
       >
         <Plus size={16} /> Nouveau produit
       </button>
@@ -1476,7 +1476,7 @@ function ProductEditorSheet({
       </div>
 
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#E2E8F0] py-2 text-[11px] font-semibold text-[#0F172A] active:bg-[#F1F5F9]">
+        <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#DFD9EF] py-2 text-[11px] font-semibold text-[#2E2659] active:bg-[#F1F5F9]">
           <Camera size={14} /> Importer une photo
           <input
             type="file"
@@ -1500,7 +1500,7 @@ function ProductEditorSheet({
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nom du produit"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
       />
       <div className="mt-2 grid grid-cols-2 gap-2">
         <input
@@ -1508,21 +1508,21 @@ function ProductEditorSheet({
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Prix (DH)"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[12px] outline-none focus:border-[#433874]"
         />
         <input
           inputMode="numeric"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
           placeholder="Stock"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[12px] outline-none focus:border-[#433874]"
         />
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as Category)}
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 text-[11px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-2 text-[11px] outline-none focus:border-[#433874]"
         >
           {CATS.filter((c) => c.id !== "all").map((c) => (
             <option key={c.id} value={c.id}>
@@ -1534,32 +1534,32 @@ function ProductEditorSheet({
           value={emoji}
           onChange={(e) => setEmoji(e.target.value)}
           placeholder="Emoji"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-center text-[14px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-center text-[14px] outline-none focus:border-[#433874]"
         />
       </div>
       <input
         value={aliases}
         onChange={(e) => setAliases(e.target.value)}
         placeholder="Alias darija (séparés par des virgules)"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[11px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[11px] outline-none focus:border-[#433874]"
       />
 
       <div className="mt-2 flex items-center gap-1.5">
         <button
           onClick={() => store.adjustStock(product.id, -1)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] active:scale-90"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#DFD9EF] active:scale-90"
         >
           <Minus size={13} />
         </button>
         <button
           onClick={() => store.adjustStock(product.id, 1)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] active:scale-90"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#DFD9EF] active:scale-90"
         >
           <Plus size={13} />
         </button>
         <button
           onClick={() => store.adjustStock(product.id, 12)}
-          className="rounded-lg border border-[#E2E8F0] px-2 py-1 text-[10px] font-bold active:scale-90"
+          className="rounded-lg border border-[#DFD9EF] px-2 py-1 text-[10px] font-bold active:scale-90"
         >
           +12
         </button>
@@ -1631,12 +1631,12 @@ function MerchantCards({
     <div className="animate-fade-up space-y-3">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-[15px] font-bold text-[#0F172A]">Cartes PAYZIK</h2>
-          <p className="text-[10.5px] text-[#64748B]">
+          <h2 className="text-[15px] font-bold text-[#2E2659]">Cartes PAYZIK</h2>
+          <p className="text-[10.5px] text-[#6B6389]">
             Rechargeables · QR unique · solde en direct
           </p>
         </div>
-        <span className="flex items-center gap-1 rounded-md bg-[#F1F5F9] px-2 py-1 text-[10px] font-semibold text-[#64748B]">
+        <span className="flex items-center gap-1 rounded-md bg-[#F1F5F9] px-2 py-1 text-[10px] font-semibold text-[#6B6389]">
           <Wallet size={12} /> {store.cards.length}
         </span>
       </div>
@@ -1648,10 +1648,10 @@ function MerchantCards({
           { label: "PIN dès", value: `${PIN_THRESHOLD} DH` },
         ].map((k) => (
           <Pane key={k.label} className="p-2.5">
-            <p className="text-[9.5px] font-semibold uppercase tracking-wide text-[#64748B]">
+            <p className="text-[9.5px] font-semibold uppercase tracking-wide text-[#6B6389]">
               {k.label}
             </p>
-            <p className="mt-1 font-mono text-[15px] font-bold text-[#0F172A]">{k.value}</p>
+            <p className="mt-1 font-mono text-[15px] font-bold text-[#2E2659]">{k.value}</p>
           </Pane>
         ))}
       </div>
@@ -1660,13 +1660,13 @@ function MerchantCards({
         <div className="relative min-w-0 flex-1">
           <Search
             size={15}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8A7DB0]"
           />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Nom ou code de carte…"
-            className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white pl-9 pr-3 text-[12px] outline-none focus:border-[#FF5200]"
+            className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-white pl-9 pr-3 text-[12px] outline-none focus:border-[#433874]"
           />
         </div>
         <Btn variant="soft" onClick={() => setScanOpen(true)} aria-label="Trouver une carte">
@@ -1682,7 +1682,7 @@ function MerchantCards({
             <button
               key={c.id}
               onClick={() => setDetailId(c.id)}
-              className="animate-popIn block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF5200] to-[#FF8A3D] p-4 text-left text-white shadow-md active:scale-[.99]"
+              className="animate-popIn block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#433874] to-[#A78BFA] p-4 text-left text-white shadow-md active:scale-[.99]"
               style={{ animationDelay: `${Math.min(i, 12) * 45}ms`, animationFillMode: "both" }}
             >
               <div className="flex items-start justify-between">
@@ -1707,20 +1707,20 @@ function MerchantCards({
 
       <button
         onClick={() => setCreating(true)}
-        className="fixed bottom-[88px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#FF5200] px-4 py-3 text-[12px] font-bold text-white shadow-lg active:scale-95"
+        className="fixed bottom-[88px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#433874] px-4 py-3 text-[12px] font-bold text-white shadow-lg active:scale-95"
       >
         <Plus size={16} /> Nouvelle carte
       </button>
 
       <Sheet open={scanOpen} onClose={() => setScanOpen(false)} title="Trouver une carte">
-        <p className="text-[11.5px] text-[#64748B]">
+        <p className="text-[11.5px] text-[#6B6389]">
           Saisis le code affiché sur la carte (ex. PZK-8F3K-92).
         </p>
         <input
           value={scanCode}
           onChange={(e) => setScanCode(e.target.value.toUpperCase())}
           placeholder="PZK-XXXX-XXXX"
-          className="mt-2 h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] uppercase outline-none focus:border-[#FF5200]"
+          className="mt-2 h-11 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[13px] uppercase outline-none focus:border-[#433874]"
         />
         <Btn className="mt-2 w-full" onClick={openByCode} disabled={!scanCode.trim()}>
           <Check size={15} /> Ouvrir la carte
@@ -1771,13 +1771,13 @@ function NewCardSheet({
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nom du client (ex. Khadija)"
-        className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+        className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
       />
       <input
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         placeholder="Téléphone (optionnel)"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
       />
       <div className="mt-2 grid grid-cols-2 gap-2">
         <input
@@ -1786,17 +1786,17 @@ function NewCardSheet({
           value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
           placeholder="PIN ••••"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[12px] tracking-widest outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[12px] tracking-widest outline-none focus:border-[#433874]"
         />
         <input
           inputMode="numeric"
           value={initial}
           onChange={(e) => setInitial(e.target.value.replace(/\D/g, ""))}
           placeholder="Recharge (DH)"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[12px] outline-none focus:border-[#433874]"
         />
       </div>
-      <p className="mt-2 text-[10.5px] text-[#64748B]">
+      <p className="mt-2 text-[10.5px] text-[#6B6389]">
         Le PIN est demandé pour les paiements ≥ {PIN_THRESHOLD} DH.
       </p>
       <Btn
@@ -1852,7 +1852,7 @@ function CardDetailSheet({
     QRCode.toDataURL(card.code, {
       margin: 1,
       width: 220,
-      color: { dark: "#0F172A", light: "#FFFFFF" },
+      color: { dark: "#2E2659", light: "#FFFFFF" },
     })
       .then((url) => {
         if (alive) setQr(url);
@@ -1877,9 +1877,9 @@ function CardDetailSheet({
     if (!w) return;
     w.document.write(
       `<!doctype html><html><head><meta charset="utf-8"><title>Carte ${card.code}</title>
-       <style>body{font-family:Arial;text-align:center;padding:24px;color:#0F172A}
+       <style>body{font-family:Arial;text-align:center;padding:24px;color:#2E2659}
        .code{font-size:22px;font-weight:800;letter-spacing:2px;margin:8px 0}
-       .name{font-size:20px;font-weight:800}.sub{color:#64748B;font-size:12px}
+       .name{font-size:20px;font-weight:800}.sub{color:#6B6389;font-size:12px}
        img{width:240px;height:240px}@media print{.noprint{display:none}}</style></head>
        <body><div class="name">${card.name}</div><div class="sub">Carte PAYZIK</div>
        <img src="${qr}"/><div class="code">${card.code}</div>
@@ -1891,17 +1891,17 @@ function CardDetailSheet({
 
   return (
     <Sheet open onClose={onClose} title={`Carte — ${card.name}`}>
-      <div className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] p-3">
-        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
+      <div className="flex items-center gap-3 rounded-xl bg-[#F7F5FC] p-3">
+        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#DFD9EF] bg-white">
           {qr ? <img src={qr} alt={`QR ${card.code}`} className="h-full w-full object-contain" /> : <QrPlaceholder />}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#6B6389]">
             Solde disponible
           </p>
-          <p className="font-mono text-[22px] font-bold text-[#0F172A]">{fmtDh(card.balanceDh)}</p>
-          <p className="truncate font-mono text-[10.5px] text-[#64748B]">{card.code}</p>
-          <p className="truncate text-[10.5px] text-[#64748B]">{card.phone ?? "—"}</p>
+          <p className="font-mono text-[22px] font-bold text-[#2E2659]">{fmtDh(card.balanceDh)}</p>
+          <p className="truncate font-mono text-[10.5px] text-[#6B6389]">{card.code}</p>
+          <p className="truncate text-[10.5px] text-[#6B6389]">{card.phone ?? "—"}</p>
         </div>
       </div>
 
@@ -1911,14 +1911,14 @@ function CardDetailSheet({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom"
-            className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-[12px] outline-none focus:border-[#FF5200]"
+            className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-white px-3 text-[12px] outline-none focus:border-[#433874]"
           />
           <div className="grid grid-cols-2 gap-2">
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Téléphone"
-              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-[12px] outline-none focus:border-[#FF5200]"
+              className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-white px-3 text-[12px] outline-none focus:border-[#433874]"
             />
             <input
               inputMode="numeric"
@@ -1926,7 +1926,7 @@ function CardDetailSheet({
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
               placeholder="PIN"
-              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 font-mono text-[12px] outline-none focus:border-[#FF5200]"
+              className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-white px-3 font-mono text-[12px] outline-none focus:border-[#433874]"
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -1960,7 +1960,7 @@ function CardDetailSheet({
       ) : (
         <>
           <div className="mt-3">
-            <p className="mb-1.5 text-[10.5px] font-semibold text-[#64748B]">Recharger la carte</p>
+            <p className="mb-1.5 text-[10.5px] font-semibold text-[#6B6389]">Recharger la carte</p>
             <div className="flex flex-wrap gap-1.5">
               {[20, 50, 100, 200].map((v) => (
                 <button
@@ -1969,8 +1969,8 @@ function CardDetailSheet({
                   className={cx(
                     "rounded-lg border px-3 py-1.5 font-mono text-[11px] font-bold transition",
                     amount === v
-                      ? "border-[#FF5200] bg-[#FFF1EA] text-[#FF5200]"
-                      : "border-[#E2E8F0] bg-white text-[#0F172A]",
+                      ? "border-[#433874] bg-[#E9E6F5] text-[#433874]"
+                      : "border-[#DFD9EF] bg-white text-[#2E2659]",
                   )}
                 >
                   {v} DH
@@ -1981,7 +1981,7 @@ function CardDetailSheet({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Autre"
-                className="h-8 w-20 rounded-lg border border-[#E2E8F0] bg-white px-2 font-mono text-[11px] outline-none focus:border-[#FF5200]"
+                className="h-8 w-20 rounded-lg border border-[#DFD9EF] bg-white px-2 font-mono text-[11px] outline-none focus:border-[#433874]"
               />
             </div>
             <Btn className="mt-2 w-full" onClick={recharge} disabled={typeof amount !== "number" || amount <= 0}>
@@ -1990,19 +1990,19 @@ function CardDetailSheet({
           </div>
 
           <div className="mt-3">
-            <p className="mb-1.5 text-[10.5px] font-semibold text-[#64748B]">Historique</p>
+            <p className="mb-1.5 text-[10.5px] font-semibold text-[#6B6389]">Historique</p>
             <div className="scrollbar-thin max-h-32 space-y-1 overflow-y-auto">
               {txs.length === 0 && (
-                <p className="py-2 text-center text-[11px] text-[#64748B]">Aucune opération.</p>
+                <p className="py-2 text-center text-[11px] text-[#6B6389]">Aucune opération.</p>
               )}
               {txs.map((t) => (
                 <div
                   key={t.id}
-                  className="animate-fade-up flex items-center justify-between rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5"
+                  className="animate-fade-up flex items-center justify-between rounded-lg border border-[#DFD9EF] bg-white px-2.5 py-1.5"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[11px] font-semibold text-[#0F172A]">{t.label}</p>
-                    <p className="text-[9.5px] text-[#64748B]">
+                    <p className="truncate text-[11px] font-semibold text-[#2E2659]">{t.label}</p>
+                    <p className="text-[9.5px] text-[#6B6389]">
                       {new Date(t.at).toLocaleString("fr-FR", {
                         day: "2-digit",
                         month: "2-digit",
@@ -2052,7 +2052,7 @@ function QrPlaceholder() {
   return (
     <div className="grid h-full w-full grid-cols-4 gap-0.5 p-2">
       {Array.from({ length: 16 }).map((_, i) => (
-        <span key={i} className={cx("rounded-[1px]", i % 3 === 0 ? "bg-[#0F172A]" : "bg-[#E2E8F0]")} />
+        <span key={i} className={cx("rounded-[1px]", i % 3 === 0 ? "bg-[#2E2659]" : "bg-[#DFD9EF]")} />
       ))}
     </div>
   );
@@ -2124,20 +2124,20 @@ function Bilan({ store }: { store: StoreType }) {
       </div>
 
       <Pane className="flex items-center gap-3 p-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#DC2626]">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCE4EE] text-[#DC2626]">
           <Users size={18} />
         </span>
         <div className="flex-1">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[#64748B]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[#6B6389]">
             Créances Kridi en cours
           </p>
           <p className="font-mono text-[16px] font-bold text-[#DC2626]">{fmtDh(kridi)}</p>
         </div>
-        <ChevronRight size={16} className="text-[#94A3B8]" />
+        <ChevronRight size={16} className="text-[#8A7DB0]" />
       </Pane>
 
       <Pane className="p-4">
-        <h3 className="text-[13px] font-bold text-[#0F172A]">7 derniers jours</h3>
+        <h3 className="text-[13px] font-bold text-[#2E2659]">7 derniers jours</h3>
         <div className="mt-4 flex h-32 items-end gap-1.5">
           {days.map((d) => (
             <div key={d.label} className="flex flex-1 flex-col items-center gap-1">
@@ -2145,35 +2145,35 @@ function Bilan({ store }: { store: StoreType }) {
                 <div
                   className={cx(
                     "w-full rounded-t-md",
-                    d.total > 0 ? "bg-[#FF5200]" : "bg-[#F1F5F9]",
+                    d.total > 0 ? "bg-[#433874]" : "bg-[#F1F5F9]",
                   )}
                   style={{ height: `${Math.max(4, (d.total / maxDay) * 100)}%` }}
                   title={`${d.label} · ${fmtDh(d.total)}`}
                 />
               </div>
-              <span className="text-[9px] font-semibold text-[#64748B]">{d.label}</span>
+              <span className="text-[9px] font-semibold text-[#6B6389]">{d.label}</span>
             </div>
           ))}
         </div>
       </Pane>
 
       <Pane className="p-4">
-        <h3 className="text-[13px] font-bold text-[#0F172A]">Top produits</h3>
+        <h3 className="text-[13px] font-bold text-[#2E2659]">Top produits</h3>
         {top.length === 0 ? (
-          <p className="mt-2 text-[11.5px] text-[#64748B]">
+          <p className="mt-2 text-[11.5px] text-[#6B6389]">
             Encaisse une vente pour voir tes meilleurs produits.
           </p>
         ) : (
           <div className="mt-2 space-y-2">
             {top.map(([name, qty], i) => (
               <div key={name} className="flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F5F9] text-[10px] font-bold text-[#64748B]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F5F9] text-[10px] font-bold text-[#6B6389]">
                   {i + 1}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-[11.5px] font-semibold text-[#0F172A]">
+                <span className="min-w-0 flex-1 truncate text-[11.5px] font-semibold text-[#2E2659]">
                   {name}
                 </span>
-                <span className="font-mono text-[11px] font-bold text-[#0F172A]">
+                <span className="font-mono text-[11px] font-bold text-[#2E2659]">
                   ×{qty}
                 </span>
               </div>
@@ -2202,7 +2202,7 @@ function KridiPickModal({
 }) {
   return (
     <Sheet open={open} onClose={onClose} title="Inscrire au Kridi">
-      <p className="text-[11.5px] text-[#64748B]">
+      <p className="text-[11.5px] text-[#6B6389]">
         Choisis le client. Le montant sera ajouté à son carnet.
       </p>
       <div className="mt-3 space-y-1.5">
@@ -2210,18 +2210,18 @@ function KridiPickModal({
           <button
             key={c.id}
             onClick={() => onPick(c)}
-            className="flex w-full items-center gap-2.5 rounded-xl border border-[#E2E8F0] p-2.5 text-left active:bg-[#F8FAFC]"
+            className="flex w-full items-center gap-2.5 rounded-xl border border-[#DFD9EF] p-2.5 text-left active:bg-[#F7F5FC]"
           >
             <Avatar name={c.name} size={34} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[12.5px] font-semibold text-[#0F172A]">
+              <p className="truncate text-[12.5px] font-semibold text-[#2E2659]">
                 {c.name}
               </p>
-              <p className="text-[10.5px] text-[#64748B]">
+              <p className="text-[10.5px] text-[#6B6389]">
                 Dette actuelle : {fmtDh(c.debtDh)}
               </p>
             </div>
-            <ChevronRight size={15} className="text-[#94A3B8]" />
+            <ChevronRight size={15} className="text-[#8A7DB0]" />
           </button>
         ))}
       </div>
@@ -2250,11 +2250,11 @@ function AcompteModal({
 
   return (
     <Sheet open onClose={onClose} title="Encaisser un acompte">
-      <div className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] p-3">
+      <div className="flex items-center gap-3 rounded-xl bg-[#F7F5FC] p-3">
         <Avatar name={client.name} size={38} />
         <div>
-          <p className="text-[13px] font-bold text-[#0F172A]">{client.name}</p>
-          <p className="text-[11px] text-[#64748B]">
+          <p className="text-[13px] font-bold text-[#2E2659]">{client.name}</p>
+          <p className="text-[11px] text-[#6B6389]">
             Dette : <span className="font-mono font-bold text-[#DC2626]">{fmtDh(client.debtDh)}</span>
           </p>
         </div>
@@ -2270,7 +2270,7 @@ function AcompteModal({
                 "rounded-lg border py-2 font-mono text-[12px] font-bold transition",
                 amount === v
                   ? "border-[#059669] bg-[#ECFDF5] text-[#059669]"
-                  : "border-[#E2E8F0] text-[#0F172A]",
+                  : "border-[#DFD9EF] text-[#2E2659]",
               )}
             >
               {v}
@@ -2284,7 +2284,7 @@ function AcompteModal({
         value={amount}
         onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
         placeholder="Montant de l'acompte"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] outline-none focus:border-[#059669]"
+        className="mt-2 h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[13px] outline-none focus:border-[#059669]"
       />
 
       <Btn
@@ -2366,7 +2366,7 @@ function AddProductModal({
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F1F5F9] text-3xl">
           {image ? <img src={image} alt="Aperçu" className="h-full w-full object-cover" /> : emoji}
         </div>
-        <label className="flex-1 cursor-pointer rounded-xl border border-[#E2E8F0] py-2.5 text-center text-[11px] font-semibold text-[#0F172A] active:bg-[#F1F5F9]">
+        <label className="flex-1 cursor-pointer rounded-xl border border-[#DFD9EF] py-2.5 text-center text-[11px] font-semibold text-[#2E2659] active:bg-[#F1F5F9]">
           <Camera size={14} className="mr-1 inline" />
           {image ? "Changer la photo" : "Ajouter une photo"}
           <input
@@ -2388,7 +2388,7 @@ function AddProductModal({
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nom du produit"
-        className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[13px] outline-none focus:border-[#FF5200]"
+        className="mt-2 h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[13px] outline-none focus:border-[#433874]"
       />
       <div className="mt-2 grid grid-cols-2 gap-2">
         <input
@@ -2396,14 +2396,14 @@ function AddProductModal({
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Prix (DH)"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[13px] outline-none focus:border-[#433874]"
         />
         <input
           inputMode="numeric"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
           placeholder="Stock"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 font-mono text-[13px] outline-none focus:border-[#433874]"
         />
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2">
@@ -2411,13 +2411,13 @@ function AddProductModal({
           value={emoji}
           onChange={(e) => setEmoji(e.target.value)}
           placeholder="Emoji"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-center text-[14px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-center text-[14px] outline-none focus:border-[#433874]"
         />
         <input
           value={aliases}
           onChange={(e) => setAliases(e.target.value)}
           placeholder="Alias darija"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[11px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[11px] outline-none focus:border-[#433874]"
         />
       </div>
       <div className="mt-2 grid grid-cols-4 gap-1.5">
@@ -2428,8 +2428,8 @@ function AddProductModal({
             className={cx(
               "rounded-lg border py-2 text-[10px] font-semibold transition",
               category === c
-                ? "border-[#0F172A] bg-[#0F172A] text-white"
-                : "border-[#E2E8F0] text-[#64748B]",
+                ? "border-[#2E2659] bg-[#2E2659] text-white"
+                : "border-[#DFD9EF] text-[#6B6389]",
             )}
           >
             {c}

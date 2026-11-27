@@ -40,7 +40,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none focus:border-[#FF7A1A]"
+        className="mt-1 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none focus:border-[#8A6EDD]"
       />
     </label>
   );
@@ -117,7 +117,7 @@ export function ProfileSettings({ user, onClose, onUpdated, onLogout, notify }: 
   };
 
   return (
-    <div className="flex h-full flex-col bg-[#F8FAFC]">
+    <div className="flex h-full flex-col bg-[#F7F5FC]">
       <header className="shrink-0 border-b border-slate-200 bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+14px)]">
         <div className="flex items-center gap-3">
           <button onClick={onClose} aria-label="Retour" className="rounded-xl p-2 text-slate-600 hover:bg-slate-100">
@@ -136,7 +136,7 @@ export function ProfileSettings({ user, onClose, onUpdated, onLogout, notify }: 
             {image ? (
               <img src={image} alt="Photo de profil" className="h-14 w-14 rounded-full object-cover" />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF7A1A] text-lg font-bold text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#8A6EDD] text-lg font-bold text-white">
                 {(name || user.email).slice(0, 1).toUpperCase()}
               </div>
             )}
@@ -168,7 +168,7 @@ export function ProfileSettings({ user, onClose, onUpdated, onLogout, notify }: 
 
         {user.role === "merchant" && (
           <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-[#FF7A1A]">Ma boutique</p>
+            <p className="text-[12px] font-bold uppercase tracking-wide text-[#8A6EDD]">Ma boutique</p>
             {shopImage && <img src={shopImage} alt="Photo de la boutique" className="h-28 w-full rounded-xl object-cover" />}
             <label className="block text-[11px] font-semibold text-slate-500">
               Photo de la boutique
@@ -193,7 +193,7 @@ export function ProfileSettings({ user, onClose, onUpdated, onLogout, notify }: 
         <button
           onClick={() => void save()}
           disabled={busy}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#FF7A1A] text-[13px] font-bold text-white disabled:opacity-50"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#8A6EDD] text-[13px] font-bold text-white disabled:opacity-50"
         >
           <Save size={16} /> {busy ? "Enregistrement…" : "Enregistrer les modifications"}
         </button>

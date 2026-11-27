@@ -60,7 +60,7 @@ export function Pane({
     <div
       onClick={onClick}
       className={cx(
-        "rounded-2xl border border-[#E2E8F0] bg-white shadow-sm",
+        "rounded-2xl border border-[#DFD9EF] bg-white shadow-sm",
         onClick && "cursor-pointer active:scale-[.995]",
         className,
       )}
@@ -79,11 +79,11 @@ export function Btn({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: BtnVariant }) {
   const variants: Record<BtnVariant, string> = {
-    primary: "bg-[#FF5200] text-white active:bg-[#E64500] shadow-sm",
+    primary: "bg-[#433874] text-white active:bg-[#E64500] shadow-sm",
     green: "bg-[#059669] text-white active:bg-[#047857] shadow-sm",
-    dark: "bg-[#0F172A] text-white active:bg-[#1E293B] shadow-sm",
-    soft: "bg-[#FFF1EA] text-[#FF5200] active:bg-[#FFE4D6]",
-    ghost: "text-[#64748B] active:bg-[#F1F5F9]",
+    dark: "bg-[#2E2659] text-white active:bg-[#1E293B] shadow-sm",
+    soft: "bg-[#E9E6F5] text-[#433874] active:bg-[#FFE4D6]",
+    ghost: "text-[#6B6389] active:bg-[#F1F5F9]",
     danger: "bg-[#DC2626] text-white active:bg-[#B91C1C] shadow-sm",
   };
   return (
@@ -116,7 +116,7 @@ export function IconBtn({
       onClick={onClick}
       aria-label={label}
       className={cx(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white text-[#0F172A] shadow-sm transition active:scale-95",
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#DFD9EF] bg-white text-[#2E2659] shadow-sm transition active:scale-95",
         className,
       )}
     >
@@ -160,7 +160,7 @@ export function Avatar({
   return (
     <span
       className={cx(
-        "flex shrink-0 items-center justify-center bg-[#FF5200] font-bold text-white",
+        "flex shrink-0 items-center justify-center bg-[#433874] font-bold text-white",
         square ? "rounded-xl" : "rounded-full",
       )}
       style={{ width: size, height: size, fontSize: size * 0.36 }}
@@ -197,11 +197,11 @@ export function Sheet({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-[15px] font-bold text-[#0F172A]">{title}</h3>
+          <h3 className="text-[15px] font-bold text-[#2E2659]">{title}</h3>
           <button
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-[#64748B] transition hover:bg-[#F1F5F9]"
+            className="rounded-lg p-1.5 text-[#6B6389] transition hover:bg-[#F1F5F9]"
           >
             <X size={18} />
           </button>
@@ -228,7 +228,7 @@ export function TabBar<T extends string>({
   columns?: number;
 }) {
   return (
-    <nav className="absolute inset-x-0 bottom-0 z-30 border-t border-[#E2E8F0] bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="absolute inset-x-0 bottom-0 z-30 border-t border-[#DFD9EF] bg-white pb-[env(safe-area-inset-bottom)]">
       <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
         {items.map((it) => {
           const Icon = it.icon;
@@ -240,17 +240,17 @@ export function TabBar<T extends string>({
               className="relative flex flex-col items-center gap-1 py-2.5 transition active:scale-95"
             >
               {active && (
-                <span className="absolute -top-px h-0.5 w-8 rounded-full bg-[#FF5200]" />
+                <span className="absolute -top-px h-0.5 w-8 rounded-full bg-[#433874]" />
               )}
               <Icon
                 size={20}
                 strokeWidth={active ? 2.4 : 1.9}
-                className={active ? "text-[#FF5200]" : "text-[#94A3B8]"}
+                className={active ? "text-[#433874]" : "text-[#8A7DB0]"}
               />
               <span
                 className={cx(
                   columns > 6 ? "text-[9px] font-semibold" : "text-[10px] font-semibold",
-                  active ? "text-[#FF5200]" : "text-[#64748B]",
+                  active ? "text-[#433874]" : "text-[#6B6389]",
                 )}
               >
                 {it.label}
@@ -278,11 +278,11 @@ export function SectionHead({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-[14px] font-bold text-[#0F172A]">{title}</h2>
+      <h2 className="text-[14px] font-bold text-[#2E2659]">{title}</h2>
       {action && (
         <button
           onClick={onAction}
-          className="inline-flex items-center gap-0.5 text-[11.5px] font-semibold text-[#FF5200]"
+          className="inline-flex items-center gap-0.5 text-[11.5px] font-semibold text-[#433874]"
         >
           {action}
         </button>
@@ -301,10 +301,10 @@ export function Empty({
   hint?: string;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#E2E8F0] bg-white px-4 py-8 text-center">
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#DFD9EF] bg-white px-4 py-8 text-center">
       <span className="text-[#CBD5E1]">{icon}</span>
-      <p className="mt-2 text-[12.5px] font-semibold text-[#0F172A]">{title}</p>
-      {hint && <p className="mt-0.5 text-[11px] text-[#64748B]">{hint}</p>}
+      <p className="mt-2 text-[12.5px] font-semibold text-[#2E2659]">{title}</p>
+      {hint && <p className="mt-0.5 text-[11px] text-[#6B6389]">{hint}</p>}
     </div>
   );
 }
@@ -321,15 +321,15 @@ export function Kpi({
   tone?: "dark" | "green" | "orange" | "red";
 }) {
   const tones = {
-    dark: "bg-[#F1F5F9] text-[#0F172A]",
+    dark: "bg-[#F1F5F9] text-[#2E2659]",
     green: "bg-[#ECFDF5] text-[#059669]",
-    orange: "bg-[#FFF1EA] text-[#FF5200]",
-    red: "bg-[#FEF2F2] text-[#DC2626]",
+    orange: "bg-[#E9E6F5] text-[#433874]",
+    red: "bg-[#FCE4EE] text-[#DC2626]",
   };
   return (
     <Pane className="p-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#6B6389]">
           {label}
         </p>
         <span
@@ -341,7 +341,7 @@ export function Kpi({
           {icon}
         </span>
       </div>
-      <p className="mt-1.5 font-mono text-[16px] font-bold leading-none text-[#0F172A]">
+      <p className="mt-1.5 font-mono text-[16px] font-bold leading-none text-[#2E2659]">
         {value}
       </p>
     </Pane>

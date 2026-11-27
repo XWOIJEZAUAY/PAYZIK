@@ -9,21 +9,24 @@
    Thème clair par défaut ; .dark sur <html> pour le sombre.
    ============================================================ */
 :root {
-  --c-bg: #f4eddf; /* sable chaud */
-  --c-surface: #fffbf2; /* crème */
-  --c-surface-2: #ede4d3;
-  --c-ink: #3a2a1f; /* encre chaude */
-  --c-muted: #8b7458;
-  --c-line: rgba(58, 42, 31, 0.14);
+  --c-bg: #F7F5FC; /* fond lavande clair */
+  --c-surface: #FFFFFF; /* surface blanche */
+  --c-surface-2: #E9E6F5; /* lavande */
+  --c-ink: #2E2659; /* violet profond */
+  --c-muted: #6B6389;
+  --c-line: rgba(46, 38, 89, 0.14);
+  --c-primary: #433874; /* violet profond */
+  --c-accent: #8A6EDD; /* violet milieu */
+  --c-rose: #F4437A; /* rose */
 }
 
 .dark {
-  --c-bg: #241a12;
-  --c-surface: #3a2a1f;
-  --c-surface-2: #5a4230;
-  --c-ink: #fff8ea;
-  --c-muted: #d3c3a9;
-  --c-line: rgba(255, 248, 234, 0.12);
+  --c-bg: #1B1638;
+  --c-surface: #2E2659;
+  --c-surface-2: #5B4E9E;
+  --c-ink: #FFFFFF;
+  --c-muted: #BDB2DA;
+  --c-line: rgba(255, 255, 255, 0.12);
 }
 
 @layer base {
@@ -41,11 +44,11 @@
     border-color: var(--c-line);
   }
   :focus-visible {
-    outline: 2px solid #FF7A1A;
+    outline: 2px solid #8A6EDD;
     outline-offset: 2px;
   }
   ::selection {
-    background: rgba(255,122,26, 0.28);
+    background: rgba(138,110,221, 0.28);
   }
 }
 

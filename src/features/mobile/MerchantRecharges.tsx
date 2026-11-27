@@ -117,12 +117,12 @@ export function MerchantRecharges({ notify }: { notify: (m: string) => void }) {
           value={newShopName}
           onChange={(e) => setNewShopName(e.target.value)}
           placeholder="Nom de la boutique (ex. Hanout Al Baraka)"
-          className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 text-[12px] outline-none focus:border-[#FF5200]"
+          className="h-10 w-full rounded-xl border border-[#DFD9EF] bg-[#F7F5FC] px-3 text-[12px] outline-none focus:border-[#433874]"
         />
         <button
           disabled={creating || !newShopName.trim()}
           onClick={() => void create()}
-          className="w-full rounded-xl bg-[#FF5200] py-2.5 text-[12px] font-bold text-white disabled:opacity-40"
+          className="w-full rounded-xl bg-[#433874] py-2.5 text-[12px] font-bold text-white disabled:opacity-40"
         >
           {creating ? "Création…" : "Créer ma boutique"}
         </button>
@@ -146,13 +146,13 @@ export function MerchantRecharges({ notify }: { notify: (m: string) => void }) {
           <Pane key={r.id} className="p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[12px] font-bold text-[#0F172A]">
+                <p className="text-[12px] font-bold text-[#2E2659]">
                   {c?.name ?? "Carte"} · {c?.code ?? r.card_id}
                 </p>
-                <p className="text-[10.5px] text-[#64748B]">
+                <p className="text-[10.5px] text-[#6B6389]">
                   Client {r.client_id.slice(0, 8)}… · {new Date(r.created_at).toLocaleString("fr-FR")}
                 </p>
-                <p className="mt-1 font-mono text-[16px] font-bold text-[#FF5200]">
+                <p className="mt-1 font-mono text-[16px] font-bold text-[#433874]">
                   {fmtDh(r.amount)}
                 </p>
               </div>
@@ -167,7 +167,7 @@ export function MerchantRecharges({ notify }: { notify: (m: string) => void }) {
                 <button
                   disabled={busy === r.id}
                   onClick={() => void reject(r.id)}
-                  className="flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-[10.5px] font-bold text-[#DC2626] disabled:opacity-40"
+                  className="flex items-center gap-1 rounded-lg border border-[#DFD9EF] px-2.5 py-2 text-[10.5px] font-bold text-[#DC2626] disabled:opacity-40"
                 >
                   <X size={13} /> Refuser
                 </button>

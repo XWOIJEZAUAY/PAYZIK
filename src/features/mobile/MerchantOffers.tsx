@@ -58,30 +58,30 @@ export function MerchantOffers({ notify }: { notify: (m: string) => void }) {
   return (
     <div className="space-y-3 pb-4">
       <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-        <p className="text-[12px] font-bold uppercase tracking-wide text-[#FF7A1A]">Publier une offre</p>
+        <p className="text-[12px] font-bold uppercase tracking-wide text-[#8A6EDD]">Publier une offre</p>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Ex : −20% sur les courses"
-          className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus:border-[#FF7A1A]"
+          className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus:border-[#8A6EDD]"
         />
         <input
           value={discount}
           onChange={(e) => setDiscount(e.target.value)}
           placeholder="Réduction (ex : −20%)"
-          className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus:border-[#FF7A1A]"
+          className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus:border-[#8A6EDD]"
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description (optionnel)"
           rows={2}
-          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#FF7A1A]"
+          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#8A6EDD]"
         />
         <button
           onClick={() => void add()}
           disabled={busy}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#FF7A1A] text-[12px] font-bold text-white disabled:opacity-50"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#8A6EDD] text-[12px] font-bold text-white disabled:opacity-50"
         >
           <Plus size={15} /> {busy ? "Publication…" : "Publier l'offre"}
         </button>

@@ -34,13 +34,13 @@ export function ClientKridi({
       <Pane className="p-3.5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[11px] text-[#64748B]">Total dû au quartier</p>
-            <p className="mt-1 font-mono text-[22px] font-bold text-[#FF5200]">{fmtDh(total)}</p>
-            <p className="mt-0.5 text-[11px] text-[#64748B]">
+            <p className="text-[11px] text-[#6B6389]">Total dû au quartier</p>
+            <p className="mt-1 font-mono text-[22px] font-bold text-[#433874]">{fmtDh(total)}</p>
+            <p className="mt-0.5 text-[11px] text-[#6B6389]">
               Chez {CLIENT_KRIDI.length} commerçants · à régler avant échéance.
             </p>
           </div>
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#FF5200]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCE4EE] text-[#433874]">
             <BookOpen size={20} />
           </span>
         </div>
@@ -63,19 +63,19 @@ export function ClientKridi({
             >
               <Avatar name={k.merchant} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-[#0F172A]">{k.merchant}</p>
-                <p className="text-[10.5px] text-[#64748B]">
+                <p className="truncate text-[13px] font-bold text-[#2E2659]">{k.merchant}</p>
+                <p className="text-[10.5px] text-[#6B6389]">
                   {k.district} · échéance {fmtDate(k.due)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-mono text-[14px] font-bold text-[#0F172A]">
+                <p className="font-mono text-[14px] font-bold text-[#2E2659]">
                   {fmtDh(k.amountDh)}
                 </p>
                 <span
                   className={cx(
                     "text-[9.5px] font-bold",
-                    late ? "text-[#FF5200]" : "text-[#059669]",
+                    late ? "text-[#433874]" : "text-[#059669]",
                   )}
                 >
                   {late ? "En retard" : "À venir"}
@@ -84,7 +84,7 @@ export function ClientKridi({
               <ChevronRight
                 size={15}
                 className={cx(
-                  "shrink-0 text-[#94A3B8] transition-transform",
+                  "shrink-0 text-[#8A7DB0] transition-transform",
                   isOpen && "rotate-90",
                 )}
               />
@@ -94,10 +94,10 @@ export function ClientKridi({
               <div className="mt-2 space-y-1 border-t border-[#F1F5F9] pt-2">
                 {k.items.map((it, i) => (
                   <div key={i} className="flex items-center justify-between text-[11px]">
-                    <span className="text-[#64748B]">
+                    <span className="text-[#6B6389]">
                       {it.qty}× {it.name}
                     </span>
-                    <span className="font-mono font-semibold text-[#0F172A]">
+                    <span className="font-mono font-semibold text-[#2E2659]">
                       {fmtDh(it.qty * it.priceDh)}
                     </span>
                   </div>
@@ -106,7 +106,7 @@ export function ClientKridi({
                   onClick={() =>
                     notify(`Paiement de ${fmtDh(k.amountDh)} à ${k.merchant} bientôt disponible`)
                   }
-                  className="mt-1 w-full rounded-lg bg-[#0F172A] py-2 text-[11px] font-bold text-white active:scale-[.98]"
+                  className="mt-1 w-full rounded-lg bg-[#2E2659] py-2 text-[11px] font-bold text-white active:scale-[.98]"
                 >
                   Régler par PAYZIK
                 </button>
@@ -117,19 +117,19 @@ export function ClientKridi({
       })}
 
       <Pane className="p-3.5">
-        <h3 className="text-[13px] font-bold text-[#0F172A]">Mon profil</h3>
+        <h3 className="text-[13px] font-bold text-[#2E2659]">Mon profil</h3>
         <div className="mt-3 flex items-center gap-3">
           <Avatar name={user.name} size={44} />
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold text-[#0F172A]">{user.name}</p>
-            <p className="truncate text-[11px] text-[#64748B]">{user.email}</p>
-            <p className="text-[10.5px] text-[#94A3B8]">{[user.address, user.city].filter(Boolean).join(" · ") || "Ajoute ta ville dans Mon profil"}</p>
+            <p className="truncate text-[13px] font-bold text-[#2E2659]">{user.name}</p>
+            <p className="truncate text-[11px] text-[#6B6389]">{user.email}</p>
+            <p className="text-[10.5px] text-[#8A7DB0]">{[user.address, user.city].filter(Boolean).join(" · ") || "Ajoute ta ville dans Mon profil"}</p>
           </div>
         </div>
         <div className="mt-3">
           <button
             onClick={onProfile}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#FFF1EA] py-2.5 text-[11.5px] font-bold text-[#D95F00] active:scale-[.98]"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#E9E6F5] py-2.5 text-[11.5px] font-bold text-[#8A6EDD] active:scale-[.98]"
           >
             <LogOut size={14} /> Modifier mon profil
           </button>

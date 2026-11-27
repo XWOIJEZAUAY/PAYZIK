@@ -202,7 +202,7 @@ export function VoiceInput({
             "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-all duration-200",
             phase === "recording"
               ? "bg-orange text-night shadow-glow"
-              : "bg-navy text-white shadow-[0_6px_20px_rgba(255,122,26,0.3)] hover:bg-navy-soft",
+              : "bg-navy text-white shadow-[0_6px_20px_rgba(138,110,221,0.3)] hover:bg-navy-soft",
             phase === "thinking" && "opacity-70",
           )}
         >

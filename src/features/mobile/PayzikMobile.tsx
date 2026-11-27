@@ -39,8 +39,8 @@ export function PayzikMobile({
   );
 
   return (
-    <div className="flex min-h-[100dvh] w-full justify-center bg-[#E2E8F0]">
-      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[#F8FAFC] shadow-xl">
+    <div className="flex min-h-[100dvh] w-full justify-center bg-[#DFD9EF]">
+      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[#F7F5FC] shadow-xl">
         {user.role === "merchant" ? (
           <MerchantSpace
             store={store}
@@ -74,7 +74,7 @@ export function PayzikMobile({
 
         {toast && (
           <div className="pointer-events-none absolute left-1/2 top-[calc(env(safe-area-inset-top)+64px)] z-[60] w-[calc(100%-32px)] -translate-x-1/2">
-            <div className="animate-toast-in flex items-center gap-2 rounded-xl bg-[#0F172A] px-3.5 py-2.5 text-[12px] font-semibold text-white shadow-lg">
+            <div className="animate-toast-in flex items-center gap-2 rounded-xl bg-[#2E2659] px-3.5 py-2.5 text-[12px] font-semibold text-white shadow-lg">
               <Check size={15} className="shrink-0 text-[#34D399]" />
               <span className="min-w-0 flex-1">{toast}</span>
             </div>
