@@ -12,7 +12,6 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  Gift,
   MapPin,
   Plus,
   QrCode,
@@ -35,6 +34,7 @@ import type { Profile } from "../../services/auth";
 import type { Store as StoreType } from "../../state/store";
 import type { Establishment, WalletCard } from "../../types";
 import { ClientKridi } from "./client-kridi";
+import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import {
   Avatar,
   Btn,
@@ -425,8 +425,6 @@ function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
 /* Ma carte & recharge                                                  */
 /* ------------------------------------------------------------------ */
 
-type PayMethod = "cmi" | "virement" | "especes";
-
 function ClientCard({
   store,
   card,
@@ -436,35 +434,10 @@ function ClientCard({
   card?: WalletCard;
   notify: (m: string) => void;
 }) {
-  const [amount, setAmount] = useState<number | "">("");
-  const [method, setMethod] = useState<PayMethod>("cmi");
-  const [pending, setPending] = useState<{ id: number; amount: number }[]>([]);
   const txs = card ? store.cardTxFor(card.id) : [];
   const cashback = txs
     .filter((t) => t.label.startsWith("Cashback"))
     .reduce((s, t) => s + t.amountDh, 0);
-
-  const recharge = () => {
-    if (!card || typeof amount !== "number" || amount <= 0) return;
-    if (method === "especes") {
-      setPending((p) => [{ id: Date.now(), amount }, ...p]);
-      notify(`Demande de ${fmtDh(amount)} envoyée au commerçant`);
-    } else {
-      store.topUpCard(
-        card.id,
-        amount,
-        method === "cmi" ? "Recharge CMI" : "Recharge virement",
-      );
-      notify(`${fmtDh(amount)} rechargés sur ta carte`);
-    }
-    setAmount("");
-  };
-
-  const methods: { id: PayMethod; label: string }[] = [
-    { id: "cmi", label: "Carte CMI" },
-    { id: "virement", label: "Virement" },
-    { id: "especes", label: "Espèces au Hanout" },
-  ];
 
   return (
     <div className="animate-fade-up space-y-3">
@@ -501,79 +474,11 @@ function ClientCard({
         </div>
       </div>
 
-      {/* recharge */}
-      <Pane className="p-4">
-        <h3 className="text-[13px] font-bold text-[#0F172A]">Recharger ma carte</h3>
-        <div className="mt-3 grid grid-cols-4 gap-1.5">
-          {[50, 100, 200, 500].map((v) => (
-            <button
-              key={v}
-              onClick={() => setAmount(v)}
-              className={cx(
-                "rounded-lg border py-2 font-mono text-[12px] font-bold transition",
-                amount === v
-                  ? "border-[#FF5200] bg-[#FFF1EA] text-[#FF5200]"
-                  : "border-[#E2E8F0] text-[#0F172A]",
-              )}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-        <input
-          inputMode="numeric"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-          placeholder="Autre montant"
-          className="mt-2 h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 font-mono text-[13px] outline-none focus:border-[#FF5200]"
-        />
-        <p className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-[#059669]">
-          <Gift size={13} />
-          +{Math.round((typeof amount === "number" ? amount : 0) * 0.02)} DH de cashback offert
-        </p>
-
-        <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-[#64748B]">
-          Moyen de paiement
-        </p>
-        <div className="mt-1.5 grid grid-cols-3 gap-1.5">
-          {methods.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setMethod(m.id)}
-              className={cx(
-                "rounded-lg border px-1 py-2 text-[10px] font-semibold transition",
-                method === m.id
-                  ? "border-[#0F172A] bg-[#0F172A] text-white"
-                  : "border-[#E2E8F0] text-[#64748B]",
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-
-        <Btn
-          className="mt-3 w-full"
-          disabled={typeof amount !== "number" || amount <= 0}
-          onClick={recharge}
-        >
-          <Plus size={16} />
-          Recharger {typeof amount === "number" ? fmtDh(amount) : ""}
-        </Btn>
-
-        {pending.length > 0 && (
-          <div className="mt-3 space-y-1.5 rounded-xl bg-[#FFFBEB] p-2.5">
-            {pending.map((p) => (
-              <div key={p.id} className="flex items-center justify-between text-[11px]">
-                <span className="flex items-center gap-1 font-semibold text-[#B45309]">
-                  <Clock size={12} /> En attente du commerçant
-                </span>
-                <span className="font-mono font-bold text-[#B45309]">{fmtDh(p.amount)}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Pane>
+      {/* recharge réelle via commerçant */}
+      <CloudRechargePanel
+        customerName={card?.name ?? "Client PAYZIK"}
+        onNotice={notify}
+      />
 
       {/* historique */}
       <Pane className="p-4">
