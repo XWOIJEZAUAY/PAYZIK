@@ -1,4 +1,4 @@
-/** PAYZIK — coquille mobile double profil (client / commerçant).
+/** PAYZIK — coquille mobile : un seul type de compte par email.
  *  100% mobile-first, largeur max 430px, palette stricte. */
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -7,8 +7,6 @@ import type { Store as StoreType } from "../../state/store";
 import { ClientSpace, type ClientTab } from "./client";
 import { MerchantSpace, type MerchantTab } from "./merchant";
 import { ProfileSettings } from "./ProfileSettings";
-
-type Mode = "client" | "merchant";
 
 export function PayzikMobile({
   store,
@@ -21,9 +19,6 @@ export function PayzikMobile({
   onLogout: () => void;
   onUserUpdate: (u: Profile) => void;
 }) {
-  const [mode, setMode] = useState<Mode>(
-    user.role === "merchant" ? "merchant" : "client",
-  );
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [clientTab, setClientTab] = useState<ClientTab>("home");
   const [merchantTab, setMerchantTab] = useState<MerchantTab>("caisse");
@@ -43,31 +38,23 @@ export function PayzikMobile({
     [],
   );
 
-  const switchMode = () => {
-    setMode((m) => (m === "client" ? "merchant" : "client"));
-    notify(mode === "client" ? "Espace commerçant" : "Espace client");
-  };
-
   return (
     <div className="flex min-h-[100dvh] w-full justify-center bg-[#E2E8F0]">
       <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[#F8FAFC] shadow-xl">
-        {mode === "client" ? (
+        {user.role === "merchant" ? (
+          <MerchantSpace
+            store={store}
+            tab={merchantTab}
+            setTab={setMerchantTab}
+            onProfile={() => setSettingsOpen(true)}
+            notify={notify}
+          />
+        ) : (
           <ClientSpace
             store={store}
             user={user}
             tab={clientTab}
             setTab={setClientTab}
-            onSwitch={switchMode}
-            onProfile={() => setSettingsOpen(true)}
-            notify={notify}
-          />
-        ) : (
-          <MerchantSpace
-            store={store}
-            user={user}
-            tab={merchantTab}
-            setTab={setMerchantTab}
-            onSwitch={switchMode}
             onProfile={() => setSettingsOpen(true)}
             notify={notify}
           />

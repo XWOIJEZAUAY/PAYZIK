@@ -1,7 +1,6 @@
 ﻿/** Espace COMMERÇANT — caisse vocale, kridi, stock et bilan. */
 import {
   AlertTriangle,
-  ArrowLeftRight,
   Banknote,
   BookOpen,
   Camera,
@@ -37,7 +36,7 @@ import { daysSince, fmtDh } from "../../lib/format";
 import { getAiLang, setAiLang } from "../../lib/aiLang";
 import { PIN_THRESHOLD } from "../../lib/wallet";
 import { resizeImageFile, searchProductImage } from "../../services/imageSearch";
-import type { Profile } from "../../services/auth";
+import { listMyShops } from "../../services/backend/payzikCards";
 import {
   aiAvailable,
   matchProducts,
@@ -66,8 +65,9 @@ import {
   StockPill,
   TabBar,
 } from "./ui";
+import { MerchantOffers } from "./MerchantOffers";
 
-export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "recharges" | "bilan";
+export type MerchantTab = "caisse" | "kridi" | "stock" | "cartes" | "recharges" | "promos" | "bilan";
 
 /* Une seule tentative d'image par référence et par session : évite de
  * relancer l'API Open Food Facts à chaque changement d'onglet. */
@@ -79,6 +79,7 @@ const MERCHANT_TABS: { id: MerchantTab; label: string; icon: typeof Wallet }[] =
   { id: "stock", label: "Stock", icon: Package },
   { id: "cartes", label: "Cartes", icon: CreditCard },
   { id: "recharges", label: "Demandes", icon: Wallet },
+  { id: "promos", label: "Promos", icon: Zap },
   { id: "bilan", label: "Bilan", icon: TrendingUp },
 ];
 
@@ -162,29 +163,34 @@ function VoiceProductCard({ chip, index }: { chip: VoiceChip; index: number }) {
 
 export function MerchantSpace({
   store,
-  user,
   tab,
   setTab,
-  onSwitch,
   onProfile,
   notify,
 }: {
   store: StoreType;
-  user: Profile;
   tab: MerchantTab;
   setTab: (t: MerchantTab) => void;
-  onSwitch: () => void;
   onProfile: () => void;
   notify: (m: string) => void;
 }) {
-  const storeName =
-    user.role === "merchant" && user.name ? user.name : "Hanout Al Baraka";
+  const [shopName, setShopName] = useState("Ma boutique");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const res = await listMyShops();
+      if (alive && res.ok && res.data.length) setShopName(res.data[0].shop_name);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const storeName = shopName;
 
   return (
     <>
       <MerchantHeader
         name={storeName}
-        onSwitch={onSwitch}
         onProfile={onProfile}
       />
       <main
@@ -198,20 +204,19 @@ export function MerchantSpace({
         {tab === "stock" && <MerchantStock store={store} notify={notify} />}
         {tab === "cartes" && <MerchantCards store={store} notify={notify} />}
         {tab === "recharges" && <MerchantRecharges notify={notify} />}
+        {tab === "promos" && <MerchantOffers notify={notify} />}
         {tab === "bilan" && <Bilan store={store} />}
       </main>
-      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={6} />
+      <TabBar value={tab} onChange={setTab} items={MERCHANT_TABS} columns={7} />
     </>
   );
 }
 
 function MerchantHeader({
   name,
-  onSwitch,
   onProfile,
 }: {
   name: string;
-  onSwitch: () => void;
   onProfile: () => void;
 }) {
   return (
@@ -224,12 +229,6 @@ function MerchantHeader({
           </p>
           <p className="truncate text-[15px] font-bold text-[#0F172A]">{name}</p>
         </div>
-        <button
-          onClick={onSwitch}
-          className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm"
-        >
-          <ArrowLeftRight size={14} /> Espace client
-        </button>
         <button
           onClick={onProfile}
           aria-label="Mon profil"

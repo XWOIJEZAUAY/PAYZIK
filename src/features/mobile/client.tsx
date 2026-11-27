@@ -1,7 +1,6 @@
 /** Espace CLIENT — accueil, carte, commerces et scanner. */
 import {
   ArrowDownLeft,
-  ArrowLeftRight,
   ArrowRight,
   ArrowUpRight,
   Bell,
@@ -28,7 +27,9 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DEMO_ADS, DEMO_ESTABLISHMENTS } from "../../data/network";
+import { listShops } from "../../services/backend/payzikCards";
+import { listActiveOffers, type ShopOffer } from "../../services/backend/payzikOffers";
+import type { Ad } from "../../types";
 import { fmtDh } from "../../lib/format";
 import type { Profile } from "../../services/auth";
 import type { Store as StoreType } from "../../state/store";
@@ -58,12 +59,66 @@ export const CLIENT_TABS: { id: ClientTab; label: string; icon: typeof Wallet }[
   { id: "kridi", label: "Kridi", icon: BookOpen },
 ];
 
+type RealNetwork = {
+  shops: Establishment[];
+  offers: ShopOffer[];
+  ads: Ad[];
+};
+
+/** Récupère les vraies boutiques et offres Supabase (aucune simulation). */
+function useRealNetwork(): RealNetwork {
+  const [shops, setShops] = useState<Establishment[]>([]);
+  const [offers, setOffers] = useState<ShopOffer[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const [s, o] = await Promise.all([listShops(), listActiveOffers()]);
+      if (!alive) return;
+      const offerByShop = new Map<string, ShopOffer>();
+      if (o.ok) o.data.forEach((x) => { if (!offerByShop.has(x.shop_id)) offerByShop.set(x.shop_id, x); });
+      if (s.ok) {
+        setShops(s.data.map((x) => {
+          const offer = offerByShop.get(x.id);
+          return {
+            id: x.id,
+            name: x.shop_name,
+            kind: "hanout" as const,
+            city: x.city ?? "",
+            district: x.address ?? "",
+            rating: 0,
+            reviews: 0,
+            tags: [],
+            cashbackPct: 0,
+            distanceKm: 0,
+            promo: offer?.discount_label ?? offer?.title,
+            tone: "teal" as const,
+          };
+        }));
+      }
+      if (o.ok) setOffers(o.data);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const ads: Ad[] = offers.slice(0, 4).map((o, i) => ({
+    id: o.id,
+    eyebrow: "OFFRE PAYZIK",
+    title: o.discount_label || o.title,
+    subtitle: o.shop?.shop_name || "Boutique partenaire",
+    cta: "Voir l'offre",
+    sponsor: o.shop?.shop_name || "PAYZIK",
+    tone: (["teal", "amber", "indigo", "rose"] as const)[i % 4],
+  }));
+
+  return { shops, offers, ads };
+}
+
 export function ClientSpace({
   store,
   user,
   tab,
   setTab,
-  onSwitch,
   onProfile,
   notify,
 }: {
@@ -71,7 +126,6 @@ export function ClientSpace({
   user: Profile;
   tab: ClientTab;
   setTab: (t: ClientTab) => void;
-  onSwitch: () => void;
   onProfile: () => void;
   notify: (m: string) => void;
 }) {
@@ -79,7 +133,8 @@ export function ClientSpace({
   const [scan, setScan] = useState(false);
   const [payTarget, setPayTarget] = useState<Establishment | null>(null);
   const [p2p, setP2p] = useState(false);
-  const name = card?.name ?? user.name ?? "Khadija";
+  const name = card?.name ?? user.name ?? "Client";
+  const network = useRealNetwork();
 
   const pay = (target: Establishment, amount: number): string | null => {
     if (!card) return "Aucune carte PAYZIK sur ce compte.";
@@ -102,9 +157,9 @@ export function ClientSpace({
     <>
       <ClientHeader
         name={name}
-        onSwitch={onSwitch}
+        location={[user.address, user.city].filter(Boolean).join(", ")}
         onProfile={onProfile}
-        onBell={() => notify("3 nouvelles offres près de chez toi")}
+        onBell={() => notify("Voir les offres réelles des boutiques")}
       />
       <main className="scrollbar-thin flex-1 overflow-y-auto px-4 pb-24 pt-2">
         {tab === "home" && (
@@ -116,14 +171,17 @@ export function ClientSpace({
             onShops={() => setTab("shops")}
             onP2P={() => setP2p(true)}
             onPay={setPayTarget}
+            shops={network.shops}
+            ads={network.ads}
           />
         )}
         {tab === "card" && <ClientCard store={store} card={card} notify={notify} />}
-        {tab === "shops" && <ClientShops onPay={setPayTarget} notify={notify} />}
+        {tab === "shops" && (
+          <ClientShops onPay={setPayTarget} notify={notify} shops={network.shops} ads={network.ads} />
+        )}
         {tab === "kridi" && (
           <ClientKridi
             user={user}
-            onSwitch={onSwitch}
             onProfile={onProfile}
             notify={notify}
           />
@@ -139,6 +197,7 @@ export function ClientSpace({
           setScan(false);
           setPayTarget(e);
         }}
+        shops={network.shops}
       />
       <PayModal
         target={payTarget}
@@ -166,12 +225,12 @@ export function ClientSpace({
 
 function ClientHeader({
   name,
-  onSwitch,
+  location,
   onProfile,
   onBell,
 }: {
   name: string;
-  onSwitch: () => void;
+  location: string;
   onProfile: () => void;
   onBell: () => void;
 }) {
@@ -187,22 +246,16 @@ function ClientHeader({
           <Bell size={17} />
         </IconBtn>
         <button
-          onClick={onSwitch}
-          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-bold text-slate-700"
-        >
-          <ArrowLeftRight size={14} /> Espace commerçant
-        </button>
-        <button
           onClick={onProfile}
           aria-label="Mon profil"
-          className="rounded-full bg-[#FF7A1A] px-2 py-1.5 text-[11px] font-bold text-white"
+          className="rounded-full bg-[#FF7A1A] px-2.5 py-1.5 text-[11px] font-bold text-white"
         >
           Profil
         </button>
       </div>
       <button className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#0F172A] shadow-sm">
         <MapPin size={13} className="text-[#FF5200]" />
-        Maârif, Casablanca
+        {location || "Ajoute ta ville dans Mon profil"}
         <ChevronDown size={13} className="text-[#64748B]" />
       </button>
     </header>
@@ -221,6 +274,8 @@ function ClientHome({
   onShops,
   onP2P,
   onPay,
+  shops,
+  ads,
 }: {
   card?: WalletCard;
   onScan: () => void;
@@ -229,11 +284,11 @@ function ClientHome({
   onShops: () => void;
   onP2P: () => void;
   onPay: (e: Establishment) => void;
+  shops: Establishment[];
+  ads: Ad[];
 }) {
   const [hidden, setHidden] = useState(false);
-  const nearby = [...DEMO_ESTABLISHMENTS]
-    .sort((a, b) => a.distanceKm - b.distanceKm)
-    .slice(0, 4);
+  const nearby = shops.slice(0, 4);
 
   return (
     <div className="animate-fade-up space-y-3">
@@ -277,7 +332,7 @@ function ClientHome({
         <Quick icon={Send} label="Transfert P2P" onClick={onP2P} />
       </div>
 
-      <AdBanner ad={DEMO_ADS[0]} onClick={onShops} />
+      {ads[0] && <AdBanner ad={ads[0]} onClick={onShops} />}
 
       <div className="space-y-2">
         <SectionHead title="Offres près de chez toi" action="Tout voir" onAction={onShops} />
@@ -348,7 +403,7 @@ function ShopRow({ e, onPay }: { e: Establishment; onPay: () => void }) {
   );
 }
 
-function AdBanner({ ad, onClick }: { ad: (typeof DEMO_ADS)[number]; onClick: () => void }) {
+function AdBanner({ ad, onClick }: { ad: Ad; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
@@ -602,14 +657,18 @@ const SHOP_FILTERS: { id: ShopFilter; label: string }[] = [
 function ClientShops({
   onPay,
   notify,
+  shops,
+  ads,
 }: {
   onPay: (e: Establishment) => void;
   notify: (m: string) => void;
+  shops: Establishment[];
+  ads: Ad[];
 }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<ShopFilter>("all");
 
-  const list = DEMO_ESTABLISHMENTS.filter((e) => {
+  const list = shops.filter((e) => {
     const okFilter =
       filter === "all"
         ? true
@@ -656,7 +715,7 @@ function ClientShops({
         ))}
       </div>
 
-      <AdBanner ad={DEMO_ADS[3]} onClick={() => notify("Offre ajoutée à ton carnet")} />
+      {ads[0] && <AdBanner ad={ads[0]} onClick={() => notify("Offre ajoutée à ton carnet")} />}
 
       <div className="space-y-2">
         {list.map((e) => (
@@ -730,10 +789,12 @@ function ScanModal({
   open,
   onClose,
   onPick,
+  shops,
 }: {
   open: boolean;
   onClose: () => void;
   onPick: (e: Establishment) => void;
+  shops: Establishment[];
 }) {
   const [left, setLeft] = useState(60);
 
@@ -794,7 +855,7 @@ function ScanModal({
           Ou choisissez un commerçant
         </p>
         <div className="mt-2 max-h-[170px] space-y-1.5 overflow-y-auto">
-          {DEMO_ESTABLISHMENTS.slice(0, 5).map((e) => {
+          {shops.slice(0, 5).map((e) => {
             const Icon = KIND_ICON[e.kind];
             return (
               <button

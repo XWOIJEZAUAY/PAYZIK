@@ -1,5 +1,5 @@
 /** Espace CLIENT — carnet Kridi et profil. */
-import { ArrowLeftRight, BookOpen, ChevronRight, LogOut } from "lucide-react";
+import { BookOpen, ChevronRight, LogOut } from "lucide-react";
 import { useState } from "react";
 import { fmtDh } from "../../lib/format";
 import type { Profile } from "../../services/auth";
@@ -14,53 +14,15 @@ interface ClientDebt {
   items: { name: string; qty: number; priceDh: number }[];
 }
 
-const CLIENT_KRIDI: ClientDebt[] = [
-  {
-    id: "ck1",
-    merchant: "Hanout Al Baraka",
-    district: "Maârif",
-    amountDh: 120,
-    due: "2026-11-20",
-    items: [
-      { name: "Lait Centrale 1L", qty: 4, priceDh: 7 },
-      { name: "Sukkar 1kg", qty: 4, priceDh: 6 },
-      { name: "Sidi Ali 1.5L", qty: 3, priceDh: 6 },
-      { name: "Thé Sultan 200g", qty: 2, priceDh: 12 },
-    ],
-  },
-  {
-    id: "ck2",
-    merchant: "Épicerie Al Amal",
-    district: "Derb Sultan",
-    amountDh: 45,
-    due: "2026-12-02",
-    items: [
-      { name: "Huile Lesieur 1L", qty: 1, priceDh: 18 },
-      { name: "Riz Safa 1kg", qty: 1, priceDh: 12 },
-      { name: "Tomate concentrée", qty: 3, priceDh: 5 },
-    ],
-  },
-  {
-    id: "ck3",
-    merchant: "Boulangerie Al Firdaous",
-    district: "Gauthier",
-    amountDh: 18,
-    due: "2026-12-05",
-    items: [
-      { name: "Pain complet 500g", qty: 6, priceDh: 1.5 },
-      { name: "Msemen 4 pièces", qty: 1, priceDh: 8 },
-    ],
-  },
-];
+/** Aucune donnée simulée : les dettes Kridi viendront de Supabase. */
+const CLIENT_KRIDI: ClientDebt[] = [];
 
 export function ClientKridi({
   user,
-  onSwitch,
   onProfile,
   notify,
 }: {
   user: Profile;
-  onSwitch: () => void;
   onProfile: () => void;
   notify: (m: string) => void;
 }) {
@@ -83,6 +45,12 @@ export function ClientKridi({
           </span>
         </div>
       </Pane>
+
+      {CLIENT_KRIDI.length === 0 && (
+        <Pane className="p-4 text-center text-[12px] text-slate-500">
+          Aucune dette Kridi réelle enregistrée pour ce compte.
+        </Pane>
+      )}
 
       {CLIENT_KRIDI.map((k) => {
         const late = new Date(k.due) < new Date();
@@ -155,19 +123,13 @@ export function ClientKridi({
           <div className="min-w-0">
             <p className="truncate text-[13px] font-bold text-[#0F172A]">{user.name}</p>
             <p className="truncate text-[11px] text-[#64748B]">{user.email}</p>
-            <p className="text-[10.5px] text-[#94A3B8]">Casablanca · Maârif</p>
+            <p className="text-[10.5px] text-[#94A3B8]">{[user.address, user.city].filter(Boolean).join(" · ") || "Ajoute ta ville dans Mon profil"}</p>
           </div>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            onClick={onSwitch}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#E2E8F0] py-2.5 text-[11.5px] font-bold text-[#0F172A] active:scale-[.98]"
-          >
-            <ArrowLeftRight size={14} /> Espace commerçant
-          </button>
+        <div className="mt-3">
           <button
             onClick={onProfile}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FFF1EA] py-2.5 text-[11.5px] font-bold text-[#D95F00] active:scale-[.98]"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#FFF1EA] py-2.5 text-[11.5px] font-bold text-[#D95F00] active:scale-[.98]"
           >
             <LogOut size={14} /> Modifier mon profil
           </button>
