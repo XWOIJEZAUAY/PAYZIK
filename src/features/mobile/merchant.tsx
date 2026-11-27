@@ -38,6 +38,7 @@ import { getAiLang, setAiLang } from "../../lib/aiLang";
 import { PIN_THRESHOLD } from "../../lib/wallet";
 import { resizeImageFile, searchProductImage } from "../../services/imageSearch";
 import { listMyShops } from "../../services/backend/payzikCards";
+import type { Profile } from "../../services/auth";
 import {
   aiAvailable,
   matchProducts,
@@ -137,12 +138,14 @@ export function MerchantSpace({
   setTab,
   onProfile,
   notify,
+  user,
 }: {
   store: StoreType;
   tab: MerchantTab;
   setTab: (t: MerchantTab) => void;
   onProfile: () => void;
   notify: (m: string) => void;
+  user?: Profile;
 }) {
   const [shopName, setShopName] = useState("Ma boutique");
 
@@ -162,6 +165,7 @@ export function MerchantSpace({
       <MerchantHeader
         name={storeName}
         onProfile={onProfile}
+        image={user?.image ?? null}
       />
       <main
         className={cx(
@@ -186,14 +190,16 @@ export function MerchantSpace({
 function MerchantHeader({
   name,
   onProfile,
+  image,
 }: {
   name: string;
   onProfile: () => void;
+  image?: string | null;
 }) {
   return (
     <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+14px)]">
       <div className="flex items-center gap-3">
-        <Avatar name={name} square />
+        <Avatar name={name} image={image} square />
         <div className="min-w-0 flex-1">
           <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[#64748B]">
             Espace commerçant

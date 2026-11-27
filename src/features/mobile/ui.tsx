@@ -129,11 +129,27 @@ export function Avatar({
   name,
   size = 40,
   square = false,
+  image,
 }: {
   name: string;
   size?: number;
   square?: boolean;
+  image?: string | null;
 }) {
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt="Photo de profil"
+        className={cx(
+          "flex shrink-0 items-center justify-center bg-transparent",
+          square ? "rounded-xl" : "rounded-full",
+        )}
+        style={{ width: size, height: size }}
+        loading="lazy"
+      />
+    );
+  }
   const initials =
     name
       .split(/\s+/)

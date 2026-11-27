@@ -149,9 +149,12 @@ export async function restoreSession(): Promise<Profile | null> {
     localStorage.removeItem(LS_ROLE);
     return null;
   }
+  // Vérifie si le compte Google a déjà terminé son setup (stockage persistant)
+  const setupDone = localStorage.getItem(`payzik.google.setupDone-${u.id}`);
   const { data: prof } = await sb.from("profiles").select("*").eq("id", u.id).maybeSingle();
   let profile: Profile;
-  if (prof) {
+  if (prof && setupDone) {
+    // Profil existant + setup déjà validé → on restaure tel quel
     profile = {
       id: u.id,
       email: u.email ?? prof.email ?? "",
@@ -164,9 +167,18 @@ export async function restoreSession(): Promise<Profile | null> {
       responsible: prof.responsible_name ?? null,
       image: prof.image ?? null,
     };
+  } else if (prof && !setupDone) {
+    // Profil existé mais setup jamais confirmé → force le choix rôle/infos
+    profile = {
+      id: u.id,
+      email: u.email ?? "",
+      name: prof.name ?? nameFromUser(u),
+      role: "customer",
+      premium: false,
+      needsRole: true,
+    };
   } else {
-    // Connexion Google sans profil : on n'invente ni le rôle ni les infos.
-    // L'utilisateur doit choisir Client ou Commerçant et compléter son dossier.
+    // Pas de profil → Google setup obligatoire
     profile = {
       id: u.id,
       email: u.email ?? "",
@@ -351,7 +363,20 @@ export async function completeGoogleSignup(input: {
       responsible_name: input.responsible ?? null,
     });
     if (error) return { ok: false, error: error.message };
+  } else {
+    // Met à jour le profil existant (permet de changer de rôle client↔commerçant)
+    const { error } = await sb.rpc("update_profile", {
+      p_name: name ?? null,
+      p_phone: input.phone ?? null,
+      p_city: input.city ?? null,
+      p_address: input.address ?? null,
+      p_responsible: input.responsible ?? null,
+      p_image: null,
+    });
+    if (error) return { ok: false, error: error.message };
   }
+  // Marque le setup comme fait en localStorage (pour ne plus poser de question sur ce device)
+  localStorage.setItem(`payzik.google.setupDone-${authData.user.id}`, "1");
   const profile: Profile = {
     id: authData.user.id,
     email: authData.user.email ?? "",

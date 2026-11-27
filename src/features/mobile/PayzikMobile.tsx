@@ -48,6 +48,7 @@ export function PayzikMobile({
             setTab={setMerchantTab}
             onProfile={() => setSettingsOpen(true)}
             notify={notify}
+            user={user}
           />
         ) : (
           <ClientSpace

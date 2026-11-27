@@ -165,6 +165,7 @@ export function ClientSpace({
         location={[user.address, user.city].filter(Boolean).join(", ")}
         onProfile={onProfile}
         onBell={() => notify("Offres actives des boutiques")}
+        image={user.image ?? null}
       />
       <main className="scrollbar-thin flex-1 overflow-y-auto px-4 pb-24 pt-2">
         {tab === "home" && (
@@ -251,16 +252,18 @@ function ClientHeader({
   location,
   onProfile,
   onBell,
+  image,
 }: {
   name: string;
   location: string;
   onProfile: () => void;
   onBell: () => void;
+  image?: string | null;
 }) {
   return (
     <header className="shrink-0 border-b border-[#E2E8F0] bg-white px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
       <div className="flex items-center gap-2.5">
-        <Avatar name={name} />
+        <Avatar name={name} image={image} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[14px] font-bold text-[#0F172A]">Salut, {name}</p>
           <p className="text-[9.5px] font-semibold uppercase tracking-wider text-[#FF5200]">Espace client</p>
