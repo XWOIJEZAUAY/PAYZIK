@@ -449,6 +449,15 @@ export function startAuthLifecycle(callback: (user: Profile | null) => void): ()
     currentCallback(profile);
   };
 
+  // Cache d'affichage uniquement : l'app s'ouvre immédiatement avec le dernier
+  // profil connu, puis PostgreSQL confirme ou corrige dès que la requête répond.
+  const cached = getCurrentUser();
+  if (cached) {
+    lastUid = cached.id;
+    lastProfile = cached;
+    currentCallback(cached);
+  }
+
   const resolve = (uid: string, force: boolean) => {
     chain = chain.then(async () => {
       if (!alive) return;
