@@ -1,13 +1,13 @@
 /* Service worker PAYZIK — app shell + cache des assets.
  * Version à incrémenter quand on veut forcer le renouvellement du cache. */
-const CACHE = "payzik-shell-v5";
+const CACHE = "payzik-shell-v6";
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./offline.html",
-  "./icons/icon-180.png",
-  "./icons/avatar-512.png",
+  "./icons/icon-180.png?v=6",
+  "./icons/avatar-512.png?v=6",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-192.png",

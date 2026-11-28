@@ -37,8 +37,13 @@ export default function App() {
       setUser(next);
       setAuthReady(true);
     });
+    // Évite un écran « Chargement… » infini si une requête réseau bloque.
+    const timer = window.setTimeout(() => {
+      if (active) setAuthReady(true);
+    }, 4000);
     return () => {
       active = false;
+      window.clearTimeout(timer);
       stop();
     };
   }, []);

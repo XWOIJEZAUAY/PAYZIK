@@ -312,19 +312,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
           {busy ? "…" : mode === "login" ? "Se connecter" : role === "merchant" ? "Créer le compte boutique" : "Créer le compte"}
         </Button>
 
-        <p className="text-center text-[11px] text-slate-400">
-          {authEnabled()
-            ? "Comptes réels (Supabase)"
-            : "Mode démo (localStorage) — configure Supabase pour des comptes réels"}
-        </p>
       </Card>
     </div>
   );
-}
-
-function authEnabled() {
-  const env = import.meta.env as Record<string, string | undefined>;
-  const url = (env.VITE_SUPABASE_URL ?? "").trim();
-  const anon = (env.VITE_SUPABASE_ANON_KEY ?? "").trim();
-  return url.startsWith("http") && anon.length > 20;
 }

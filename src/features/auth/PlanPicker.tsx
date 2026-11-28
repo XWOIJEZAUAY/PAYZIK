@@ -65,9 +65,6 @@ export function PlanPicker({
           >
             Payer — bientôt disponible
           </button>
-          <p className="mt-1 text-center text-[9.5px] text-[#9A4A00]/70">
-            Aucun montant ne sera débité pour l'instant.
-          </p>
         </div>
       )}
     </div>

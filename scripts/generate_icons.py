@@ -11,6 +11,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 INK = (58, 42, 31)
 ORANGE = (255, 122, 26)
 ORANGE_DEEP = (217, 95, 0)
+VIOLET = (129, 54, 168)
+VIOLET_DEEP = (81, 32, 111)
 CREAM = (255, 248, 234)
 
 
@@ -76,15 +78,15 @@ def android_foreground(size: int) -> Image.Image:
 
 
 def avatar_icon(size: int) -> Image.Image:
-    """Avatar PAYZIK (Éclair + nom), identique au SVG, en PNG pour iOS."""
+    """Avatar PAYZIK (éclair, sans nom), identique au SVG, en PNG pour iOS."""
     s = size / 512
-    bg = Image.new("RGB", (size, size), ORANGE)
+    bg = Image.new("RGB", (size, size), VIOLET)
     px = bg.load()
     for y in range(size):
         for x in range(size):
             t = (x + y) / (2 * max(size - 1, 1))
             px[x, y] = tuple(
-                int(ORANGE[i] + (ORANGE_DEEP[i] - ORANGE[i]) * t) for i in range(3)
+                int(VIOLET[i] + (VIOLET_DEEP[i] - VIOLET[i]) * t) for i in range(3)
             )
     mask = Image.new("L", (size, size), 0)
     ImageDraw.Draw(mask).rounded_rectangle(
@@ -101,20 +103,11 @@ def avatar_icon(size: int) -> Image.Image:
     shadow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).polygon(
         [(x + int(8 * s), y + int(8 * s)) for x, y in scaled],
-        fill=(58, 42, 31, 70),
+        fill=(33, 21, 44, 70),
     )
     shadow = shadow.filter(ImageFilter.GaussianBlur(max(1, int(12 * s))))
     img = Image.alpha_composite(img, shadow)
     ImageDraw.Draw(img).polygon(scaled, fill=(255, 255, 255, 255))
-
-    try:
-        font = ImageFont.truetype("arial.ttf", max(8, int(56 * s)))
-    except OSError:
-        font = ImageFont.load_default()
-    draw = ImageDraw.Draw(img)
-    draw.text(
-        (size / 2, 470 * s), "PAYZIK", font=font, fill=(255, 255, 255, 235), anchor="mm"
-    )
     return img.convert("RGB")
 
 
