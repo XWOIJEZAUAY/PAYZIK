@@ -1,12 +1,19 @@
 /** PAYZIK — coquille mobile : un seul type de compte par email.
  *  100% mobile-first, largeur max 430px, palette stricte. */
 import { Check } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { Profile } from "../../services/auth";
 import type { Store as StoreType } from "../../state/store";
-import { ClientSpace, type ClientTab } from "./client";
-import { MerchantSpace, type MerchantTab } from "./merchant";
+import type { ClientTab } from "./client";
+import type { MerchantTab } from "./merchant";
 import { ProfileSettings } from "./ProfileSettings";
+
+const ClientSpace = lazy(() =>
+  import("./client").then((m) => ({ default: m.ClientSpace })),
+);
+const MerchantSpace = lazy(() =>
+  import("./merchant").then((m) => ({ default: m.MerchantSpace })),
+);
 
 export function PayzikMobile({
   store,
@@ -41,24 +48,32 @@ export function PayzikMobile({
   return (
     <div className="flex min-h-[100dvh] w-full justify-center bg-[#E9DDF2]">
       <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[#FDF9FE] shadow-xl">
-        {user.role === "merchant" ? (
-          <MerchantSpace
-            store={store}
-            tab={merchantTab}
-            setTab={setMerchantTab}
-            onProfile={() => setSettingsOpen(true)}
-            notify={notify}
-            user={user}
-          />
-        ) : (
-          <ClientSpace
-            user={user}
-            tab={clientTab}
-            setTab={setClientTab}
-            onProfile={() => setSettingsOpen(true)}
-            notify={notify}
-          />
-        )}
+        <Suspense
+          fallback={
+            <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
+              Chargement…
+            </div>
+          }
+        >
+          {user.role === "merchant" ? (
+            <MerchantSpace
+              store={store}
+              tab={merchantTab}
+              setTab={setMerchantTab}
+              onProfile={() => setSettingsOpen(true)}
+              notify={notify}
+              user={user}
+            />
+          ) : (
+            <ClientSpace
+              user={user}
+              tab={clientTab}
+              setTab={setClientTab}
+              onProfile={() => setSettingsOpen(true)}
+              notify={notify}
+            />
+          )}
+        </Suspense>
 
         {settingsOpen && (
           <div className="absolute inset-0 z-50">
