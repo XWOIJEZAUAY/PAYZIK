@@ -2986,7 +2986,8 @@ create or replace function public.payzik_complete_onboarding(
   p_shop_city text default null,
   p_shop_address text default null,
   p_shop_phone text default null,
-  p_shop_image text default null
+  p_shop_image text default null,
+  p_premium boolean default false
 )
 returns jsonb
 language plpgsql
@@ -3018,7 +3019,7 @@ begin
     ) values (
       v_uid, v_email,
       coalesce(nullif(btrim(p_name), ''), 'Utilisateur'),
-      p_role, false, false,
+      p_role, coalesce(p_premium, false), false,
       nullif(btrim(p_phone), ''), nullif(btrim(p_city), ''),
       nullif(btrim(p_address), ''), nullif(btrim(p_responsible), ''), p_image
     )
@@ -3043,6 +3044,7 @@ begin
     update public.profiles
     set
       role = p_role,
+      premium = coalesce(p_premium, false),
       name = coalesce(nullif(btrim(p_name), ''), nullif(btrim(v_p.name), ''), name),
       phone = coalesce(nullif(btrim(p_phone), ''), v_p.phone),
       city = coalesce(nullif(btrim(p_city), ''), v_p.city),
@@ -3105,7 +3107,7 @@ begin
 
   perform public.payzik_audit(
     'onboarding_completed', null, v_uid, 'profile', v_uid::text,
-    jsonb_build_object('role', v_p.role)
+    jsonb_build_object('role', v_p.role, 'premium', coalesce(p_premium, false))
   );
 
   return public.payzik_get_my_profile();
@@ -3113,8 +3115,10 @@ end $$;
 
 revoke all on function public.payzik_get_my_profile() from public, anon;
 revoke all on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text) from public, anon;
+revoke all on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text, boolean) from public, anon;
 grant execute on function public.payzik_get_my_profile() to authenticated;
 grant execute on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text) to authenticated;
+grant execute on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text, boolean) to authenticated;
 
 -- =============================================================
 -- 6) create_shop GET-OR-CREATE (plus de boutique doublon au login)

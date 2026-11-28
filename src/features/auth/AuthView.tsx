@@ -6,6 +6,7 @@ import {
   type ShopOnboarding, type Profile,
 } from "../../services/auth";
 import { Button, Card, Input } from "../../components/ui";
+import { PlanPicker } from "./PlanPicker";
 
 export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -13,6 +14,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<"merchant" | "customer">("merchant");
+  const [premium, setPremium] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmSent, setConfirmSent] = useState(false);
@@ -34,6 +36,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
     savePendingOnboarding({
       email: email.trim(),
       role,
+      premium: role === "merchant" ? premium : false,
       name: name.trim() || email.trim().split("@")[0] || "Utilisateur",
       phone: profilePhone.trim() || null,
       city: profileCity.trim() || null,
@@ -81,7 +84,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
             city: profileCity.trim() || null,
             address: profileAddress.trim() || null,
             responsible: role === "merchant" ? responsible.trim() || name.trim() || null : null,
-          }, shopInput());
+          }, shopInput(), role === "merchant" ? premium : false);
     setBusy(false);
     if (!res.ok) {
       setError(res.error ?? "Erreur");
@@ -173,6 +176,7 @@ export function AuthView({ onAuth }: { onAuth: (user: Profile) => void }) {
                 <Store size={14} className="mr-1 inline" /> Commerçant
               </button>
             </div>
+            {role === "merchant" && <PlanPicker premium={premium} onChange={setPremium} />}
             <Input value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} placeholder="Téléphone *" />
             <Input value={profileCity} onChange={(e) => setProfileCity(e.target.value)} placeholder="Ville *" />
             <Input value={profileAddress} onChange={(e) => setProfileAddress(e.target.value)} placeholder="Adresse *" />

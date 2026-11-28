@@ -6,6 +6,7 @@ import {
   Pill,
   ShoppingBasket,
   Store,
+  UserRound,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -126,7 +127,7 @@ export function IconBtn({
 }
 
 export function Avatar({
-  name,
+  name: _name,
   size = 40,
   square = false,
   image,
@@ -150,23 +151,16 @@ export function Avatar({
       />
     );
   }
-  const initials =
-    name
-      .split(/\s+/)
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "P";
   return (
     <span
       className={cx(
-        "flex shrink-0 items-center justify-center bg-[#E91E83] font-bold text-white",
+        "flex shrink-0 items-center justify-center bg-gradient-to-br from-[#8136A8] to-[#51206F] text-white shadow-sm",
         square ? "rounded-xl" : "rounded-full",
       )}
-      style={{ width: size, height: size, fontSize: size * 0.36 }}
+      style={{ width: size, height: size }}
       aria-hidden
     >
-      {initials}
+      <UserRound size={Math.max(14, size * 0.5)} strokeWidth={2.2} />
     </span>
   );
 }

@@ -1809,6 +1809,20 @@ function TicketSheet({
                 </span>
                 <ChevronRight size={18} className="shrink-0 text-[#8136A8]" />
               </button>
+              <button
+                type="button"
+                disabled
+                aria-disabled
+                className="flex w-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed border-[#E9DDF2] bg-white/60 p-3 text-left opacity-70"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF1E6] text-[#FF7A1A]">
+                  <CreditCard size={20} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12px] font-bold text-[#21152C]">Carte bancaire</span>
+                  <span className="block text-[10px] text-[#81748A]">Bientôt disponible</span>
+                </span>
+              </button>
             </div>
             <button
               onClick={onClose}

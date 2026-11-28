@@ -1,6 +1,6 @@
 /** PAYZIK — Écran « Mon profil / Ma boutique ». */
 import { useEffect, useState } from "react";
-import { ArrowLeft, LogOut, Save } from "lucide-react";
+import { ArrowLeft, LogOut, Save, UserRound } from "lucide-react";
 import type { Profile as ProfileType } from "../../services/auth";
 import { updateProfile } from "../../services/auth";
 import { listMyShops, updateShop, type Shop } from "../../services/backend/payzikCards";
@@ -136,8 +136,8 @@ export function ProfileSettings({ user, onClose, onUpdated, onLogout, notify }: 
             {image ? (
               <img src={image} alt="Photo de profil" className="h-14 w-14 rounded-full object-cover" />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#8136A8] text-lg font-bold text-white">
-                {(name || user.email).slice(0, 1).toUpperCase()}
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#8136A8] to-[#51206F] text-white shadow-sm">
+                <UserRound size={26} strokeWidth={2.2} />
               </div>
             )}
             <div>

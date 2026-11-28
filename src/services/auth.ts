@@ -140,6 +140,7 @@ const LEGACY_PENDING_KEY = "payzik.pending.shop";
 export type PendingOnboarding = {
   email: string;
   role: "merchant" | "customer";
+  premium?: boolean;
   name: string;
   phone?: string | null;
   city?: string | null;
@@ -205,6 +206,7 @@ export function clearPendingOnboarding(): void {
 
 type OnboardingInput = {
   role: "merchant" | "customer";
+  premium?: boolean;
   name?: string | null;
   details?: ProfileDetails;
   shop?: ShopOnboarding;
@@ -226,6 +228,7 @@ async function completeOnboarding(input: OnboardingInput): Promise<{ ok: boolean
     p_shop_address: input.shop?.address ?? null,
     p_shop_phone: input.shop?.phone ?? null,
     p_shop_image: input.shop?.image ?? null,
+    p_premium: input.premium ?? false,
   });
   if (error) return { ok: false, error: error.message };
   if (!data) return { ok: false, error: "Profil non retourné par la base" };
@@ -242,6 +245,7 @@ async function resumePendingOnboarding(profile: Profile | null): Promise<Profile
   if (!pending) return profile;
   const done = await completeOnboarding({
     role: pending.role,
+    premium: pending.premium ?? false,
     name: pending.name,
     details: {
       phone: pending.phone ?? null,
@@ -265,6 +269,7 @@ export async function signUp(
   role: "merchant" | "customer",
   details?: ProfileDetails,
   shop?: ShopOnboarding,
+  premium = false,
 ): Promise<{ ok: boolean; error?: string; user?: Profile; needsConfirm?: boolean }> {
   const sb = getClient();
   if (!sb) {
@@ -273,7 +278,7 @@ export async function signUp(
       email,
       name,
       role,
-      premium: false,
+      premium,
       needsRole: false,
       onboardingCompleted: true,
       ...details,
@@ -294,7 +299,7 @@ export async function signUp(
   // Confirmation désactivée : on établit la session puis on persiste via la base.
   const signed = await sb.auth.signInWithPassword({ email, password });
   if (signed.error) return { ok: false, error: signed.error.message };
-  const done = await completeOnboarding({ role, name, details, shop });
+  const done = await completeOnboarding({ role, premium, name, details, shop });
   if (!done.ok || !done.user) return { ok: false, error: done.error };
   return { ok: true, user: done.user };
 }
@@ -368,6 +373,7 @@ export async function verifySignupOtp(
   role: "merchant" | "customer",
   details?: ProfileDetails,
   shop?: ShopOnboarding,
+  premium = false,
 ): Promise<{ ok: boolean; error?: string; user?: Profile }> {
   const sb = getClient();
   if (!sb) return { ok: false, error: "Supabase non configuré" };
@@ -383,6 +389,7 @@ export async function verifySignupOtp(
   if (error || !data.user) return { ok: false, error: error?.message ?? "Code invalide" };
   return completeOnboarding({
     role,
+    premium,
     name: name.trim() || data.user.email?.split("@")[0] || "Utilisateur",
     details,
     shop,
@@ -518,6 +525,7 @@ export async function updateProfile(
 /** Finalise un compte Google via la même transaction que l'inscription email. */
 export async function completeGoogleSignup(input: {
   role: "merchant" | "customer";
+  premium?: boolean;
   name?: string | null;
   phone?: string | null;
   city?: string | null;
@@ -533,6 +541,7 @@ export async function completeGoogleSignup(input: {
   const name = (input.name ?? "").trim() || nameFromUser(authData.user);
   return completeOnboarding({
     role: input.role,
+    premium: input.premium ?? false,
     name,
     details: {
       phone: input.phone ?? null,

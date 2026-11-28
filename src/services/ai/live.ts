@@ -26,6 +26,8 @@ export interface ToolCall {
   args: Record<string, unknown>;
 }
 
+export type LiveMode = "merchant" | "client";
+
 export interface LiveSessionCallbacks {
   onReady?: () => void;
   /** done = fin de tour : la bulle doit être figée dans le fil. */
@@ -76,11 +78,18 @@ export class LiveSession {
   private catalog: Product[];
   private callbacks: LiveSessionCallbacks;
   private merchantName: string;
+  private mode: LiveMode;
 
-  constructor(catalog: Product[], callbacks: LiveSessionCallbacks, merchantName = "") {
+  constructor(
+    catalog: Product[],
+    callbacks: LiveSessionCallbacks,
+    merchantName = "",
+    mode: LiveMode = "merchant",
+  ) {
     this.catalog = catalog;
     this.callbacks = callbacks;
     this.merchantName = merchantName.trim();
+    this.mode = mode;
   }
 
   get isStopped() {
@@ -88,6 +97,7 @@ export class LiveSession {
   }
 
   private systemPrompt() {
+    if (this.mode === "client") return this.clientSystemPrompt();
     const cat = this.catalog
       .map((p) => `- ${p.name} — ${p.priceDh} DH`)
       .join("\n");
@@ -162,7 +172,83 @@ CATALOGUE DE RÉFÉRENCE :
 ${cat}`;
   }
 
+  /** Mode CLIENT : lecture seule, jamais d'action de caisse ni paiement simulé. */
+  private clientSystemPrompt() {
+    const cat = this.catalog
+      .map((p) => `- ${p.name} — ${p.priceDh} DH`)
+      .join("\n");
+    return `Tu es PAYZIK, l'assistant personnel d'un client au Maroc.
+Tu parles en ${getAiLang() === "tachelhit" ? "TACHELHIT (amazigh du Souss)" : "DARIJA marocaine"}.
+${aiLangInstruction(getAiLang())}
+Réponds toujours court, clair et chaleureux. Montants toujours suivis de « derhem ».
+
+OUVERTURE : salue une seule fois : « Salam${this.merchantName ? " " + this.merchantName : ""} ! Chnou bghiti n7awwel fih ? »
+
+RÈGLES STRICTES :
+- Tu es EN MODE CLIENT. Tu n'es PAS la caisse d'un commerçant.
+- Tu ne fais JAMAIS : ajouter au panier, modifier un prix, modifier un stock, encaisser, créer une dette kridi, débiter une carte.
+- Tu ne prétends JAMAIS qu'un paiement ou une recharge a réussi. Dis toujours d'utiliser les boutons de l'écran.
+- Pour payer ou recharger, indique les boutons « Recharger », « Historique » et « Payer » affichés à l'écran.
+- Ne devine jamais un chiffre : utilise les outils ci-dessous.
+
+OUTILS DISPONIBLES (lecture seule) :
+- getProducts(query) : tous les produits des boutiques du réseau, avec prix.
+- getShops() : les boutiques visibles.
+- getBalance() : solde et code de la carte PAYZIK du client.
+- getSpending() : dépenses du mois, total et nombre d'opérations.
+- getHelp() : explique comment payer, recharger et suivre son argent.
+
+QUESTIONS FRÉQUENTES :
+- « chnou kayn ? » / « qui vend du lait ? » -> getProducts puis cite le nom, le prix et la boutique.
+- « ch7al f karti ? » / « solde » -> getBalance puis annonce le solde exact.
+- « ch7al sreft had lchher ? » -> getSpending puis annonce le montant du mois.
+- « kifach nkhalles ? » -> getHelp puis oriente vers le bouton « Payer ».
+
+CATALOGUE PUBLIC DE RÉFÉRENCE :
+${cat}`;
+  }
+
+  private clientTools() {
+    return [
+      {
+        functionDeclarations: [
+          {
+            name: "getProducts",
+            description: "Liste les produits publics des boutiques du réseau, avec prix. Lecture seule.",
+            parameters: {
+              type: "object",
+              properties: {
+                query: { type: "string", description: "Mot-clé facultatif (ex. lait, atay)" },
+              },
+            },
+          },
+          {
+            name: "getShops",
+            description: "Liste les boutiques visibles par le client. Lecture seule.",
+            parameters: { type: "object", properties: {} },
+          },
+          {
+            name: "getBalance",
+            description: "Solde actuel de la carte PAYZIK du client. Lecture seule.",
+            parameters: { type: "object", properties: {} },
+          },
+          {
+            name: "getSpending",
+            description: "Dépenses du client ce mois et au total. Lecture seule.",
+            parameters: { type: "object", properties: {} },
+          },
+          {
+            name: "getHelp",
+            description: "Explique comment payer, recharger et suivre son argent dans PAYZIK.",
+            parameters: { type: "object", properties: {} },
+          },
+        ],
+      },
+    ];
+  }
+
   private tools() {
+    if (this.mode === "client") return this.clientTools();
     return [
       {
         functionDeclarations: [
@@ -544,8 +630,11 @@ ${cat}`;
       this.startMic();
       this.callbacks.onReady?.();
       this.callbacks.onActivity?.("listening");
-      // l'IA ouvre la conversation elle-même, en darija (« Salam a khoya ! »)
-      setTimeout(() => this.sendText("salam a khoya"), 400);
+      // l'IA ouvre la conversation elle-même, en darija
+      setTimeout(
+        () => this.sendText(this.mode === "client" ? "salam" : "salam a khoya"),
+        400,
+      );
       return;
     }
     if (msg.error) {

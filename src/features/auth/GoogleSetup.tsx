@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Store, Wallet } from "lucide-react";
 import { completeGoogleSignup, type Profile } from "../../services/auth";
+import { PlanPicker } from "./PlanPicker";
 
 function Field({
   value,
@@ -30,6 +31,7 @@ export function GoogleSetup({
   onDone: (u: Profile) => void;
 }) {
   const [role, setRole] = useState<"merchant" | "customer" | null>(null);
+  const [premium, setPremium] = useState(false);
   const [name, setName] = useState(user.name === "Utilisateur" ? "" : user.name);
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
@@ -53,6 +55,7 @@ export function GoogleSetup({
     setError("");
     const res = await completeGoogleSignup({
       role,
+      premium: role === "merchant" ? premium : false,
       name: name.trim(),
       phone: phone.trim() || null,
       city: city.trim() || null,
@@ -104,6 +107,8 @@ export function GoogleSetup({
             <Store size={15} /> Commerçant
           </button>
         </div>
+
+        {role === "merchant" && <PlanPicker premium={premium} onChange={setPremium} />}
 
         {role && (
           <div className="space-y-2">

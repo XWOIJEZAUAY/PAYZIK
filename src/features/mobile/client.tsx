@@ -19,6 +19,7 @@ import {
   Search,
   ShoppingBag,
   ShoppingCart,
+  Sparkles,
   Store,
   UserRound,
   Wallet,
@@ -38,6 +39,7 @@ import type { Establishment } from "../../types";
 import { CloudRechargePanel } from "../customer/CloudRechargePanel";
 import { ClientCatalog } from "./ClientCatalog";
 import { ClientCardSheet } from "./ClientCardSheet";
+import { ClientAgentModal } from "./ClientAgentModal";
 import { PartnerAdBanner } from "./PartnerAdBanner";
 import { GoogleAdBanner } from "./GoogleAdBanner";
 import { useClientCard } from "./useClientCard";
@@ -146,6 +148,7 @@ export function ClientSpace({
   const [historyOpen, setHistoryOpen] = useState(false);
   const [catalogShopId, setCatalogShopId] = useState("");
   const [hiddenPartnerAd, setHiddenPartnerAd] = useState("");
+  const [agentOpen, setAgentOpen] = useState(false);
   const name = user.name ?? card?.name ?? "Client";
   const network = useRealNetwork();
 
@@ -187,6 +190,7 @@ export function ClientSpace({
             onQr={() => setQrOpen(true)}
             onHistory={() => setHistoryOpen(true)}
             onPay={setPayTarget}
+            onAgent={() => setAgentOpen(true)}
             spending={spending}
             shops={network.shops}
             ads={network.ads}
@@ -261,6 +265,17 @@ export function ClientSpace({
           setQrOpen(true);
         }}
       />
+      <ClientAgentModal
+        open={agentOpen}
+        onClose={() => setAgentOpen(false)}
+        name={name}
+        card={card}
+        spending={spending}
+        shops={network.shops}
+        onRecharge={() => setTab("card")}
+        onHistory={() => setHistoryOpen(true)}
+        onPay={() => setTab("shops")}
+      />
     </>
   );
 }
@@ -324,6 +339,7 @@ function ClientHome({
   onQr,
   onHistory,
   onPay,
+  onAgent,
   spending,
   shops,
   ads,
@@ -339,6 +355,7 @@ function ClientHome({
   onQr: () => void;
   onHistory: () => void;
   onPay: (e: Establishment) => void;
+  onAgent: () => void;
   spending: SpendingSummary;
   shops: Establishment[];
   ads: Ad[];
@@ -519,6 +536,12 @@ function ClientHome({
         className="w-full rounded-2xl border border-[#E9DDF2] bg-white py-2.5 text-[11px] font-bold text-[#8136A8] active:scale-[.99]"
       >
         Recharger ma carte
+      </button>
+      <button
+        onClick={onAgent}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#E9DDF2] bg-white py-2.5 text-[11px] font-bold text-[#8136A8] active:scale-[.99]"
+      >
+        <Sparkles size={14} /> Agent IA — vocal et écrit
       </button>
     </div>
   );
@@ -1231,6 +1254,22 @@ function PayModal({
         </div>
         <p className="truncate font-mono text-[9px] text-[#81748A]">{card?.code ?? "—"}</p>
       </div>
+
+      {/* Carte bancaire — option visible, pas encore opérationnelle */}
+      <button
+        type="button"
+        disabled
+        aria-disabled
+        className="mt-2.5 flex w-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed border-[#E9DDF2] bg-white/60 p-3 text-left opacity-70"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF1E6] text-[#FF7A1A]">
+          <CreditCard size={18} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[12px] font-bold text-[#21152C]">Carte bancaire</span>
+          <span className="block text-[10px] text-[#81748A]">Bientôt disponible</span>
+        </span>
+      </button>
 
       {/* Total */}
       <div className="mt-3 flex items-end justify-between px-1">

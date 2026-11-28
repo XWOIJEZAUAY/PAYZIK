@@ -5,6 +5,7 @@ import {
   Package,
   ShoppingBasket,
   Sparkles,
+  UserRound,
   X,
 } from "lucide-react";
 import QRCode from "qrcode";
@@ -444,9 +445,9 @@ export function Gauge({
   );
 }
 
-/** Avatar initiales (carnet kridi, clients). */
+/** Avatar PAYZIK — icône neutre, sans nom affiché. */
 export function Avatar({
-  name,
+  name: _name,
   size = 40,
   className,
 }: {
@@ -454,22 +455,16 @@ export function Avatar({
   size?: number;
   className?: string;
 }) {
-  const initials = name
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full bg-navy font-bold text-orange-glow ring-1 ring-inset ring-orange/30",
+        "flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#8136A8] to-[#51206F] text-white ring-1 ring-inset ring-white/30",
         className,
       )}
-      style={{ width: size, height: size, fontSize: size * 0.36 }}
+      style={{ width: size, height: size }}
       aria-hidden
     >
-      {initials}
+      <UserRound size={Math.max(14, size * 0.5)} strokeWidth={2.2} />
     </span>
   );
 }
