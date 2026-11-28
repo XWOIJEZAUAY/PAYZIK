@@ -3114,10 +3114,8 @@ begin
 end $$;
 
 revoke all on function public.payzik_get_my_profile() from public, anon;
-revoke all on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text) from public, anon;
 revoke all on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text, boolean) from public, anon;
 grant execute on function public.payzik_get_my_profile() to authenticated;
-grant execute on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text) to authenticated;
 grant execute on function public.payzik_complete_onboarding(text, text, text, text, text, text, text, text, text, text, text, text, boolean) to authenticated;
 
 -- =============================================================
